@@ -1,0 +1,305 @@
+[0;92mWails CLI[0m [0;31mv2.12.0[0m
+
+Executing: go mod tidy
+2026/03/30 14:16:10 KnownStructs: main.Animal	main.Corral	main.DiagnosticoGestacion	main.EventoReproductivo	main.Insumo	main.Parto	main.RecetaVeterinaria	main.Tarea	main.Tratamiento	main.User
+Not found: time.Time
+
+  [90m[90m•[0m[0m [39m[39mGenerating bindings: [0m[0mDone.
+  [90m[90m•[0m[0m [39m[39mInstalling frontend dependencies: [0m[0mDone.
+  [90m[90m•[0m[0m [39m[39mCompiling frontend: [0m[0mDone.
+
+> frontend@0.0.0 dev
+> vite
+
+
+  [32m[1mVITE[22m v6.4.1[39m  [2mready in [0m[1m888[22m[2m[0m ms[22m
+
+Vite Server URL: http://localhost:5173/
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+Building application for development...
+Running frontend DevWatcher command: 'npm run dev'
+2026/03/30 14:16:44 KnownStructs: main.Animal	main.Corral	main.DiagnosticoGestacion	main.EventoReproductivo	main.Insumo	main.Parto	main.RecetaVeterinaria	main.Tarea	main.Tratamiento	main.User
+Not found: time.Time
+
+  [90m[90m•[0m[0m [39m[39mGenerating bindings: [0m[0mDone.
+  [90m[90m•[0m[0m [39m[39mGenerating application assets: [0m[0mDone.
+  [90m[90m•[0m[0m [39m[39mCompiling application: [0m[0mDone.
+[30;46m[30;46m INFO [0m[0m [96m[96mWails is now using the new Go WebView2Loader. If you encounter any issues with it, please report them to https://github.com/wailsapp/wails/issues/2004. You could also use the old legacy loader with `-tags native_webview2loader`, but keep in mind this will be deprecated in the near future.[0m[0m
+
+Using DevServer URL: http://localhost:34115
+Using Frontend DevServer URL: http://localhost:5173/
+Using reload debounce setting of 100 milliseconds
+INF | Serving assets from frontend DevServer URL: http://localhost:5173/
+2026/03/30 14:17:07 [WebView2] Environment created successfully
+
+
+To develop in the browser and call your bound Go methods from Javascript, navigate to: http://localhost:34115
+Intentando login con: admin@rancho-legacy.com
+Usuario encontrado: admin@rancho-legacy.com, validando contraseña...
+Login exitoso para admin@rancho-legacy.com
+Watching (sub)/directory: C:\Users\mocas\OneDrive\Documentos\Master_sheep
+Intentando login con: admin@rancho-legacy.com
+Usuario encontrado: admin@rancho-legacy.com, validando contraseña...
+Login exitoso para admin@rancho-legacy.com
+[Rebuild triggered] files updated
+[2m10:18:22 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m10:18:32 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+  [90m[90m•[0m[0m [39m[39mGenerating bindings: [0m[0m[2m10:18:44 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+2026/03/31 10:18:47 KnownStructs: main.Animal	main.Corral	main.DiagnosticoGestacion	main.EventoReproductivo	main.Insumo	main.Parto	main.RecetaVeterinaria	main.SeguimientoPeso	main.Tarea	main.Tratamiento	main.User
+Not found: time.Time
+
+Done.
+  [90m[90m•[0m[0m [39m[39mGenerating application assets: [0m[0m[2m10:18:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:18:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:18:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+[2m10:18:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:18:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+Done.
+  [90m[90m•[0m[0m [39m[39mCompiling application: [0m[0m[2m10:18:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:18:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:18:52 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m10:19:15 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+Done.
+[30;46m[30;46m INFO [0m[0m [96m[96mWails is now using the new Go WebView2Loader. If you encounter any issues with it, please report them to https://github.com/wailsapp/wails/issues/2004. You could also use the old legacy loader with `-tags native_webview2loader`, but keep in mind this will be deprecated in the near future.[0m[0m
+
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\runtime
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\go
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\runtime
+INF | Serving assets from frontend DevServer URL: http://localhost:5173/
+[Rebuild triggered] files updated
+2026/03/31 10:19:16 [WebView2] Environment created successfully
+  [90m[90m•[0m[0m [39m[39mGenerating bindings: [0m[0m[2m10:19:22 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:19:22 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:19:22 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+2026/03/31 10:19:38 KnownStructs: main.Animal	main.Corral	main.DiagnosticoGestacion	main.EventoReproductivo	main.Insumo	main.Parto	main.RecetaVeterinaria	main.SeguimientoPeso	main.Tarea	main.Tratamiento	main.User
+Not found: time.Time
+
+Done.
+  [90m[90m•[0m[0m [39m[39mGenerating application assets: [0m[0m[2m10:19:39 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/go/main/App.d.ts[22m
+[2m10:19:39 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+Done.
+  [90m[90m•[0m[0m [39m[39mCompiling application: [0m[0m[2m10:19:39 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m10:19:39 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:19:39 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:19:39 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+[2m10:19:39 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:19:39 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:19:39 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+Done.
+[30;46m[30;46m INFO [0m[0m [96m[96mWails is now using the new Go WebView2Loader. If you encounter any issues with it, please report them to https://github.com/wailsapp/wails/issues/2004. You could also use the old legacy loader with `-tags native_webview2loader`, but keep in mind this will be deprecated in the near future.[0m[0m
+
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\runtime
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\go
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\runtime
+INF | Serving assets from frontend DevServer URL: http://localhost:5173/
+2026/03/31 10:19:41 [WebView2] Environment created successfully
+[Rebuild triggered] files updated
+[WebView2 Error] error creating controller with 800700aa: The requested resource is in use.
+
+Stack trace:
+2026/03/31 10:19:41 1: github.com/wailsapp/go-webview2/pkg/edge.(*Chromium).errorCallback
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/go-webview2@v1.0.22/pkg/edge/chromium.go:151
+2026/03/31 10:19:41 2: github.com/wailsapp/go-webview2/pkg/edge.(*Chromium).CreateCoreWebView2ControllerCompleted
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/go-webview2@v1.0.22/pkg/edge/chromium.go:332
+2026/03/31 10:19:41 3: github.com/wailsapp/go-webview2/pkg/edge._ICoreWebView2CreateCoreWebView2ControllerCompletedHandlerInvoke
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/go-webview2@v1.0.22/pkg/edge/ICoreWebView2CreateCoreWebView2ControllerCompletedHandler.go:38
+2026/03/31 10:19:41 4: runtime.callbackWrap
+	C:/Program Files/Go/src/runtime/syscall_windows.go:388
+2026/03/31 10:19:41 5: runtime.cgocallbackg1
+	C:/Program Files/Go/src/runtime/cgocall.go:466
+2026/03/31 10:19:41 6: runtime.cgocallbackg
+	C:/Program Files/Go/src/runtime/cgocall.go:362
+2026/03/31 10:19:41 7: runtime.cgocallback
+	C:/Program Files/Go/src/runtime/asm_amd64.s:1160
+2026/03/31 10:19:41 8: runtime.systemstack_switch
+	C:/Program Files/Go/src/runtime/asm_amd64.s:516
+2026/03/31 10:19:41 9: runtime.cgocall
+	C:/Program Files/Go/src/runtime/cgocall.go:185
+2026/03/31 10:19:41 10: syscall.syscalln
+	C:/Program Files/Go/src/runtime/syscall_windows.go:431
+2026/03/31 10:19:41 11: syscall.Syscall
+	C:/Program Files/Go/src/syscall/dll_windows.go:49
+2026/03/31 10:19:41 12: golang.org/x/sys/windows.(*Proc).Call
+	C:/Users/mocas/go/pkg/mod/golang.org/x/sys@v0.42.0/windows/dll_windows.go:170
+2026/03/31 10:19:41 13: golang.org/x/sys/windows.(*LazyProc).Call
+	C:/Users/mocas/go/pkg/mod/golang.org/x/sys@v0.42.0/windows/dll_windows.go:351
+2026/03/31 10:19:41 14: github.com/wailsapp/go-webview2/pkg/edge.(*Chromium).Embed
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/go-webview2@v1.0.22/pkg/edge/chromium.go:209
+2026/03/31 10:19:41 15: github.com/wailsapp/wails/v2/internal/frontend/desktop/windows.(*Frontend).setupChromium
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/wails/v2@v2.12.0/internal/frontend/desktop/windows/frontend.go:549
+2026/03/31 10:19:41 16: github.com/wailsapp/wails/v2/internal/frontend/desktop/windows.(*Frontend).Run
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/wails/v2@v2.12.0/internal/frontend/desktop/windows/frontend.go:178
+2026/03/31 10:19:41 17: github.com/wailsapp/wails/v2/internal/frontend/devserver.(*DevWebServer).Run
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/wails/v2@v2.12.0/internal/frontend/devserver/devserver.go:134
+2026/03/31 10:19:41 18: github.com/wailsapp/wails/v2/internal/app.(*App).Run
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/wails/v2@v2.12.0/internal/app/app_dev.go:32
+2026/03/31 10:19:41 19: github.com/wailsapp/wails/v2/pkg/application.(*Application).Run
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/wails/v2@v2.12.0/pkg/application/application.go:73
+2026/03/31 10:19:41 20: github.com/wailsapp/wails/v2.Run
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/wails/v2@v2.12.0/wails.go:14
+2026/03/31 10:19:41 21: main.main
+	C:/Users/mocas/OneDrive/Documentos/Master_sheep/main.go:19
+2026/03/31 10:19:41 22: runtime.main
+	C:/Program Files/Go/src/runtime/proc.go:290
+[0331/101941.387:ERROR:ui\gfx\win\window_impl.cc:134] Failed to unregister class Chrome_WidgetWin_0. Error = 1412
+2026/03/31 10:19:47 KnownStructs: main.Animal	main.Corral	main.DiagnosticoGestacion	main.EventoReproductivo	main.Insumo	main.Parto	main.RecetaVeterinaria	main.SeguimientoPeso	main.Tarea	main.Tratamiento	main.User
+Not found: time.Time
+
+  [90m[90m•[0m[0m [39m[39mGenerating bindings: [0m[0mDone.
+  [90m[90m•[0m[0m [39m[39mGenerating application assets: [0m[0m[2m10:19:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/go/main/App.d.ts[22m
+Done.
+  [90m[90m•[0m[0m [39m[39mCompiling application: [0m[0m[2m10:19:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:19:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:19:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+[2m10:19:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m10:19:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m10:19:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:19:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:19:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+[2m10:19:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:19:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:19:47 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+Done.
+[30;46m[30;46m INFO [0m[0m [96m[96mWails is now using the new Go WebView2Loader. If you encounter any issues with it, please report them to https://github.com/wailsapp/wails/issues/2004. You could also use the old legacy loader with `-tags native_webview2loader`, but keep in mind this will be deprecated in the near future.[0m[0m
+
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\runtime
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\go
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\runtime
+INF | Serving assets from frontend DevServer URL: http://localhost:5173/
+2026/03/31 10:19:48 [WebView2] Environment created successfully
+[WebView2 Error] error creating controller with 800700aa: The requested resource is in use.
+
+Stack trace:
+2026/03/31 10:19:48 1: github.com/wailsapp/go-webview2/pkg/edge.(*Chromium).errorCallback
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/go-webview2@v1.0.22/pkg/edge/chromium.go:151
+2026/03/31 10:19:48 2: github.com/wailsapp/go-webview2/pkg/edge.(*Chromium).CreateCoreWebView2ControllerCompleted
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/go-webview2@v1.0.22/pkg/edge/chromium.go:332
+2026/03/31 10:19:48 3: github.com/wailsapp/go-webview2/pkg/edge._ICoreWebView2CreateCoreWebView2ControllerCompletedHandlerInvoke
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/go-webview2@v1.0.22/pkg/edge/ICoreWebView2CreateCoreWebView2ControllerCompletedHandler.go:38
+2026/03/31 10:19:48 4: runtime.callbackWrap
+	C:/Program Files/Go/src/runtime/syscall_windows.go:388
+2026/03/31 10:19:48 5: runtime.cgocallbackg1
+	C:/Program Files/Go/src/runtime/cgocall.go:466
+2026/03/31 10:19:48 6: runtime.cgocallbackg
+	C:/Program Files/Go/src/runtime/cgocall.go:362
+2026/03/31 10:19:48 7: runtime.cgocallback
+	C:/Program Files/Go/src/runtime/asm_amd64.s:1160
+2026/03/31 10:19:48 8: runtime.systemstack_switch
+	C:/Program Files/Go/src/runtime/asm_amd64.s:516
+2026/03/31 10:19:48 9: runtime.cgocall
+	C:/Program Files/Go/src/runtime/cgocall.go:185
+2026/03/31 10:19:48 10: syscall.syscalln
+	C:/Program Files/Go/src/runtime/syscall_windows.go:431
+2026/03/31 10:19:48 11: syscall.Syscall
+	C:/Program Files/Go/src/syscall/dll_windows.go:49
+2026/03/31 10:19:48 12: golang.org/x/sys/windows.(*Proc).Call
+	C:/Users/mocas/go/pkg/mod/golang.org/x/sys@v0.42.0/windows/dll_windows.go:170
+2026/03/31 10:19:48 13: golang.org/x/sys/windows.(*LazyProc).Call
+	C:/Users/mocas/go/pkg/mod/golang.org/x/sys@v0.42.0/windows/dll_windows.go:351
+2026/03/31 10:19:48 14: github.com/wailsapp/go-webview2/pkg/edge.(*Chromium).Embed
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/go-webview2@v1.0.22/pkg/edge/chromium.go:209
+2026/03/31 10:19:48 15: github.com/wailsapp/wails/v2/internal/frontend/desktop/windows.(*Frontend).setupChromium
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/wails/v2@v2.12.0/internal/frontend/desktop/windows/frontend.go:549
+2026/03/31 10:19:48 16: github.com/wailsapp/wails/v2/internal/frontend/desktop/windows.(*Frontend).Run
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/wails/v2@v2.12.0/internal/frontend/desktop/windows/frontend.go:178
+2026/03/31 10:19:48 17: github.com/wailsapp/wails/v2/internal/frontend/devserver.(*DevWebServer).Run
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/wails/v2@v2.12.0/internal/frontend/devserver/devserver.go:134
+2026/03/31 10:19:48 18: github.com/wailsapp/wails/v2/internal/app.(*App).Run
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/wails/v2@v2.12.0/internal/app/app_dev.go:32
+2026/03/31 10:19:48 19: github.com/wailsapp/wails/v2/pkg/application.(*Application).Run
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/wails/v2@v2.12.0/pkg/application/application.go:73
+2026/03/31 10:19:48 20: github.com/wailsapp/wails/v2.Run
+	C:/Users/mocas/go/pkg/mod/github.com/wailsapp/wails/v2@v2.12.0/wails.go:14
+2026/03/31 10:19:48 21: main.main
+	C:/Users/mocas/OneDrive/Documentos/Master_sheep/main.go:19
+2026/03/31 10:19:48 22: runtime.main
+	C:/Program Files/Go/src/runtime/proc.go:290
+[0331/101948.560:ERROR:ui\gfx\win\window_impl.cc:134] Failed to unregister class Chrome_WidgetWin_0. Error = 1412
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\runtime
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\go
+[2m10:21:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:21:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:21:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+[2m10:21:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:21:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:21:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+[2m10:23:21 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m10:24:11 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\runtime
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\go
+[2m10:25:03 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:25:03 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:25:03 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+[2m10:25:03 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/go/main/App.d.ts[22m
+[2m10:25:03 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m10:25:03 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\runtime
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\go
+[2m10:25:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/go/main/App.d.ts[22m
+Added new directory to watcher: C:\Users\mocas\OneDrive\Documentos\Master_sheep\frontend\wailsjs\runtime
+[2m10:25:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:25:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+[2m10:25:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m10:25:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:25:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+[2m10:25:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m10:25:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:25:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:34:09 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[Rebuild triggered] files updated
+  [90m[90m•[0m[0m [39m[39mGenerating bindings: [0m[0m[2m10:41:09 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+[2m10:41:09 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:41:09 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:41:09 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:41:09 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.js[22m
+[2m10:41:09 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+2026/03/31 10:41:10 KnownStructs: main.Animal	main.Corral	main.DiagnosticoGestacion	main.EventoReproductivo	main.Insumo	main.Parto	main.RecetaVeterinaria	main.SeguimientoPeso	main.Tarea	main.Tratamiento	main.User
+Not found: time.Time
+
+Done.
+  [90m[90m•[0m[0m [39m[39mGenerating application assets: [0m[0mDone.
+  [90m[90m•[0m[0m [39m[39mCompiling application: [0m[0m[2m10:41:11 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:41:11 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:41:11 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/go/main/App.d.ts[22m
+[2m10:41:11 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m10:41:11 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/package.json[22m
+[2m10:41:11 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/runtime/runtime.d.ts[22m
+[2m10:41:11 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mwailsjs/go/main/App.d.ts[22m
+[2m10:41:11 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+sheepmaster: open C:\Users\mocas\OneDrive\Documentos\Master_sheep\sheepmaster-res.syso: The system cannot find the file specified.
+[30;101m[30;101m  FATAL  [0m[0m [91m[91mremove C:\Users\mocas\OneDrive\Documentos\Master_sheep\sheepmaster-res.syso: The system cannot find the file specified.[0m[0m
+node:events:486
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:75:18)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at console.value (node:internal/console/constructor:313:16)
+    at console.log (node:internal/console/constructor:416:26)
+    at output (file:///C:/Users/mocas/OneDrive/Documentos/Master_sheep/frontend/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:7605:25)
+    at Object.info (file:///C:/Users/mocas/OneDrive/Documentos/Master_sheep/frontend/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:7613:7)
+    at Object.info (file:///C:/Users/mocas/OneDrive/Documentos/Master_sheep/frontend/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:13104:38)
+    at updateModules (file:///C:/Users/mocas/OneDrive/Documentos/Master_sheep/frontend/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:39382:24)
+    at hmr (file:///C:/Users/mocas/OneDrive/Documentos/Master_sheep/frontend/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:39321:7)
+    at file:///C:/Users/mocas/OneDrive/Documentos/Master_sheep/frontend/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:39332:26
+    at Array.map (<anonymous>)
+    at file:///C:/Users/mocas/OneDrive/Documentos/Master_sheep/frontend/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:39331:43
+    at handleHMRUpdate (file:///C:/Users/mocas/OneDrive/Documentos/Master_sheep/frontend/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:39336:9)
+    at async onHMRUpdate (file:///C:/Users/mocas/OneDrive/Documentos/Master_sheep/frontend/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:38634:7)
+    at async FSWatcher.<anonymous> (file:///C:/Users/mocas/OneDrive/Documentos/Master_sheep/frontend/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:38671:5)
+Emitted 'error' event on Socket instance at:
+    at Socket.onerror (node:internal/streams/readable:1035:14)
+    at Socket.emit (node:events:508:28)
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+
+Node.js v24.14.1

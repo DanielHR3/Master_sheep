@@ -1,0 +1,1699 @@
+UNIVERSIDAD DIGITAL DEL ESTADO DE HIDALGO
+
+“SISTEMA DE ADMINISTRACIÓN DE RECURSOS CLÍNICOS Y GANADEROS
+
+(SIARCLIG)”
+
+TESIS DE LICENCIATURA 
+
+PARA OBTENER EL TÍTULO:
+
+ LICENCIATURA EN INGENIERÍA DE SOFTWARE
+
+PRESENTA:
+
+Daniel Hernández Rubio (20300037)
+
+Marcos Genaro Juárez Rodríguez (20300120)
+
+Gerardo Gonzaga Gutiérrez (20300072)
+
+DIRECTOR DE TESIS:
+
+D. Arturo Austria Cornejo
+
+Prof. Christian Francisco Enríquez Lozano
+
+Pachuca de Soto, Hidalgo, México. Agosto 2025.
+
+Dedicatoria
+
+La presente investigación está dedicada a mi madre, Maricela Rubio Trejo, hermano, Dante Josafet Hernández Rubio, novia, Ximena Pascoe Sánchez.
+
+Dedicatoria
+
+La presente investigación está dedicada a mi madre, Dominga Gutiérrez Santiago, a mis hermanas Graciela y Guadalupe Gonzaga, a mi esposa, María teresa Reyes Aguillón y a mi gran amigo Eduardo Rodríguez Valadez.
+
+Agradecimiento
+
+Al M. en C. Arturo Austria Cornejo, mi asesor de tesis, expresar mi profundo agradecimiento por su orientación experta, apoyo y dedicación a lo largo de este proyecto académico.
+
+L. D.H.R. agradece a: A mi querida madre, Maricela Rubio Trejo, agradezco por su amor y apoyo incondicional a lo largo de este viaje académico. Su presencia y aliento han sido fundamentales en cada paso que he dado.
+
+A mi hermano M. en C. Dante Josafet Hernández Rubio, agradezco por ser mi compañero constante y por compartir conmigo los desafíos y alegrías de esta travesía, por ser mi inspiración y por compartir conmigo cada desafío y triunfo.
+
+A mi amada novia, Ximena Pascoe Sánchez, por su paciencia, comprensión y aliento constante. Tu presencia ha iluminado mi camino, y este logro lleva la huella de tu amor y apoyo.
+
+Al L.C.P. Gerardo Gonzaga Gutiérrez, amigo mi reconocimiento por su valiosa contribución orientación en aspectos específicos en la culminación de la licenciatura.
+
+A mi compañero de escuela y amigo Marcos Genaro Juárez Rodríguez, mi reconocimiento por el esfuerzo continuo y compartido para seguir en este proyecto.
+
+Gracias a aquellos amigos que han compartido palabras de ánimo y consejos valiosos, por ser parte de este viaje significativo y por celebrar conmigo la culminación de esta etapa académica. Su amistad ha sido el mejor regalo en este camino hacia el éxito.
+
+Marcos agradece a:
+
+La presente investigación está dedicada a dios por las dos grandes bendiciones que me dio que son mi esposa y mi hija, por guiarme durante toda mi carrera y darme fuerzas para superar los obstáculos y dificultades que se me presentaron para concluir este proyecto.
+
+A mi esposa Pilar Nereida Velázquez Serna, a mi hija Pilar Seshat Juárez Velázquez por apoyarme durante toda mi carrera por estar a mi lado en los momentos más difíciles y siempre me alentaron a seguir adelante con espíritu de superación y perseverancia, por su dedicación, paciencia y tolerancia, por sus comentarios y sobre todo por el cariño y amor en este proceso, ya que no fue una tarea sencilla, por sus enseñanzas y conocimientos transmitidos a lo largo de mi formación profesional. El tiempo, la confianza y el apoyo que me brindo en esta etapa de mi vida.
+
+ 
+
+A mi hermana María Isabel Juárez Rodríguez que ha estado incondicionalmente apoyándome en todo momento alentándome con su apoyo moral y cariño.
+
+ A mis compañeros Daniel Hernández Rubio y Gerardo Gonzaga Gutiérrez por haberme dado la oportunidad y confiar en mí para realizar este proyecto, ya que con sus consejos, aportaciones y conocimientos es posible la realización de este proyecto. Por haberme asesorado y ayudado a realizar este proyecto, por todas las facilidades que me otorgó para concluirlo de la mejor manera, merecen mi más sincero agradecimiento.
+
+Agradecimientos de Gerardo Gonzaga Gutiérrez
+
+Al M. en C. Arturo Austria Cornejo y al Profesor Christian Francisco Enríquez Lozano, mis asesores de tesis, expresar mi profundo agradecimiento por su orientación experta, apoyo y dedicación a lo largo de este proyecto académico.
+
+Agradezco a: A mi querida madre, Dominga Gutiérrez Santiago, agradezco por su motivación y apoyo incondicional a lo largo de este gran reto académico. Su presencia y aliento han sido fundamentales en cada paso que he dado.
+
+A mis hermanas C. Graciela y Guadalupe Gonzaga, agradezco por ser mi respaldo constante y por compartir conmigo los desafíos y alegrías en esta etapa de mi vida, por ser mi inspiración y por compartir conmigo cada desafío y triunfo.
+
+A mi esposa, María Teresa Reyes Aguillón, por su paciencia, comprensión y aliento constante.
+
+A mis hijos Emilio y Diego Gonzaga Reyes por ser motor fundamental para el termino de este proyecto, a quienes he robado tiempo y dedicación por enfocar esfuerzos en esta gran carrera.
+
+A mi maestro y gran amigo Lic, en C. Alberto Gerardo Ballesteros Robledo, por confiar y creer en mí, por su apoyo y enseñanzas, su presencia en mi desarrollo personal y profesional han sido baluarte para llegar a donde estoy.
+
+A mi mentor L.C.M. A. y C. Omar Noe Navalón Maldonado, quien con su experiencia, amistad, consejos y apoyo incondicional ha sido pieza clave en mi desarrollo profesional.
+
+A mi gran amigo ING. en C. C, Eduardo Rodríguez Valadez, agradezco sinceramente por su amistad, apoyo y motivación. Su presencia a sido factor coadyuvante y ha enriquecido mi experiencia académica y personal.
+
+A mis compañeros Marcos Juárez y Daniel Hernández por su comprensión y apoyo en este proyecto a los cuales les rindo mi reconocimiento por su valiosa amistad y colaboración cuando estuve a punto de claudicar.
+
+Agradecimiento
+
+Al M. en C. Arturo Austria Cornejo, mi asesor de tesis, expresar mi profundo agradecimiento por su orientación experta, apoyo y dedicación a lo largo de este proyecto académico.
+
+L. D.H.R. agradece a: A mi querida madre, Maricela Rubio Trejo, agradezco por su amor y apoyo incondicional a lo largo de este viaje académico. Su presencia y aliento han sido fundamentales en cada paso que he dado.
+
+A mi hermano M. en C. Dante Josafet Hernández Rubio, agradezco por ser mi compañero constante y por compartir conmigo los desafíos y alegrías de esta travesía, por ser mi inspiración y por compartir conmigo cada desafío y triunfo.
+
+A mi amada novia, Ximena Pascoe Sánchez, por su paciencia, comprensión y aliento constante. Tu presencia ha iluminado mi camino, y este logro lleva la huella de tu amor y apoyo.
+
+Al L.C.P. Gerardo Gonzaga Gutiérrez, amigo mi reconocimiento por su valiosa contribución orientación en aspectos específicos en la culminación de la licenciatura.
+
+A mi compañero de escuela y amigo Marcos Genaro Juárez Rodríguez, mi reconocimiento por el esfuerzo continuo y compartido para seguir en este proyecto.
+
+Gracias a aquellos amigos que han compartido palabras de ánimo y consejos valiosos, por ser parte de este viaje significativo y por celebrar conmigo la culminación de esta etapa académica. Su amistad ha sido el mejor regalo en este camino hacia el éxito.
+
+Resumen
+
+La gestión eficiente en el sector ganadero es esencial para optimizar el rendimiento productivo. En este contexto, los softwares ganaderos han surgido como herramientas valiosas para mejorar la administración de las explotaciones. La informatización de los procesos, a través de la recaudación de datos digital, ofrece una solución integral que revoluciona el campo productivo.
+
+La utilización de software ganadero, como el SIARCLIG (Sistema Integral para la Administración de Recursos Clínicos y Ganaderos), se presenta como una estrategia innovadora para mejorar la recolección, almacenamiento y análisis de datos relacionados con la ganadería. Estos programas permiten una gestión más eficiente de los rebaños, seguimiento de procesos clínicos veterinarios y satisfacción de las necesidades específicas de los ganaderos.
+
+La administración por medio de la recaudación de datos digital no solo agiliza los procesos, sino que también proporciona a los usuarios la capacidad de tomar decisiones estratégicas informadas. Al cubrir los requerimientos funcionales y adoptar nuevas prácticas en el tratamiento de la información, la informatización contribuye a una gestión más precisa y orientada a resultados en el sector ganadero.
+
+En resumen, la introducción de software ganadero y la administración computarizada emergen como elementos clave para potenciar el funcionamiento del campo productivo ganadero, ofreciendo una solución integral que impulsa la eficiencia y la toma de decisiones estratégicas.
+
+Índice general
+
+CAPÍTULO 1 INTRODUCCIÓN- 1 -
+
+1.1 Introducción:- 1 -
+
+1.2 Antecedentes:- 1 -
+
+1.3 Problemática:- 2 -
+
+1.4 Objetivo general:- 2 -
+
+1.5 Objetivo específico:- 2 -
+
+1.6 Justificación:- 2 -
+
+1.7 Cronograma:- 3 -
+
+1.8 Estado de la cuestión:- 3 -
+
+1.8.1 Introducción:- 3 -
+
+1.8.2 Sistemas clínicos ganaderos existentes:- 4 -
+
+1.8.3 Aspectos para considerar:- 4 -
+
+1.8.4 Oportunidades para SIARCLIG:- 4 -
+
+1.9.1 Factibilidad administrativa:- 5 -
+
+1.9.1.1 Misión:- 5 -
+
+1.9.1.2 Visión:- 5 -
+
+1.9.1.3 Objetivo:- 6 -
+
+1.9.1.4 Análisis FODA:- 6 -
+
+1.9.2 Factibilidad de mercado:- 7 -
+
+1.9.2.1 Mercado Global:- 7 -
+
+1.9.2.2 Mercado Regional:- 8 -
+
+1.9.3 Competencia directa:- 8 -
+
+1.9.3.1 Benchmarking:- 9 -
+
+1.9.3.2 Plan de marketing:- 9 -
+
+1.9.4 Factibilidad técnica:- 10 -
+
+1.9.4.1 Ubicación del proyecto de emprendimiento:- 10 -
+
+1.9.4.2 Distribución de recursos para su uso eficiente:- 10 -
+
+1.9.4.3 Recursos necesarios:- 10 -
+
+1.9.4.4 Obtención de recursos materiales:- 11 -
+
+1.9.4.5 Obtención de Recursos Materiales:- 11 -
+
+1.9.4.6 Control de calidad:- 11 -
+
+1.9.5 Factibilidad financiera:- 11 -
+
+1.9.5.1 Proyecciones financieras:- 11 -
+
+1.9.5.2 Indicadores de viabilidad:- 11 -
+
+1.9.5.3 Mercado objetivo:- 12 -
+
+1.9.6 Responsabilidad social:- 12 -
+
+1.9.7 Ventaja competitiva:- 13 -
+
+1.9.8 Recomendaciones:- 13 -
+
+CAPÍTULO 2 Marco teórico- 14 -
+
+2.1 Proyecto web:- 14 -
+
+2.1.1 Interacción:- 14 -
+
+2.1.2 Ciclo de vida del programa:- 15 -
+
+2.1.3 Casos de uso:- 16 -
+
+2.1.3.1 Caso de uso visitas semanales:- 16 -
+
+2.1.3.2 Caso de uso fertilidad:- 17 -
+
+2.1.3.3 Caso de uso prolificidad:- 17 -
+
+2.2.1 Análisis y configuración de entorno para desarrollo de sistema de administración de recursos clínicos y ganaderos:- 19 -
+
+2.2.2 Configuración y variables de entorno en un servidor apache con PHP:- 20 -
+
+2.3 Lenguaje de programación:- 21 -
+
+2.3.1 Tecnologías y lenguajes de programación utilizados en el desarrollo del sistema SIARCLIG:- 22 -
+
+CAPÍTULO 3 Frontend- 24 -
+
+3.1 Interfaz de usuarios:- 24 -
+
+3.1 Interfaz usuario administrador:- 25 -
+
+3.2 Interfaz usuario operador:- 26 -
+
+3.3 Interfaz usuario veterinario:- 27 -
+
+3.4 Interfaz usuario productor:- 30 -
+
+CAPÍTULO 4 Backend- 32 -
+
+4.1 Entorno de desarrollo:- 32 -
+
+4.2 Lenguajes de programación:- 32 -
+
+4.3 Gestión de base de datos:- 33 -
+
+4.4 Funcionalidades clave del backend:- 33 -
+
+4.5 Explorando la Arquitectura de Backend:- 34 -
+
+4.5.1 Modulo agregar ovino:- 36 -
+
+4.5.2 Modulo auditoria:- 37 -
+
+4.5.3 Modulo consulta:- 38 -
+
+4.5.4 Modulo consultas:- 40 -
+
+4.5.5 Modulo crear usuario:- 42 -
+
+4.5.6 Modulo diagnóstico de gestación:- 43 -
+
+4.5.7 Modulo error:- 44 -
+
+4.5.8 Modulo evaluar cita:- 45 -
+
+4.5.9 Modulo header:- 46 -
+
+4.5.10 Modulo home:- 47 -
+
+4.5.11 Modulo inventario:- 49 -
+
+4.5.12 Modulo login:- 50 -
+
+4.5.12.1 Estructura de la interfaz de usuario:- 50 -
+
+4.5.13 Modulo modificar usuario:- 51 -
+
+4.5.14 Modulo partos:- 53 -
+
+4.5.15 Modulo reportes diagnósticos de gestación:- 54 -
+
+4.5.16 Modulo reporte de partos:- 55 -
+
+4.5.17 Modulo reporte de usuarios:- 56 -
+
+4.5.18 Modulo reportes:- 56 -
+
+4.5.19 Modulo salir:- 57 -
+
+CAPÍTULO 5 Manejador de base de datos:- 59 -
+
+5.1 Tecnologías de base de datos utilizadas:- 59 -
+
+5.2 Características principales:- 59 -
+
+CAPÍTULO 6 Pruebas en el proyecto:- 61 -
+
+Imagen 6.2: Prueba exitosa.- 61 -
+
+Imagen 6.3: Prueba de funcionalidad administrador.- 62 -
+
+Imagen 6.4: Prueba de funcionalidad operador.- 62 -
+
+Imagen 6.5: Prueba de funcionalidad veterinario.- 63 -
+
+Imagen 6.6: Prueba de funcionalidad productor.- 63 -
+
+6.2 Usabilidad y experiencia de usuario:- 63 -
+
+Imagen 6.7: Prueba de evaluación del módulo de citas.- 64 -
+
+6.3 Rendimiento y escalabilidad:- 64 -
+
+Imagen 6.8: Pruebas de rendimiento.- 64 -
+
+6.4 Seguridad y protección de datos:- 65 -
+
+Imagen 6.9: Pruebas de seguridad y protección de datos.- 65 -
+
+CAPÍTULO 8 Referencias:- 66 -
+
+ 
+
+Índice de tablas
+
+Tabla 1.1: FODA.- 7 -
+
+Tabla 1.2: Benchmarking.- 9 -
+
+Índice de imágenes
+
+Imagen 1.1: Cronograma.- 3 -
+
+Imagen 2.0: Interacción.- 15 -
+
+Imagen 2.1: Ciclo de vida.- 16 -
+
+Imagen 2.2: Caso de uso visitas semanales.- 16 -
+
+Imagen 2.3: Caso de uso fertilidad.- 17 -
+
+Imagen 2.4: Caso de uso prolificidad.- 17 -
+
+Imagen 2.5: Modelo entidad relación.- 18 -
+
+Imagen 2.6: Análisis de cabeceras HTTP y configuración de extensiones PHP.- 20 -
+
+Imagen 2.8: Detalle de variables del servidor y ambiente de ejecución PHP.- 21 -
+
+Imagen 2.9: Lenguajes de programación.- 23 -
+
+Imagen : Login.- 24 -
+
+Imagen 3.1: Interfaz administrador.- 25 -
+
+Imagen 3.2: Interfaz operador.- 26 -
+
+Imagen 3.2: Interfaz operador.- 26 -
+
+Imagen 3.3: Interfaz veterinario.- 27 -
+
+Imagen 3.3: Interfaz veterinario.- 27 -
+
+Imagen 3.4: Interfaz productor.- 30 -
+
+Imagen 3.4: Interfaz productor.- 30 -
+
+Imagen 3.4: Interfaz productor.- 31 -
+
+Imagen 4.0: Controladores.- 33 -
+
+Imagen 4.1: Conexiones.- 33 -
+
+Imagen 4.2: Funcionalidades.- 34 -
+
+Imagen 4.3: Arquitectura backend.- 36 -
+
+Imagen 4.4: Agregar ovino.- 37 -
+
+Imagen 4.5: Auditoria.- 38 -
+
+Imagen 4.6: Consulta.- 40 -
+
+Imagen 4.7: Consultas.- 41 -
+
+Imagen 4.8: Crear usuario.- 43 -
+
+Imagen 4.9: Diagnóstico de gestación.- 44 -
+
+Imagen 4.10: Error.- 45 -
+
+Imagen 4.11: Evaluar cita.- 46 -
+
+Imagen 4.12: Header.- 47 -
+
+Imagen 4.13: Home.- 48 -
+
+Imagen 4.14: Inventario.- 50 -
+
+Imagen 4.15: Login.- 51 -
+
+Imagen 4.16: Modificar usuario.- 52 -
+
+Imagen 4.17: Partos.- 54 -
+
+Imagen 4.18: Diagnósticos de gestación.- 55 -
+
+Imagen 4.19: Reporte de partos.- 55 -
+
+Imagen 4.20: Reporte de usuarios.- 56 -
+
+Imagen 4.21: Reporte:- 57 -
+
+Imagen 4.22:Salir:- 58 -
+
+Imagen 5.0: Diagrama entidad relación de la base de datos.- 60 -
+
+Imagen 5.1: versión de manejador de base de datos.- 60 -
+
+Imagen 6.1: Pruebas preventivas.- 61 -
+
+CAPÍTULO 1 INTRODUCCIÓN
+
+ 1.1 Introducción:
+
+La gestión integral de información se ha vuelto esencial en diversos ámbitos, en este caso particular, nos enfocaremos en el sector clínico y ganadero, donde la recopilación y administración eficiente de datos desempeñan un papel crucial para la toma de decisiones.
+
+ 
+
+En este contexto, el presente proyecto de emprendimiento surge como respuesta a la necesidad de contar con una solución tecnológica que permita la gestión unificada de los datos clínicos y ganaderos. 
+
+El sistema propuesto, denominado SIARCLIG (Sistema Integral para la Administración de Recursos Clínicos y Ganaderos), se concibe como una herramienta innovadora destinada a optimizar los procesos de recolección, almacenamiento y análisis de datos, brindando a los usuarios la capacidad de tomar decisiones estratégicas, para administrar el ganado correspondiente.
+
+SIARCLIG contempla la administración de datos e información de los rebaños, en apego a los diferentes procesos que hoy en día se tienen a nivel clínico veterinario. Dando así seguimiento a cada una de las necesidades expresadas por el cliente durante el levantamiento de información.
+
+Se tomo en cuenta cada uno de los requerimientos funcionales mismos que se cubrieron con desarrollo e implementación técnica, además de diferentes sugerencias en cuanto a la adopción de nuevos procesos en el tratamiento de la información.
+
+1.2 Antecedentes:
+
+A medida que la tecnología avanza, se presenta una oportunidad única para superar estas limitaciones. La implementación de soluciones informáticas especializadas, utilizando lenguajes de programación y base de datos como MARIA DB, JavaScript, no solo mejora la gestión de datos. El SIARCLIG se posiciona en la vanguardia de esta convergencia, buscando transformar la manera en que se abordan los desafíos asociados a la administración de recursos clínicos y ganaderos.
+
+ 1.3 Problemática:
+
+En la actualidad, la fragmentación en la gestión de información clínica y ganadera en entornos como clínicas veterinarias y explotaciones ganaderas ha generado una brecha operativa significativa. La ausencia de herramientas integradas ha dado lugar a obstáculos sustanciales que afectan la eficiencia de estas operaciones. Esta falta de integración no solo dificulta la fluidez de los procesos, sino que también impide la toma de decisiones informadas y la óptima utilización de recursos.
+
+En este sector, la tecnología en cuestiones administrativas ha sido un tanto relegada, lo que ha provocado pérdidas y registros incompletos para los productores. La falta de adopción tecnológica ha llevado a situaciones en las cuales la información se pierde o los registros quedan incompletos, generando pérdidas económicas y operativas para los ganaderos. Ante esta situación, es imperativo abordar esta brecha tecnológica y buscar soluciones que permitan una gestión integrada, eficiente y actualizada de la información en el ámbito clínico y ganadero.
+
+ 1.4 Objetivo general:
+
+Este sistema busca proporcionar una solución que facilite la gestión eficiente de información y procesos relacionados con el cuidado y manejo del ganado, mejorando así la toma de decisiones basada en datos precisos y actualizados. El objetivo incluye la integración de funcionalidades para el monitoreo de la salud animal, la gestión de inventarios, el seguimiento de tratamientos veterinarios y la optimización de la producción ganadera.
+
+ 1.5 Objetivo específico:
+
+Desarrollar un sistema de gestión en clínicas veterinarias y administración clínica y ganadera, aprovechando la tecnología, con el fin de mejorar la eficiencia operativa, optimizar la toma de decisiones para los productores y reducir pérdidas económicas asociadas a la falta de registros.
+
+ 1.6 Justificación:
+
+La construcción del proyecto SIARCLIG responde a la imperiosa necesidad de superar las limitaciones en la gestión integral de recursos clínicos y ganaderos. Su importancia radica en la mejora de la eficiencia operativa, la toma de decisiones informadas y la optimización de recursos, contribuyendo así al desarrollo sostenible en sus dimensiones social, económica y ambiental. Se espera que este proyecto genere un impacto positivo en la productividad, la salud y el bienestar tanto de las comunidades humanas como de los animales.
+
+ 1.7 Cronograma:
+
+El siguiente cronograma propuesto identifica las etapas clave del proyecto, estimando el tiempo y los recursos necesarios para su implementación, independientemente de su alcance final:
+
+ Imagen 1.1: Cronograma.
+
+Este cronograma proporciona una visión clara de la planificación temporal del proyecto, asegurando la gestión efectiva de las actividades y recursos involucrados.
+
+1.8 Estado de la cuestión: 
+
+ 1.8.1 Introducción:
+
+La región mexicana presenta un gran potencial para la cría ovina y la producción de carne bovina. Sin embargo, existe la necesidad de mejorar la calidad y cantidad de la producción ganadera. El desarrollo de sistemas informáticos especializados en la gestión ganadera puede ser una herramienta estratégica para alcanzar este objetivo.
+
+ 1.8.2 Sistemas clínicos ganaderos existentes:
+
+Sistema de producción animal, software ganadero SG (SG): 
+
+Este software se utiliza para la gestión de datos ganaderos, optimizando su manejo y administración. Permite obtener informes ordenados y precisos para la toma de decisiones.
+
+OvinAPP:
+
+Esta aplicación permite gestionar, controlar, analizar y tomar decisiones basadas en información sobre la producción ovina y caprina.
+
+Software OVINCA: 
+
+Este software se utiliza para el manejo de registros de inventario de animales, reproducción, producción, salud, alimentación, genética y costos en explotaciones ovinas y caprinas. Transforma los datos en información clave para la toma de decisiones que aumentan la productividad y rentabilidad del negocio.
+
+Software para ganadería Oviswebs: 
+
+Permite generar registros del trabajo de campo, contiene herramientas de simulación para la generación de escenarios posibles y la toma de decisiones. (“Software para ganado ovino – caprino - SADEP LTDA - Agroshow”)
+
+1.8.3 Aspectos para considerar:
+
+Funcionalidades: Los sistemas clínicos ganaderos existentes ofrecen una amplia gama de funcionalidades, como la gestión de registros, el análisis de datos y la toma de decisiones.
+
+Usabilidad: Es importante que los sistemas sean fáciles de usar para los ganaderos, veterinarios y otros usuarios.
+
+Flexibilidad: Los sistemas deben ser adaptables a las necesidades específicas de cada explotación ganadera.
+
+Escalabilidad: Los sistemas deben poder crecer a medida que lo hace la explotación ganadera.
+
+ 1.8.4 Oportunidades para SIARCLIG:
+
+SIARCLIG tiene la oportunidad de diferenciarse de los sistemas existentes enfocándose en las necesidades específicas de la producción ovina. 
+
+Algunas áreas de oportunidad son:
+
+Desarrollo de funcionalidades específicas para la cría ovina: SIARCLIG puede incluir funcionalidades para el manejo de la reproducción, la sanidad, la alimentación y la genética de las ovejas.
+
+Integración con dispositivos móviles: SIARCLIG puede ser desarrollado para ser utilizado en dispositivos móviles, lo que facilitaría su uso en el campo.
+
+Capacitación a los usuarios: SIARCLIG debe ofrecer capacitación a los usuarios para que puedan aprovechar al máximo las funcionalidades del sistema.
+
+Investigaciones relevantes:
+
+Análisis de la usabilidad de los sistemas clínicos ganaderos: Esta investigación puede ayudar a identificar las necesidades de los usuarios y mejorar la usabilidad de SIARCLIG.
+
+Evaluación del impacto de los sistemas clínicos ganaderos en la productividad de la ganadería ovina: Esta investigación puede ayudar a demostrar el valor de SIARCLIG para los ganaderos.
+
+Desarrollo de nuevas tecnologías para la gestión de la ganadería ovina: Esta investigación puede ayudar a SIARCLIG a mantenerse a la vanguardia en innovación.
+
+1.9 Estudio de factibilidad:
+
+1.9.1 Factibilidad administrativa:
+
+ 1.9.1.1 Misión:
+
+Facilitar y optimizar la gestión integral de los recursos clínicos y ganaderos, especializándose en el control y seguimiento de la salud del ganado ovino. A través de un desarrollo web modular, nuestro sistema se enfoca en satisfacer las necesidades de productores y médicos veterinarios, proporcionando herramientas efectivas para la administración de solicitudes de visita, registro detallado de cada revisión y generación de informes para la toma de decisiones informadas.
+
+1.9.1.2 Visión:
+
+Convertirnos en la plataforma líder a nivel global para la administración de ganaderías ovinas, reconocidos por ofrecer soluciones tecnológicas avanzadas que integran eficazmente la gestión clínica veterinaria y ganadera. Nos esforzamos por ser la opción preferida de los ganaderos y médicos veterinarios, proporcionando un sistema intuitivo y completo que contribuye al bienestar y eficiencia en la gestión de rebaños ovinos.
+
+1.9.1.3 Objetivo:
+
+Desarrollar y consolidar SIARCLIG como la principal plataforma tecnológica para la administración integral de ganaderías ovinas, contribuyendo al impulso de la eficiencia y bienestar en el sector ganadero y clínico veterinario.
+
+1.9.1.4 Análisis FODA:
+
+La tabla proporcionada es un análisis FODA de un proyecto o producto tecnológico, enfocado en la mejora de un programa de gestión. 
+
+A continuación, se presenta una breve introducción a los contenidos de cada columna:
+
+Fortalezas: Se destacan aspectos como la mejor apariencia del programa, la facilidad de almacenamiento de información, y la fácil utilización de la aplicación. Estos elementos sugieren que el programa ha sido diseñado con un enfoque en la usabilidad y la estética, así como en la eficiencia en la gestión de información.
+
+Oportunidades: Las oportunidades identificadas giran en torno a la capacidad mejorada del programa para manejar expedientes clínicos, el orden de estos, y la actualización de los usuarios con información relevante. Estos puntos indican áreas de crecimiento potencial y mejoras que podrían aumentar la adopción y utilidad del programa.
+
+Debilidades: Entre las debilidades se menciona la fácil obtención de información, lo que podría interpretarse como un problema de seguridad o privacidad. La visibilidad de medicamentos controlados y los datos clínicos de los animales también son señalados como puntos débiles, sugiriendo áreas de mejora en cuanto a la gestión de información sensible y la funcionalidad del programa.
+
+Amenazas: Se reconocen riesgos externos como la posibilidad de una mejor propuesta de sistema por parte de la competencia, equipos de trabajo más experimentados, sistemas similares con funciones más avanzadas, y la correcta conexión de bases de datos por otros. Estas amenazas subrayan la importancia de la innovación continua y la necesidad de mantener el programa actualizado y competitivo.
+
+Fortalezas
+
+Oportunidades
+
+Debilidades
+
+Amenazas
+
+Mejor apariencia del programa
+
+Mejor capacidad de manejo de los expedientes clínicos
+
+Fácil obtención de información 
+
+Una mejor propuesta del sistema
+
+Facilidad de almacenamiento de información
+
+Otro equipo de trabajo con mayor experiencia
+
+Mayor número de expedientes ordenados
+
+Visibilidad de medicamento controlado
+
+Un sistema similar, pero con funciones más actualizadas
+
+Fácil uso de la aplicación
+
+Usuarios actualizados de información
+
+Datos clínicos de los animales
+
+Bases de datos correctamente conectadas
+
+Mejorar la información clínica agropecuaria
+
+Inventario entrelazado con proveedores
+
+alteración en el inventario
+
+Creaciones de pantallas de acuerdo con lo requerido
+
+Simplificar el tiempo para realizar el inventario
+
+Saturación al subir la información 
+
+Funcionamiento de los usuarios dentro del sistema
+
+Mejorar la creación de inventarios
+
+Simplificar el tiempo de verificar los medicamentos
+
+Posible robo del código del sistema
+
+Capacidad del almacenamiento de información
+
+Facilitar la venta de ganado
+
+Posible robo de proveedores
+
+Falsificación de usuarios
+
+Acceso a los expedientes ingresado
+
+Creación de nuevos expedientes por categorías
+
+Saturación al almacenar realizar un expediente
+
+Robo de código del sistema
+
+Aplicación de calidad
+
+Posible robo de accesos al sistema
+
+Acceso al inventario del medicamento
+
+Apartado de usuarios
+
+Error al buscar algún medicamento en el inventario
+
+Tabla 1.3: FODA.
+
+1.9.2 Factibilidad de mercado:
+
+1.9.2.1 Mercado Global:
+
+Existe una demanda actual de sistemas de administración clínica y ganadera en la industria ovina a nivel global.
+
+Derivado de lo anterior las tendencias de crecimiento del mercado en los próximos años tendrán un repunte en administración clínica y ganadera en sus diferentes tipos de especies.
+
+Se pondrán a atender a las principales regiones y países con mayor demanda.
+
+1.9.2.2 Mercado Regional:
+
+Demanda específica en México, enfocándote en las diferentes regiones del estado de Hidalgo.
+
+Existe actualmente un gran número de productores ovinos en la región que según cifras de (Representación AGRICULTURA Hidalgo, 2023) se consideran 1 millón 206 mil 673 cabezas de ganado.
+
+A nivel nacional se considera a Hidalgo como el segundo productor de ganado ovino después del Estado de México.
+
+1.9.3 Competencia directa
+
+Análisis de la Competencia Directa para OvinApp:
+
+OvinApp es un sistema de administración clínica y ganadera para ganado ovino que ofrece una amplia gama de funcionalidades para la gestión integral de una explotación ovina.
+
+Funcionalidades:
+
+Registro de información médica y productiva del ganado.
+
+Control sanitario del rebaño.
+
+Gestión de tareas y calendario.
+
+Generación de reportes.
+
+Venta de animales.
+
+Más de 15,000 descargas y miles de usuarios activos.
+
+Fortalezas:
+
+Interfaz intuitiva y fácil de usar en español.
+
+Aplicación móvil disponible para iOS y Android.
+
+Membresía anual con diferentes planes para adaptarse a las necesidades de productores de distintos tamaños.
+
+Comunidad online de usuarios para compartir experiencias y conocimientos.
+
+Debilidades:
+
+Funcionalidades limitadas para la gestión de la reproducción.
+
+No ofrece herramientas avanzadas de análisis de datos.
+
+Soporte técnico básico.
+
+Se enfoca principalmente en el mercado latinoamericano.
+
+1.9.3.1 Benchmarking:
+
+La siguiente tabla compara diferentes sistemas basados en criterios clave como funcionalidades, facilidad de uso, precio, soporte técnico y reputación. Este tipo de análisis es útil para evaluar opciones de software o aplicaciones, especialmente en el contexto de decisiones de compra o implementación tecnológica. 
+
+Sistema
+
+Funcionalidades
+
+Facilidad de uso
+
+Precio
+
+Soporte técnico
+
+Reputación
+
+OvinApp
+
+Básico
+
+Buena
+
+Bajo
+
+Básico
+
+Buena
+
+SG
+
+Completo
+
+Buena
+
+Medio
+
+Completo
+
+Excelente
+
+OVINCA 
+
+Intermedio
+
+Regular
+
+Alto
+
+Intermedio
+
+Regular
+
+Oviswebs
+
+Avanzado
+
+Complejo
+
+Alto
+
+Avanzado
+
+Buena
+
+SIARCLIG
+
+Avanzado
+
+Buena
+
+Bajo
+
+Completo
+
+Excelente
+
+Tabla 1.2: Benchmarking.
+
+1.9.3.2 Plan de marketing:
+
+Producto/Servicio: Sistema de administración clínica y ganadera para ganado ovino, ofreciendo funcionalidades que agregan valor como gestión completa, praderas, decisiones estratégicas, facilidad de uso, precios competitivos, soporte en español y comunidad en línea.
+
+Cliente: Productores ovinos de diversos tamaños y experiencia, buscando soluciones completas, fáciles de usar y que mejoren la eficiencia/rentabilidad.
+
+Comportamiento: Buscan información y herramientas, valoran facilidad de uso/acceso a información y comparan antes de decidir.
+
+Segmento: Pequeños y medianos productores mexicanos/latinoamericanos buscando un sistema completo y accesible.
+
+Potencial: 1.2 millones de productores en México, mercado global a tasa de crecimiento anual del 8.5%.
+
+Digital:
+
+Sitio web atractivo e informativo.
+
+Redes sociales para conectar con potenciales clientes y compartir contenido relevante.
+
+Campañas de publicidad online dirigidas.
+
+Offline:
+
+Participación en ferias y eventos ganaderos.
+
+Colaboración con asociaciones de ganaderos.
+
+Publicidad en revistas y publicaciones especializadas.
+
+1.9.4 Factibilidad técnica:
+
+1.9.4.1 Ubicación del proyecto de emprendimiento:
+
+El proyecto SIARCLIG se ubicará en un entorno digital, aprovechando las capacidades de la computación en la nube. Esto permite flexibilidad y accesibilidad para los usuarios finales (ganaderos y veterinarios) desde cualquier lugar y en cualquier momento, reduciendo así la necesidad de una ubicación física específica para las operaciones del sistema.
+
+1.9.4.2 Distribución de recursos para su uso eficiente:
+
+Los recursos serán distribuidos en tres áreas principales: desarrollo e implementación del software, mantenimiento y soporte, y marketing y ventas. El equipo de desarrollo se enfocará en la creación del software utilizando metodologías ágiles para garantizar eficiencia y adaptabilidad. El mantenimiento y soporte asegurarán la operatividad continua del sistema, mientras que el equipo de marketing y ventas promoverá el sistema entre los usuarios potenciales.
+
+1.9.4.3. Recursos necesarios:
+
+Hardware: Servidores para alojamiento web y bases de datos, equipos de cómputo para el desarrollo.
+
+Software: Licencias para el entorno de desarrollo (Visual Studio), sistemas de gestión de bases de datos (manejador de base de datos Mariadb y plataformas de servidor web XAMPP para desarrollo local.
+
+Equipo de desarrollo: Desarrolladores de software, diseñadores de UI/UX, especialistas en bases de datos, administradores de sistemas, y personal de soporte técnico.
+
+1.9.4.4 Obtención de recursos materiales:
+
+Los recursos materiales, principalmente hardware y software, serán adquiridos a través de proveedores de tecnología reconocidos y distribuidores autorizados, garantizando así la calidad y el soporte necesario.
+
+1.9.4.5. Procesos necesarios:
+
+Desarrollo de Software: Diseño, programación, pruebas y despliegue del sistema. 
+
+Gestión de Proyectos: Planificación, seguimiento y control de avances.
+
+Soporte y Mantenimiento: Atención a usuarios, actualizaciones y resolución de incidencias.
+
+1.9.4.6 Control de calidad:
+
+Se utilizará la herramienta de gestión de calidad ISO 9001 para establecer un sistema de gestión de calidad (SGC) que garantice que el producto y/o servicio cumpla con las especificaciones del mercado. Esto incluirá revisiones regulares de calidad, auditorías internas, y la recopilación de feedback de los usuarios para la mejora continua del sistema.
+
+Para obtener lo anterior, hemos buscado la capacitación de ITIL para los procesos de mejora continua; además de que se le ofrece al usuario un modelo de mesa de servicio basado en esta metodología
+
+1.9.5 Factibilidad financiera:
+
+Para demostrar la viabilidad financiera del proyecto SIARCLIG, es necesario realizar proyecciones financieras basadas en estimaciones de costos y proyecciones de ingresos. 
+
+Se utilizarán indicadores clave como el Valor Presente Neto (VPN), la Tasa Interna de Retorno (TIR), y el Periodo de Recuperación de la Inversión (PB) para evaluar la rentabilidad del proyecto.
+
+1.9.5.1 Proyecciones financieras:
+
+Se elaborarán proyecciones de los ingresos esperados por suscripciones, servicios de soporte, y personalizaciones del sistema, así como de los costos asociados al desarrollo, operación, y marketing del sistema.
+
+1.9.5.2 Indicadores de viabilidad:
+
+Valor Presente Neto (VPN): Calculado para determinar el valor actual de los flujos de efectivo futuros generados por el proyecto, descontando la inversión inicial.
+
+Tasa Interna de Retorno (TIR): Tasa de descuento que iguala el valor presente de los flujos de efectivo futuros con la inversión inicial, para determinar la rentabilidad del proyecto. (“Descubre cómo calcular el valor presente y valor futuro: una guía ...”)
+
+Periodo de Recuperación (PB): Tiempo necesario para recuperar la inversión inicial a través de los flujos de efectivo generados por el proyecto. (“Periodo de recuperación que es el periodo de recuperación y por que es ...”)
+
+1.9.5.3 Mercado objetivo:
+
+La factibilidad financiera también se basará en un estudio de mercado que demuestre la existencia de una demanda suficiente para el producto/servicio ofrecido por SIARCLIG. Esto incluirá análisis de la competencia, identificación de las necesidades del mercado, y la diferenciación del producto para asegurar su rentabilidad.
+
+La elaboración de un plan de negocios detallado, que incluya análisis de mercado, proyecciones financieras y estrategias de implementación, será fundamental para asegurar la viabilidad y el éxito del proyecto SIARCLIG.
+
+1.9.6 Responsabilidad social:
+
+Estrategias Empresariales Sostenibles: En el ámbito de la responsabilidad social, es fundamental que las empresas desarrollen estrategias que no solo demuestren un compromiso con el medio ambiente, sino que también promuevan el bienestar social y económico de sus comunidades. 
+
+Esto puede incluir:
+
+Programas de Sostenibilidad: Implementación de programas que vayan más allá del reciclaje y la reducción de emisiones, tales como la utilización de energías renovables, la promoción de la biodiversidad y la inversión en la economía local.
+
+Inclusión y Diversidad: Fomentar una cultura de inclusión y diversidad dentro de la organización, lo que no solo mejora el ambiente laboral, sino que también refleja positivamente en la imagen de la empresa.
+
+Contribuciones a la Comunidad: Participar activamente en iniciativas comunitarias o desarrollar programas propios que aborden problemas locales.
+
+Transparencia y Ética: Mantener altos estándares de transparencia y ética en todas las operaciones, lo que incluye desde la cadena de suministro hasta las prácticas de marketing y ventas.
+
+1.9.7 Ventaja competitiva:
+
+Innovación Sostenible: La innovación que respete principios de sostenibilidad puede ser un diferenciador clave en el mercado. Esto puede incluir el desarrollo de productos o servicios que ofrezcan soluciones a problemas ambientales o sociales.
+
+Ubicación y Logística Sostenible: Elegir ubicaciones estratégicas que minimicen el impacto ambiental de la logística y fomenten la economía local puede ser un factor de diferenciación importante.
+
+Eficiencia y Reducción de Costes: La implementación de procesos eficientes no solo reduce costes, sino que también minimiza el impacto ambiental, lo que puede ser una ventaja competitiva frente a empresas menos eficientes.
+
+1.9.8 Recomendaciones:
+
+Adoptar un Enfoque Holístico: Considerar la responsabilidad social y ambiental no como un gasto, sino como una inversión en el futuro del negocio y de la sociedad.
+
+Fomentar la Innovación Abierta: Colaborar con startups, universidades, y otras organizaciones para fomentar la innovación en sostenibilidad.
+
+Medición y Reporte: Implementar sistemas para medir el impacto social y ambiental de la empresa y comunicarlo transparentemente a los stakeholders.
+
+CAPÍTULO 2 Marco teórico
+
+2.1 Proyecto:
+
+SIARCLIG Es una herramienta que ayudará para la sistematización y control de datos clínicos y ganaderos para optimizar su manejo y facilitar su administración, ayudando a obtener informes ordenados, claros y precisos que podrán ser de gran ayuda en la toma de decisiones del médico veterinario y el productor respecto a los nacimientos del ganado (el alcance considera ganado ovino), historias clínicas, tipo de alimentación, las vacunas, el índice de natalidad, indicie de mortandad, el control de partos y las primalas.
+
+Gestión en el Desarrollo de Software: Explora la importancia de la gestión de cambios durante el ciclo de vida del desarrollo de software. Puedes discutir modelos y marcos de trabajo que facilitan este proceso, como ITIL o Agile.
+
+Seguridad y Autenticación: Dado que el documento menciona cambios en el sistema de login, un tema relevante es la seguridad en aplicaciones web, específicamente métodos de autenticación y autorización, incluyendo OAuth, OpenID Connect.
+
+Roles y Permisos de Usuario: Analiza la importancia de definir claramente los roles y permisos de usuarios en sistemas de información para asegurar la segregación de funciones y el principio de mínimo privilegio.
+
+Impacto de Cambios en la Usabilidad: Considera cómo los cambios en el sistema, como los mencionados en el documento, pueden afectar la experiencia del usuario. Puedes incluir teorías y prácticas de diseño de UX/UI.
+
+Pruebas de Software: Pruebas en el desarrollo de software, incluyendo pruebas unitarias, de integración, de sistema, y de aceptación. (“Gestión de la calidad en el desarrollo de software ... - 3digits”)
+
+ 2.1.1 Interacción
+
+En el diagrama de base de datos:
+
+Esta base de datos representada en la imagen 1.2, está conectada a un servidor central denominado "Servidor de interacción entre DB y usuario", el cual parece ser el punto de acceso principal para los administradores del sistema. El administrador del sistema está representado por un ícono de una persona junto a un ordenador.
+
+A la derecha del diagrama, se muestra la interacción con los usuarios finales a través de dos métodos:
+
+Un usuario de veterinaria o productor recopila datos mediante un ordenador, indicado como "Portal".
+
+Un usuario recopila datos a través de un dispositivo móvil.
+
+Ambos métodos de interacción implican el envío de datos hacia y desde las bases de datos mediante el servidor central.
+
+Imagen 2.0: interacción.
+
+2.1.2 Ciclo de vida del programa:
+
+Así como en la imagen previa se detallaba la interacción entre bases de datos, administradores y usuarios, la imagen 1.3, se centra en el "Ciclo de vida" del sistema usando un modelo de cascada.
+
+Inicia con la fase de "Requisitos", donde se determinan las necesidades y especificaciones para un sistema que podría gestionar datos veterinarios, ganaderos o de inventario animal. El "Diseño" sigue como un proceso que se encarga de crear la arquitectura del sistema que satisfará esos requisitos. La "Implementación" es la construcción real del software, posiblemente incluyendo la integración de las bases de datos mencionadas anteriormente. 
+
+La "Verificación" implica probar el sistema para asegurarse de que cumple con los requisitos especificados. Y, por último, el "Mantenimiento", que sería el soporte y la actualización continua del sistema para asegurar su funcionalidad a largo plazo.
+
+El ciclo de vida expuesto en la imagen es crucial para comprender cómo se desarrolla, se prueba y se mantiene un sistema informático complejo, especialmente uno que podría estar sirviendo para compilar y administrar información en el ámbito de la veterinaria.
+
+Imagen 2.1: Ciclo de vida.
+
+2.1.2 2.1.3 Casos de uso:
+
+Los diagramas muestran un sistema diseñado para apoyar las operaciones veterinarias y de producción, integrando la información de los ciclos de vida y las operaciones diarias para facilitar la toma de decisiones y mejorar la gestión agropecuaria.
+
+2.1.1.3 Caso de uso visitas semanales:
+
+La imagen 1.4 representa el caso de uso de "Visitas semanales". Muestra las interacciones de un veterinario y un coordinador con un sistema que permite programar visitas, atender consultas, emitir recetas, realizar vacunaciones, y otras actividades relacionadas con el seguimiento a la salud y el manejo del ganado. También muestra la posibilidad de cancelar visitas y programar la siguiente. Todo esto culmina en un reporte de la visita.
+
+Imagen 2.2: Caso de uso visitas semanales.
+
+2.1.3.2 Caso de uso fertilidad:
+
+La imagen 1.5 detalla el caso de uso de "Fertilidad". Aquí, el veterinario trabaja con el sistema para registrar el número de ovejas inseminadas y el número de ovejas que parieron, lo que conduce a un reporte de natalidad. Además, incluye pasos como el control de natalidad y la selección para "primala", que podrían referirse a la selección de ovejas para cría o alguna otra actividad específica de gestión de la reproducción.
+
+Imagen 2.3: Caso de uso fertilidad.
+
+2.1.3.3 Caso de uso prolificidad:
+
+La imagen 1.6 se enfoca en el caso de uso de prolificidad, en el cual se registra el número de corderos nacidos y el número de ovejas que parieron, así como el control de crecimiento y el monitoreo para el destete. Estas acciones son fundamentales para evaluar y optimizar la productividad de la granja.
+
+Imagen 2.4: Caso de uso prolificidad.
+
+2.1.4 Modelo de entidad relación:
+
+El siguiente diagrama muestra de modelo de entidad-relación (ER) para una base de datos, relacionada con el sistema de administración de recursos clínicos y ganaderos que se ha discutido en imágenes anteriores. Este tipo de diagrama es utilizado para estructurar y detallar cómo la información se almacena en una base de datos y cómo las diferentes entidades se relacionan entre sí.
+
+En este diagrama, se identifican varias entidades como "Regiones", "Establos", "Tipo_inseminación", "Ovinos", "Usuarios", "Roles", "Receta", "Logs" y una entidad de relación "Ovinos_usuarios". Cada entidad tiene atributos; por ejemplo, "Ovinos" tiene atributos como "ovino_id", "fecha_parto", "sexo", "empadre", entre otros. La entidad "Usuarios" tiene atributos como "usuario_id", "nombre", "primer_apellido", etc.
+
+Las relaciones entre las entidades son indicadas por líneas que conectan las entidades, algunas de las cuales tienen una línea de puntos, indicando diferentes tipos de relaciones (como relaciones uno a muchos, muchos a muchos, etc.). Por ejemplo, los "Ovinos" están relacionados con los "Establos" y los "Usuarios" están relacionados con los "Roles" y con los "Logs".
+
+Este modelo se identifica el desarrollo del software, ya que define la manera en que se van a almacenar y consultar los datos dentro del sistema.
+
+Imagen 2.5: modelo entidad relación.
+
+2. 2 Servidor web:
+
+Al introducir la configuración y las capacidades del entorno de desarrollo para un sistema de información agropecuaria, es fundamental comprender las especificaciones técnicas y el flujo de datos entre el cliente y el servidor, la solicitud HTTP como configuraciones específicas del lenguaje de programación PHP. 
+
+ 2.2.1 Análisis y configuración de entorno para desarrollo de sistema de administración de recursos clínicos y ganaderos:
+
+La imagen desglosa las variables de entorno y cabeceras HTTP que resultan de una solicitud específica a un servidor local, incluyendo detalles como el agente de usuario y el tipo de contenido aceptado, se detallan los encabezados de una solicitud HTTP del tipo GET ejecutada hacia el anfitrión local bajo el protocolo HTTP/1.1. 
+
+La parte superior muestra los HTTP Request Headers, que son los encabezados de una solicitud GET enviada a "localhost" usando PHP/HTTP 1.1. Algunos de los encabezados detallados incluyen el Host, Connection y User-Agent. El User-Agent indica que la solicitud fue hecha desde un navegador Windows que se identifica como Chromium/Google Chrome versión 122.
+
+La sección HTTP Response Headers muestra un solo encabezado llamado "X-Powered-By", que indica que el servidor está utilizando PHP versión 8.2.4 para alimentar la aplicación.
+
+Debajo, se presentan dos secciones de configuración del servidor PHP:
+
+BCMath (Binary Calculator Math): Es una biblioteca de PHP que permite el cálculo de números con precisión arbitraria. Está "enabled" o habilitado, y la directiva bcmath.scale tiene un valor local y maestro de 0.
+
+Bz2: Esto se refiere a la extensión de PHP para la compresión Bzip2, que permite la compresión y descompresión de datos usando el algoritmo Bzip2. Está "Enabled" o habilitado, y la versión mostrada es 1.0.8, lanzada el 13 de julio de 2019.
+
+Imagen 2.6: Análisis de cabeceras HTTP y configuración de extensiones PHP.
+
+  2.2.2 Configuración y variables de entorno en un Servidor Web Apache con PHP:
+
+La imagen muestra variables de entorno y configuraciones del servidor web local que utiliza Apache y PHP. En la parte superior se enumeran las variables relacionadas con una solicitud HTTP, como la identificación del agente de usuario (User-Agent), que especifica que el cliente que hace la solicitud es un navegador Chromium versión 122 en Windows. También se muestran otros detalles de la solicitud, como el tipo de contenido que puede aceptar (Accept), la codificación que puede manejar (Accept-Encoding), el idioma preferido (Accept-Language) y las cookies.
+
+La sección inferior muestra variables de entorno del sistema y del servidor. Aquí se incluyen las rutas del sistema (SystemRoot y PATH), la configuración de comandos del sistema operativo (COMSPEC) y la ubicación del directorio raíz desde donde el servidor sirve los archivos (DocumentRoot). Además, se presentan detalles específicos del Servidor Web Apache, como su versión y la dirección en la que está operando, lo que indica que está configurado para escuchar en la dirección local (localhost) y en el puerto 80, el puerto predeterminado para el tráfico HTTP.
+
+Este tipo de información se utiliza para administradores de sistemas, desarrolladores y profesionales de IT que necesitan entender y configurar los aspectos de la interacción entre el servidor y el cliente, así como los detalles internos del servidor que afectan la operatividad y seguridad del sistema de software en uso.
+
+Imagen 2.8: Detalle de variables del servidor y ambiente de ejecución PHP.
+
+ 2.3 Lenguaje de programación:
+
+Para la realización del proyecto SIARCLIG, se emplearon varios lenguajes de programación y tecnologías, para el desarrollo web y la creación de interfaces de usuario interactivas. 
+
+Estas tecnologías se combinan para construir una aplicación web completa como SIARCLIG, donde HTML y CSS se utilizan para la estructura y el estilo, JavaScript y jQuery para la funcionalidad y dinamismo, PHP para el procesamiento del lado del servidor, y Bootstrap para el diseño responsivo y coherente de la interfaz de usuario.
+
+2.3.1 Tecnologías y lenguajes de programación utilizados en el desarrollo del sistema SIARCLIG:
+
+A continuación, se detallan estos elementos por puntos:
+
+HTML (HyperText Markup Language): Utilizado para estructurar el contenido en la web. 
+
+(“¿Qué es el HTML y dónde se utiliza? - Desafío Latam”) Es el esqueleto de las páginas web, definiendo elementos como encabezados, párrafos, enlaces y otros bloques de contenido.
+
+CSS (Cascading Style Sheets): Empleado para el diseño y la presentación de las páginas web. CSS permite estilizar el HTML, incluyendo colores, fuentes, espaciados, y la disposición de los elementos.
+
+JavaScript: Un lenguaje de programación que se utiliza para crear contenido dinámico en las páginas web. (“Javascript - Qué es, definición y concepto - Muy Tecnológicos”) Permite implementar funciones complejas en las páginas, como interacciones con el usuario, animaciones, y manejo de eventos.
+
+jQuery: Una biblioteca de JavaScript que simplifica la manipulación del DOM (Document Object Model), manejo de eventos, animaciones, y llamadas AJAX. (“Las herramientas más utilizadas en Internet: una visión general”) Su uso facilita la escritura de scripts que son compatibles entre navegadores.
+
+PHP (Hypertext Preprocessor): Un lenguaje de programación del lado del servidor utilizado para desarrollar aplicaciones web dinámicas. (“HTML, PHP y ASP: funciones en el desarrollo web. Descubre todo aquí”) PHP se emplea para generar contenido dinámico en el servidor antes de que la página sea enviada al navegador del usuario. (“PHP, ¿Qué es y cómo funciona? - Webempresa”)
+
+Bootstrap: Un framework de HTML, CSS, y JavaScript para el desarrollo de sitios y aplicaciones web responsivas y móviles primero. Ofrece un conjunto de herramientas para diseño de interfaz y componentes predefinidos que facilitan la creación de layouts estéticamente agradables y funcionales.
+
+SQL: Lenguaje de programación especializado en la gestión y manipulación de bases de datos. En este proyecto, SQL se utiliza para interactuar con la base de datos María DB, ejecutando operaciones como consultas, actualizaciones, inserciones y eliminaciones.
+
+Imagen 2.9: Lenguajes de programación.
+
+ CAPÍTULO 3 Frontend
+
+ 3.1 Interfaz de usuarios:
+
+En la constante evolución de las plataformas digitales, la gestión y diferenciación de roles dentro de un sistema se ha convertido en un aspecto crucial para garantizar tanto la eficiencia operativa como la seguridad. La reciente actualización de nuestro sistema de gestión incorpora mejoras significativas en la funcionalidad de inicio de sesión, marcando un hito importante en la manera en que administradores y operadores interactúan con la plataforma. Este documento destaca las innovaciones implementadas para optimizar la experiencia de usuario y fortalecer el marco de seguridad, enfocándose en la personalización de los perfiles de usuario según sus roles específicos dentro del sistema.
+
+El módulo login ha sido constituido para permitir el acceso a los usuarios diferenciando al usuario administrador, otorgándole capacidades únicas que reflejan su posición jerárquica en la gestión del sistema. Este cambio no solo simplifica la administración de usuarios y la generación de reportes, sino que también mejora la interfaz de usuario, proporcionando un entorno más intuitivo y seguro para la gestión de datos críticos.
+
+Por otro lado, el perfil del usuario operador, también conocido como dueño del sistema, ha sido claramente definido para resaltar sus responsabilidades y límites dentro de la plataforma. Aunque comparte ciertas funcionalidades con el administrador, debido a que no cuenta con privilegios para modificar el código, esto subraya la estructura de seguridad implementada para preservar la integridad del sistema.
+
+Este documento detalla las mejoras introducidas, subrayando la importancia de una gestión de roles efectiva y cómo estas actualizaciones contribuyen a una operación más segura y eficiente del sistema.
+
+Imagen 3.0: Login.
+
+3.1 Interfaz usuario administrador:
+
+Te invitamos a explorar la 'Imagen 3.1 y 3,2: Interfaz de Administrador.', donde podrás visualizar la interfaz que está a disposición del administrador, permitiéndole gestionar el sistema con mayor eficiencia.
+
+ Imagen 3.1: Interfaz administrador.
+
+Imagen 3.2: Creación de usuarios.
+
+3.2 Interfaz usuario operador:
+
+Se puede observar la 'Imagen 3.3 y 3.4: Interfaz de Operador.', donde podrás apreciar cómo esta interfaz especializada facilita la gestión y el control eficiente de las tareas diarias, adaptándose perfectamente a las necesidades de los operadores sin comprometer la seguridad o integridad del sistema.
+
+ Imagen 3.3: Interfaz operador.
+
+ Imagen 3.4: Modificación de usuarios.
+
+3.3 Interfaz usuario veterinario:
+
+La funcionalidad para los usuarios veterinarios permite crear productores, sino también asegurar que, durante el proceso de creación, los usuarios productores tengan únicamente permisos de visualización. De manera exclusiva, el usuario veterinario está limitado a crear usuarios con el rol de productor, lo que refuerza la estructura y seguridad de nuestro sistema. Además, este perfil está habilitado para programar citas y acceder a reportes relevantes. Observa de la 'Imagen 3.3 a la 3.11: Interfaz Veterinario.', donde se muestra cómo esta interfaz facilita la gestión eficaz y la revisión de reportes.
+
+ Imagen 3.5: Interfaz veterinario.
+
+ Imagen 3.6: Creación de usuario productor.
+
+En este módulo se integra el registro de consulta, misma que el veterinario llena la información de cada visita al productor como se muestra en la imagen 3.7 Generación de consulta.
+
+Imagen 3.7: Generación de consulta.
+
+En este módulo se integra el registro de partos, misma que el veterinario llena la información de cada parto que se concreta, registrando ganado nacido vivo y registro de fallecimientos al momento del parto como se muestra en la imagen ‘3.8 y 3.9: Interfaz veterinario’.
+
+Imagen 3.8: Registro de partos.
+
+Imagen 3.9: Registro de partos.
+
+En este módulo se integra el registro de Diagnóstico de la gestación, misma que el veterinario llena la información de cada visita al productor como se muestra en la imagen ‘3.10 y 3:11: Registro de diagnóstico de gestación y reporte de diagnóstico de gestación’.
+
+Imagen 3.10: Registro de diagnóstico de gestación.
+
+Imagen 3.11: Reporte de diagnóstico de gestación’.
+
+3.4 Interfaz usuario productor:
+
+En nuestra plataforma el usuario productor desempeña un papel crucial, dotado exclusivamente de la facultad para validar citas y acceder a informes detallados de su producción. Esta simplificación de responsabilidades asegura que puedan concentrarse en lo esencial: optimizar su producción y gestionar eficientemente su tiempo y recursos. Te invitamos a descubrir cómo estas funcionalidades se materializan visualmente en la 'Imagen 3.12 a la 3.14: Interfaz Productor.'. Aquí podrás apreciar una interfaz diseñada para empoderar a los productores con la información y las herramientas necesarias para tomar decisiones informadas y mantener su operación fluyendo.
+
+ Imagen 3.12: Interfaz productor.
+
+ Imagen 3.13: Evaluación de citas.
+
+ Imagen 3.14: Dashboard de inventario.
+
+ CAPÍTULO 4 Backend
+
+El Sistema de Administración de Recursos Clínicos y Ganaderos (SIARCLIG) representa un avance tecnológico significativo en la gestión y optimización de operaciones dentro del sector ganadero. En un mundo donde la eficiencia y la precisión en la gestión de datos se han vuelto cruciales, SIARCLIG emerge como una solución integral diseñada para enfrentar los desafíos únicos de este sector. El corazón de este sistema radica en su backend, el cual está meticulosamente diseñado para procesar, almacenar y analizar grandes volúmenes de datos clínicos y ganaderos, asegurando así una toma de decisiones informada y estratégica para los productores y veterinarios.
+
+Este elemento de configuración permite la implementación de funcionalidades clave como la gestión diferenciada de usuarios según sus roles, programación de citas, seguimiento de la salud del ganado, y generación de informes detallados, todo dentro de un marco de seguridad robusto para proteger los datos sensibles.
+
+4.1 Entorno de desarrollo:
+
+El sistema utiliza Apache como servidor web, configurado con variables de entorno y parámetros ajustados específicamente para las necesidades del proyecto. Estas configuraciones resultan esenciales para garantizar un procesamiento eficiente de los datos y, al mismo tiempo, optimizar la compresión y entrega de recursos hacia los clientes. Gracias a estos ajustes, el servidor proporciona una base confiable que asegura la correcta interacción entre el backend y los usuarios finales, contribuyendo al rendimiento general y la estabilidad del sistema.
+
+4.2 Lenguajes de programación:
+
+PHP se emplea como lenguaje de programación del lado del servidor, permitiendo la generación dinámica de contenido y la interacción directa entre la lógica de la aplicación y la interfaz de usuario. Su integración con Apache y MariaDB asegura un flujo de trabajo eficiente en la construcción del backend del sistema.
+
+Por su parte, SQL constituye el lenguaje de gestión de bases de datos utilizado en conjunto con MariaDB, facilitando de manera estructurada las operaciones de consulta, inserción, actualización y eliminación de información. Este enfoque garantiza la integridad y disponibilidad de los datos, aspectos fundamentales en un sistema orientado a la gestión clínica y ganadera.
+
+ Imagen 4.0: Controladores.
+
+4.3 Gestión de base de datos:
+
+MariaDB se utiliza como sistema de gestión de bases de datos para almacenar y organizar la información del sistema, la cual abarca datos de carácter veterinario, ganadero y de inventario animal. Su implementación asegura un manejo estructurado y confiable de los registros, permitiendo su consulta y actualización de manera eficiente.
+
+El modelo entidad-relación fue diseñado con el objetivo de estructurar de forma lógica y organizada la información almacenada en la base de datos. En este modelo se representan y relacionan las principales entidades del sistema, tales como Regiones, Establos, Ovinos y Usuarios, entre otras, garantizando la integridad y coherencia de los datos en todos los procesos del sistema.
+
+ Imagen 4.1: Conexiones.
+
+4.4 Funcionalidades clave del backend:
+
+El sistema integra un conjunto de funcionalidades que responden a las necesidades de gestión clínica y ganadera, organizadas en distintos módulos según los roles y objetivos de los usuarios.
+
+En primer lugar, la gestión de usuarios permite diferenciar claramente los roles de administrador, operador, veterinario y productor, asignando a cada uno funcionalidades específicas. Entre estas destacan la creación de nuevos usuarios, la generación de reportes y la administración de citas.
+
+La programación de citas constituye otra función esencial, ya que brinda a los veterinarios la posibilidad de organizar visitas a los establos, además de dar seguimiento al estado de salud y al manejo general del ganado.
+
+Asimismo, el sistema contempla la gestión de información clínica y ganadera, facilitando la recolección, almacenamiento y análisis de datos que resultan fundamentales para optimizar la toma de decisiones en el cuidado, reproducción y manejo de los animales.
+
+Finalmente, la generación de reportes ofrece la capacidad de elaborar informes detallados sobre diversos aspectos, como nacimientos, salud, alimentación y vacunación, lo que contribuye a mantener un control integral del ganado.
+
+ Imagen 4.2: Funcionalidades. 
+
+4.5 Explorando la arquitectura de backend:
+
+Como podemos observar en la imagen 4.3 muestra una vista de la estructura de directorios. 
+
+Los nombres de los directorios y archivos sugieren que esta aplicación sigue el patrón de diseño MVC (Modelo-Vista-Controlador), que es común en el desarrollo de aplicaciones web.
+
+A continuación, se muestra la estructura de archivos:
+
+Directorio 'ajax': Contiene archivos PHP que probablemente se utilizan para manejar solicitudes asíncronas (Ajax) desde el frontend. Los archivos son:
+
+auditoria.ajax.php
+
+reportes.ajax.php
+
+usuarios.ajax.php
+
+Directorio 'controladores': Almacena los controladores que contienen la lógica de negocio para diferentes secciones de la aplicación, como:
+
+controlador_auditoria.php
+
+controlador_common.php
+
+controlador_login.php
+
+controlador_reportes.php
+
+controlador_roles.php
+
+controlador_usuarios.php
+
+Estos controladores median entre los modelos y las vistas, procesando la entrada de los usuarios, solicitando datos a los modelos y pasando esos datos a las vistas para su presentación.
+
+El directorio vistas corresponde a la sección del sistema en la que se alojan los archivos vinculados con la interfaz de usuario. Generalmente, en este espacio se encuentran plantillas en HTML que son procesadas por el servidor y enviadas posteriormente al navegador del cliente, permitiendo la interacción visual con la aplicación.
+
+En cuanto a los archivos de configuración y mantenimiento, se destacan los siguientes:
+
+.gitignore: Archivo propio de Git que especifica qué elementos (archivos o directorios) deben excluirse del control de versiones, evitando que información innecesaria o sensible sea compartida en el repositorio.
+
+.htaccess: Archivo de configuración utilizado por el servidor web Apache para aplicar reglas específicas a nivel de directorio. Puede emplearse para reescribir URLs, reforzar medidas de seguridad o definir parámetros personalizados de ejecución.
+
+index.php: Archivo que actúa como punto de entrada principal de la aplicación PHP. Su función es inicializar la lógica de la aplicación, procesar las solicitudes recibidas y entregar 
+
+las respuestas correspondientes al usuario.
+
+ Imagen 4.3: Arquitectura backend. 
+
+4.5.1 Modulo agregar ovino:
+
+Este módulo corresponde a un formulario diseñado para registrar información de ovinos dentro del sistema. Su estructura y funcionamiento aseguran la captura adecuada de los datos y su posterior integración con la base de datos.
+
+En cuanto a la estructura del formulario, se define un identificador único para el mismo y se especifica el método de envío como POST, lo que permite que los datos capturados sean enviados de manera segura al servidor para su procesamiento.
+
+Los principales campos del formulario son los siguientes:
+
+Aretado (ID del Borrego): Campo de texto obligatorio para ingresar el número de arete, que actúa como identificador único de cada ovino.
+
+Sexo: Menú desplegable con las opciones Macho (value=1) y Hembra (value=0), permitiendo clasificar al animal según su sexo.
+
+Peso: Campo numérico para registrar el peso del ovino en kilogramos.
+
+Productor: Campo de texto obligatorio donde se ingresa el nombre o identificador del productor responsable.
+
+Observaciones: Campo de texto abierto que permite anotar cualquier información adicional relevante sobre el ovino.
+
+En cuanto a la integración con el controlador PHP, los datos enviados a través del formulario son procesados de la siguiente manera:
+
+Validación de datos: El sistema comprueba que los campos obligatorios estén completos y que la información capturada sea válida.
+
+Inserción en la base de datos: Una vez validados y sanitizados, los datos se utilizan para generar un nuevo registro dentro de la base de datos.
+
+Retroalimentación al usuario: Según el resultado de la operación, el sistema muestra un mensaje de confirmación o un error, lo que permite al usuario conocer el estado de la acción realizada.
+
+La imagen 4.4 ilustra gráficamente la disposición de los campos y botones, mostrando cómo se presentan al usuario dentro de la aplicación.
+
+ Imagen 4.4: Agregar ovino.
+
+4.5.2 Modulo auditoria:
+
+La interfaz de usuario de este módulo está orientada a facilitar la búsqueda de usuarios dentro del sistema con fines de auditoría, combinando elementos visuales, campos de entrada y un contenedor dinámico para mostrar resultados.
+
+En la parte superior se encuentra la barra de búsqueda, compuesta por un icono de lupa —implementado con FontAwesome— que refuerza visualmente la función del campo adyacente. Dicho campo de entrada, identificado como inp-auditoria, incluye un texto de guía (placeholder) que indica su propósito: “Buscar usuario...”. Además, cuenta con atributos de accesibilidad (aria-label y aria-describedby), los cuales permiten describir de manera más clara la función del campo para tecnologías asistivas.
+
+Junto al campo de texto se encuentra el botón de búsqueda, identificado como btn-buscarAudit. Este botón, al ser presionado, inicia el proceso de búsqueda en el sistema utilizando el criterio introducido por el usuario.
+
+Los resultados de la búsqueda se muestran en un contenedor designado (wrap-tableAudit). Al estar vacío en un inicio, se asume que su contenido será cargado dinámicamente a través de mecanismos como AJAX, lo que permite una experiencia más ágil y sin necesidad de recargar la página.
+
+En el backend, el controlador PHP correspondiente gestiona la solicitud de búsqueda. El flujo de trabajo se desarrolla en los siguientes pasos:
+
+Recepción de la solicitud: El término de búsqueda se envía desde el cliente mediante una llamada AJAX.
+
+Validación y sanitización: El sistema revisa y depura el término recibido para prevenir vulnerabilidades como la inyección SQL.
+
+Consulta a la base de datos: Se ejecuta una búsqueda en la base de datos con base en el criterio introducido.
+
+Respuesta al cliente: Los resultados se formatean en un esquema adecuado, como una tabla HTML, y se devuelven al navegador.
+
+Renderizado dinámico: JavaScript recibe la información y actualiza automáticamente el contenedor wrap-tableAudit con los resultados, sin recargar la página.
+
+La imagen 4.5 muestra de manera visual la forma en que estos componentes interactúan, ofreciendo una visión clara de la funcionalidad y la experiencia de usuario que aporta este módulo.
+
+ Imagen 4.5: Auditoria.
+
+4.5.3 Modulo consulta:
+
+Este módulo está diseñado para facilitar la consulta de información de ovinos y el registro de recetas veterinarias dentro del sistema, integrando funciones de búsqueda, visualización y actualización de datos.
+
+En la parte inicial se encuentra la consulta de ovinos, que permite al usuario ingresar el ID del animal (aretado) en un campo de texto y, mediante un botón de búsqueda, ejecutar la acción correspondiente. Al hacerlo, el sistema se conecta con el backend para recuperar la información del ovino solicitado.
+
+Una vez obtenidos los datos, se despliega un formulario de receta que presenta tanto información general como detalles específicos del animal. Entre los campos mostrados se encuentran:
+
+Información general: nombre del médico veterinario (M.V.Z.), productor, ID del ovino y la fecha actual (prellenada mediante PHP).
+
+Detalles del ovino: peso (editable), edad y sexo (mostrados como texto de referencia).
+
+Diagnóstico y tratamiento: un área de texto en la que el veterinario puede ingresar observaciones clínicas, diagnósticos y prescripciones correspondientes.
+
+Para cerrar el flujo, un botón de envío permite registrar o actualizar la información en la base de datos, vinculando los nuevos datos con el historial del animal.
+
+En el backend, el controlador PHP gestiona este proceso en varias etapas:
+
+Procesamiento de la consulta: recibe el ID del ovino, realiza la búsqueda en la base de datos y devuelve los datos asociados.
+
+Validación y sanitización: asegura que la entrada de datos sea correcta y libre de riesgos de inyección SQL u otros ataques.
+
+Actualización de la información: al enviar el formulario, valida nuevamente los campos y actualiza la base de datos con la información de diagnóstico, tratamiento, peso u otros valores relevantes.
+
+Retroalimentación al usuario: el sistema puede redirigir a una página de confirmación, mostrar un mensaje de éxito o error, o bien actualizar la interfaz de forma dinámica para reflejar los cambios.
+
+La imagen 4.6 ilustra la disposición de estos componentes y ayuda a comprender la experiencia de usuario al interactuar con esta funcionalidad.
+
+ Imagen 4.6: Consulta. 
+
+4.5.4 Modulo consultas:
+
+El controlador analizado tiene como finalidad gestionar la interacción entre el sistema y la interfaz de usuario en lo referente a la consulta de recetas veterinarias asociadas a un ovino. Sus principales objetivos son los siguientes:
+
+Buscar información de usuario: mediante la clase ControladorUsuarios, el sistema recupera los datos del usuario actual, basándose en la sesión activa.
+
+Obtener información de la receta: utilizando la clase ControladorReportes, se consulta la base de datos para obtener la información detallada de una receta o consulta veterinaria vinculada a un ovino específico y al productor correspondiente.
+
+Calcular la edad del ovino: la edad se determina a partir de la diferencia entre la fecha de parto y la fecha de la visita, empleando objetos DateTime y DateInterval.
+
+Preparar y mostrar datos: los valores obtenidos se organizan para ser desplegados en la interfaz de usuario, incluyendo información como el sexo, peso, edad del ovino, y el diagnóstico o tratamiento emitido por el médico veterinario.
+
+En cuanto a la lógica interna, el controlador emplea dos instancias principales:
+
+$crtU, correspondiente a la clase ControladorUsuarios, encargada de gestionar las consultas sobre la identidad y datos del usuario.
+
+$ctr, instancia de ControladorReportes, utilizada para obtener la información de recetas asociadas.
+
+La identificación del usuario se realiza a través de la variable de sesión $_SESSION['usuario'], lo que refleja que el sistema depende de sesiones activas para la autenticación y personalización de la información mostrada.
+
+El flujo lógico del proceso es el siguiente:
+
+El controlador verifica que la búsqueda de información del productor haya devuelto un único resultado válido.
+
+Con base en este productor y el ovino indicado, se recupera la información de la receta correspondiente.
+
+Se calcula la edad del animal mediante la diferencia de fechas (parto y visita).
+
+Finalmente, se organiza la información para ser mostrada en la interfaz de usuario, incluyendo:
+
+Folio de la receta.
+
+Nombre completo del médico veterinario (M.V.Z.).
+
+Identificación del productor.
+
+Identificación del ovino.
+
+Fecha de visita.
+
+Peso, edad y sexo del ovino.
+
+Diagnóstico o tratamiento correspondiente.
+
+De esta manera, el controlador no solo gestiona la interacción con la base de datos, sino que también transforma los datos en información estructurada y accesible para el usuario final.
+
+ Imagen 4.7: Consultas. 
+
+4.5.5 Modulo crear usuario:
+
+Este módulo presenta un formulario para la creación de usuarios dentro del sistema, cuya estructura y lógica aseguran un registro controlado y seguro de la información.
+
+En cuanto a los componentes del formulario, se incluyen:
+
+Campos de usuario y contraseña: obligatorios para la autenticación inicial, ya que definen las credenciales con las que el usuario accederá al sistema.
+
+Datos personales: campos destinados al nombre y apellidos. El primer y segundo apellido son opcionales, lo que otorga flexibilidad en el registro.
+
+Correo electrónico: campo esencial para la recuperación de cuentas y comunicaciones oficiales.
+
+Control de acceso basado en roles: menú desplegable que permite asignar un rol al usuario (Administrador, Veterinario, Productor u Operador). Este elemento solo se muestra cuando el usuario actual tiene rol de administrador, gracias a la lógica condicional implementada en PHP.
+
+Botones de acción: Aceptar para enviar los datos al servidor y Limpiar para reiniciar el formulario a su estado original.
+
+En la integración con el backend, el controlador PHP realiza las siguientes funciones:
+
+Recepción de datos del formulario: recolecta los datos enviados mediante el método POST.
+
+Validación de datos: comprueba que los campos obligatorios estén completos y que la información cumpla con el formato requerido (como el correo electrónico).
+
+Sanitización de entradas: depura los datos recibidos para prevenir vulnerabilidades como la inyección SQL.
+
+Verificación de permisos: garantiza que únicamente los administradores puedan asignar roles al crear un nuevo usuario.
+
+Creación del registro: inserta al nuevo usuario en la base de datos, asignándole el rol correspondiente.
+
+Retroalimentación al usuario: informa al responsable de la operación si el registro se completó con éxito o si ocurrió un error en el proceso.
+
+La imagen 4.8 ilustra la implementación visual del formulario y permite comprender cómo se integra esta funcionalidad en la experiencia de usuario.
+
+ Imagen 4.8: Crear usuario. 
+
+4.5.6 Modulo diagnóstico de gestación:
+
+Este módulo implementa un formulario para el registro de diagnósticos de gestación, permitiendo capturar información clave del estado reproductivo de los ovinos de manera estructurada y confiable.
+
+Entre los componentes del formulario se encuentran:
+
+Aretado (# Borrega): campo obligatorio que solicita el identificador único del ovino. Su inclusión es fundamental para garantizar que el diagnóstico quede asociado al animal correcto.
+
+Condición Corporal (CC): campo numérico limitado en un rango de 0 a 5, utilizado para registrar el estado físico del ovino, considerado un indicador relevante de salud y bienestar.
+
+Diagnóstico (Dx): campo numérico que permite codificar el resultado de la gestación (por ejemplo, 0 = no gestante, 1 = gestante). El valor está restringido al rango de 0 a 1, asegurando uniformidad en el registro.
+
+Observaciones: área destinada a notas o comentarios adicionales que el médico veterinario considere pertinentes.
+
+Botones de acción: Aceptar, para enviar los datos capturados, y Limpiar, para restablecer los valores iniciales del formulario.
+
+En la integración con el backend, un controlador PHP se encarga de procesar la información enviada, siguiendo el siguiente flujo:
+
+Recepción de datos: los valores ingresados en el formulario son recolectados mediante el método POST.
+
+Validación de datos: el sistema verifica que los campos obligatorios estén completos y que los valores se encuentren dentro de los rangos permitidos (CC entre 0 y 5; Dx en 0 o 1).
+
+Registro en la base de datos: si la validación es exitosa, el diagnóstico se inserta en la base de datos y se asocia directamente con el ovino correspondiente.
+
+Retroalimentación al usuario: tras el registro, se muestra un mensaje de confirmación, un error en caso de fallos o, en algunos escenarios, una redirección hacia otra sección del sistema.
+
+La imagen 4.9 ilustra la disposición del formulario en la interfaz de usuario, mostrando cómo se articula esta funcionalidad dentro de la aplicación.
+
+ Imagen 4.9: Diagnóstico de gestación.
+
+4.5.7 Modulo error:
+
+El sistema incorpora una página de error 404 personalizada, cuyo propósito es informar al usuario de manera clara cuando intenta acceder a un recurso inexistente. Esta práctica no solo mejora la experiencia de navegación, sino que también contribuye a mantener una identidad visual coherente en toda la aplicación.
+
+La estructura de la página incluye un contenedor principal con la clase container-error, utilizado para envolver y centrar el mensaje de error en pantalla. En su interior, se muestra el texto "ERROR 404" dentro de un encabezado h1 asociado a la clase company, lo que indica la aplicación de estilos corporativos o de marca para reforzar la identidad visual del sistema.
+
+Desde el punto de vista técnico, la personalización de esta página ofrece varias ventajas. En primer lugar, permite informar al usuario de forma amigable sobre la inexistencia del recurso solicitado y, al mismo tiempo, puede proporcionar enlaces de retorno a la página principal o accesos de búsqueda para continuar con la navegación.
+
+En el backend, un controlador se encarga de detectar las solicitudes erróneas y responder con esta página personalizada, en lugar de mostrar un mensaje genérico del servidor.
+
+Finalmente, una página de error bien diseñada impacta también en términos de SEO y usabilidad, ya que gestiona de manera adecuada los enlaces rotos y contribuye a una experiencia más consistente dentro de la aplicación.
+
+La imagen 4.10 ilustra la apariencia de esta página y su integración en la experiencia general de usuario del sistema.
+
+ Imagen 4.10: Error.
+
+4.5.8 Modulo evaluar cita:
+
+El fragmento analizado corresponde a la sección del sistema destinada a la evaluación de citas, cuya función principal es mostrar de manera estructurada las citas programadas y aquellas pendientes de revisión.
+
+La estructura está conformada por un contenedor principal identificado como wrap-tableEvaluarCita, en el cual se despliega la información en formato tabular. Este contenedor posee estilos definidos que controlan su altura y anchura, con el fin de garantizar una visualización adecuada de los datos. El contenido dinámico puede incluir citas en espera de evaluación, citas ya programadas o detalles específicos vinculados a cada visita.
+
+En cuanto a la integración con el backend, el controlador encargado de esta sección realiza las siguientes operaciones:
+
+Recuperación de datos: consulta la base de datos para obtener tanto las estadísticas actuales de ovinos como la información de las citas que requieren evaluación.
+
+Procesamiento de información: filtra y organiza los datos de acuerdo con la lógica de negocio, de manera que se prioricen las citas pendientes de revisión o se agrupen por criterios relevantes.
+
+Envío al frontend: utiliza mecanismos como AJAX para enviar los datos al cliente, donde JavaScript se encarga de incorporarlos dinámicamente en el contenedor correspondiente.
+
+Desde la perspectiva de usabilidad y accesibilidad, esta sección contempla elementos interactivos como los enlaces Ver más, que permiten a los usuarios explorar información adicional sobre las citas o estadísticas desplegadas. Asimismo, al tratarse de contenido cargado dinámicamente, es importante implementar indicadores de carga y un manejo adecuado de errores, de modo que los usuarios estén informados sobre el estado de cada solicitud.
+
+La imagen 4.10 ilustra la disposición visual de este módulo y la manera en que se integra dentro de la experiencia general de la aplicación.
+
+ Imagen 4.11: Evaluar cita.
+
+4.5.9 Modulo header:
+
+Este módulo en PHP constituye un componente fundamental en la gestión de la interfaz de usuario, ya que permite la creación dinámica de un menú de navegación adaptado al rol del usuario que inicia sesión en el sistema.
+
+En primer lugar, se establece un control de acceso verificando la existencia de las variables de sesión usuario y rol. Si alguna de ellas no está presente, el sistema redirige automáticamente a la página principal. De esta forma, se garantiza que únicamente los usuarios autenticados y con roles definidos puedan interactuar con las funcionalidades del sistema.
+
+Para la generación dinámica del menú, se crea una instancia de ControladorRoles, la cual invoca al método ctrMenu. Este método devuelve un arreglo estructurado con los elementos del menú correspondientes al rol actual del usuario. En caso de que el resultado sea -1, lo que indica un error o un rol no reconocido, el sistema redirige nuevamente al inicio, reforzando la seguridad y coherencia del acceso.
+
+La construcción del menú se realiza dentro de una barra de navegación expansible. A través de un ciclo, el sistema recorre el arreglo devuelto y genera las opciones principales junto con sus subopciones, todas definidas de manera dinámica. Cada enlace es procesado con la función explode, lo que permite dividirlo en componentes, generalmente bajo un formato "texto & enlace", facilitando así su administración. Posteriormente, cada destino es sometido a la función ctrLimpiarPagina, con el objetivo de sanitizar las URL y prevenir posibles inyecciones de código, además de garantizar enlaces correctamente formateados.
+
+En términos de presentación y estilo, el módulo utiliza clases de Bootstrap, lo que asegura una interfaz responsiva y visualmente consistente. A ello se suman íconos de FontAwesome que complementan la experiencia visual, como el botón de Salir, mejorando la usabilidad y la claridad de la navegación.
+
+La imagen 4.12 muestra de manera visual la integración de este menú dentro de la interfaz gráfica del sistema, resaltando cómo la navegación se ajusta al rol del usuario y contribuye a una experiencia de uso personalizada y segura.
+
+ Imagen 4.12: Header.
+
+4.5.10 Modulo home:
+
+Este módulo en PHP implementa una pantalla de bienvenida personalizada que adapta su contenido al rol del usuario autenticado dentro del sistema. A través de la integración con un controlador de roles, se consigue mostrar tanto un saludo individualizado como una imagen representativa, fortaleciendo la experiencia de usuario.
+
+En la fase inicial, el sistema instancia la clase ControladorRoles, la cual se encarga de gestionar operaciones vinculadas a los roles. Mediante el método ctrObtenerImagen, se obtiene la imagen asociada al rol actual del usuario, tomando como referencia la variable de sesión $_SESSION['rol']. Este procedimiento asegura que cada perfil disponga de un elemento gráfico distintivo, reforzando la personalización de la interfaz.
+
+La estructura HTML correspondiente define una sección principal (main) que incluye dos componentes:
+
+Una imagen dinámica (<img>), cuya ruta se genera concatenando el directorio vistas/img/ con la variable $img, que contiene el nombre de la imagen recuperada. Esto sugiere una organización de imágenes en carpetas según el rol.
+
+Un texto de bienvenida (<div class="main-texto">), en el que se muestra el nombre del usuario actual, obtenido de la sesión.
+
+En conjunto, estos elementos logran transmitir un entorno personalizado, adaptado tanto al perfil funcional como a la identidad del usuario.
+
+Desde la perspectiva técnica y de seguridad, el módulo parte de la premisa de que las variables de sesión, como $_SESSION['usuario'] y $_SESSION['rol'], ya han sido definidas tras el proceso de autenticación. Sin embargo, es importante que tanto los roles como la asignación de imágenes se gestionen con cuidado, evitando la exposición de información sensible. Asimismo, toda la información obtenida de sesiones o bases de datos debe validarse y sanearse correctamente, a fin de prevenir vulnerabilidades como la inyección de código o rutas maliciosas.
+
+La imagen 4.13 muestra de manera visual la implementación de este módulo, evidenciando cómo la personalización basada en roles mejora la interacción del usuario y refuerza el carácter dinámico de la aplicación.
+
+ Imagen 4.13: Home.
+
+4.5.11 Modulo inventario:
+
+Este módulo en HTML constituye una interfaz de usuario orientada a la gestión del inventario de ovinos, ofreciendo un resumen visual y detallado que facilita el control y monitoreo del ganado dentro del sistema. Su diseño busca proporcionar tanto una visión general rápida como la posibilidad de acceder a información más específica.
+
+La interfaz se compone de dos secciones principales:
+
+Cuadros informativos de resumen
+
+Se presentan tres cuadros destinados a mostrar estadísticas clave:
+
+Total de ovinos, representado en un cuadro de color azul.
+
+Total de machos y total de hembras, cada uno diferenciado con un color distintivo que facilita su identificación visual.
+
+Cada cuadro incluye un ícono representativo de FontAwesome, como gráficos para el total y símbolos de género para machos y hembras, lo que refuerza la interpretación de los datos. Además, todos los cuadros incorporan un enlace “Ver más”, que sugiere la posibilidad de acceder a vistas más detalladas o a funcionalidades adicionales.
+
+Área de tabla dinámica
+
+En la parte inferior, se encuentra un contenedor designado como wrap-tableInventario, destinado a mostrar una tabla dinámica con los detalles del inventario. El estilo aplicado a este contenedor sugiere que está configurado para expandirse o contraerse dentro de ciertos límites de altura y anchura, asegurando una visualización adecuada y organizada de los datos.
+
+Integración con el backend
+
+Este módulo se encuentra estrechamente vinculado con la lógica del backend, que cumple con las siguientes funciones:
+
+Proveer datos actualizados sobre el total de ovinos y su distribución por género.
+
+Generar y enviar la información del inventario para ser desplegada dinámicamente en el contenedor de la tabla.
+
+De esta manera, el módulo no solo facilita una visión general del inventario, sino que también habilita el acceso a datos más específicos, contribuyendo a una gestión más precisa y eficiente del ganado.
+
+La imagen 4.14 ilustra cómo estos elementos se integran en la interfaz, mostrando un diseño funcional y coherente con la experiencia de usuario de la aplicación.
+
+ Imagen 4.14: Inventario.
+
+4.5.12 Modulo login:
+
+Este módulo HTML y PHP forma la interfaz de usuario y la lógica de backend para la pantalla de inicio de sesión del "Sistema de Administración de Recursos Clínicos y Ganaderos" (SIARCLIG). Es un componente para controlar el acceso al sistema, asegurando que solo los usuarios autenticados puedan acceder a sus funcionalidades.
+
+4.5.12.1 Estructura de la interfaz de usuario:
+
+El sistema presenta una pantalla de inicio de sesión que cumple con dos funciones principales: mostrar la identidad del sistema y permitir que los usuarios accedan de manera segura.
+
+En la parte superior se encuentra el título del sistema, el cual indica claramente de qué se trata y cuál es su propósito. Justo debajo, dentro del contenedor de inicio de sesión, aparece un banner ilustrativo con una imagen relacionada con ovejas, reforzando la temática del sistema y haciéndolo más atractivo visualmente.
+
+El corazón de esta pantalla es el formulario de acceso, compuesto por dos campos donde el usuario introduce su nombre de usuario y su contraseña. A continuación, un botón de ingreso permite enviar la información para validar el acceso.
+
+Detrás de esta interfaz gráfica, en el backend, un controlador especializado llamado ControladorLogin se encarga de procesar la autenticación. Este módulo compara las credenciales proporcionadas por el usuario con la información almacenada en la base de datos. Si son correctas, se establecen variables de sesión que permiten la navegación segura dentro del sistema.
+
+En caso de que los datos sean incorrectos, el sistema muestra un mensaje de error informando que el nombre de usuario o la contraseña no son válidos, ayudando así al usuario a corregir el intento.
+
+La imagen 4.15 ilustra de manera clara cómo se integra cada uno de estos elementos, ofreciendo una visión completa de la experiencia del usuario al interactuar con la pantalla de inicio de sesión del sistema SIARCLIG.
+
+ Imagen 4.15: Login.
+
+4.5.13 Modulo modificar usuario:
+
+Este módulo del sistema SIARCLIG proporciona una interfaz diseñada para buscar y modificar la información de los usuarios registrados. Está conformado por dos elementos principales: una barra de búsqueda y un modal emergente que facilita la edición de los datos del usuario seleccionado.
+
+En primer lugar, la barra de búsqueda permite al administrador introducir un criterio —ya sea un identificador o un nombre de usuario— y, mediante el botón Buscar, iniciar la localización del registro correspondiente dentro del sistema. Aunque los detalles técnicos de la búsqueda no se muestran en este punto, el flujo natural consiste en enviar la solicitud al servidor para recuperar la información del usuario.
+
+Una vez encontrado el registro, el sistema habilita un modal de Bootstrap, denominado modificarU, en el cual se despliega la información actual del usuario. Este modal incluye varios campos de formulario: un identificador único (oculto y de solo lectura para garantizar la integridad del registro), el nombre de usuario (mostrado pero no editable), así como la contraseña, nombre, apellidos, correo electrónico y rol, que sí pueden ser modificados. Para garantizar la consistencia de los datos, algunos campos —como el nombre, el primer apellido y el rol— se marcan como obligatorios.
+
+El modal integra también botones de acción:
+
+Cancelar, que permite cerrar la ventana sin guardar cambios.
+
+Modificar, que invoca la función correspondiente para actualizar la información en la base de datos.
+
+El flujo de trabajo es claro: el usuario administrador inicia la búsqueda, visualiza los resultados en la sección wrap-tableMU, selecciona el registro que desea modificar y, a través del modal, realiza los cambios necesarios. Una vez confirmada la modificación, el sistema actualiza los datos en la base de usuarios.
+
+La imagen 4.16 muestra cómo se combinan estos elementos en la práctica, permitiendo comprender tanto la apariencia de la interfaz como la secuencia de interacción que sigue el usuario.
+
+ Imagen 4.16: Modificar usuario.
+
+4.5.14 Modulo partos:
+
+Este módulo está diseñado para registrar información detallada sobre los partos dentro del sistema, ofreciendo una interfaz clara y funcional que facilita la captura de datos esenciales tanto de los progenitores como de las crías. Su objetivo es garantizar un registro completo y estructurado de cada evento reproductivo.
+
+El formulario de registro incluye diversos campos obligatorios y opcionales. En primer lugar, se solicita la identificación de los padres, especificando el arete de la madre y el arete del padre, lo que asegura la trazabilidad del evento. También se incorpora un campo para registrar la fecha del parto y un selector para definir el método de empadre, que puede ser por monta o por inseminación artificial. Adicionalmente, se registra el productor responsable, lo que permite asociar la información a la persona encargada del ganado.
+
+La sección denominada container-crías permite detallar la información de cada cría nacida. En este apartado, el usuario puede ingresar el ID (arete) de la cría, su sexo, el estado al nacer (vivo o muerto), el peso y cualquier observación adicional. El diseño del formulario está preparado para ser dinámico, de manera que es posible replicar los campos de registro y añadir varias crías en un mismo evento. Esto se gestiona a través del botón Agregar cría (btn-agregar-cria).
+
+Finalmente, se incorporan botones de acción que permiten tanto registrar el parto como añadir nuevas crías. Estas funciones se apoyan en JavaScript para realizar la clonación de campos dinámicos y enviar los datos al sistema, asegurando que el proceso de captura sea flexible y eficiente.
+
+La imagen 4.17 ilustra de forma visual cómo se integra este módulo en la aplicación, mostrando la dinámica de interacción y el impacto positivo que genera en la experiencia del usuario.
+
+ Imagen 4.17: Partos.
+
+4.5.15 Modulo reportes diagnósticos de gestación:
+
+Este módulo del sistema está diseñado para mostrar un reporte de diagnóstico de gestación, el cual resulta fundamental en la gestión de los corderos y en el seguimiento de la producción ganadera. Su propósito es ofrecer a los usuarios una visualización clara y organizada de la información relevante, de manera que pueda analizarse o revisarse fácilmente.
+
+El módulo inicia con un título principal (Reporte: Diagnóstico Gestación), que orienta al usuario sobre el contenido de la pantalla. Debajo de este, se encuentra un contenedor específico (wrap-reporte-dg) que organiza y muestra la información en forma de tablas, las cuales cuentan con un estilo visual adaptado para resaltar la lectura de los datos.
+
+En cuanto a la funcionalidad, el contenedor está pensado para ser llenado dinámicamente con la información proveniente del sistema. Esto implica una comunicación con el backend, donde se solicitan los datos correspondientes al diagnóstico de gestación, como fechas de revisión, identificadores de los animales, resultados obtenidos y observaciones adicionales.
+
+Además, dependiendo de la implementación, este módulo puede incorporar herramientas de filtrado, ordenamiento o paginación, lo que permite al usuario encontrar con mayor rapidez la información que requiere. Esto mejora de manera significativa la experiencia de uso, facilitando la gestión y análisis de datos reproductivos.
+
+La imagen 4.18 ofrece una representación visual de este módulo, permitiendo comprender cómo se integra dentro de la aplicación y cómo contribuye a optimizar la interacción del usuario con la información.
+
+ Imagen 4.18: Diagnósticos de gestación.
+
+4.5.16 Modulo reporte de partos:
+
+Este módulo del sistema está orientado a la generación de reportes sobre partos, proporcionando una interfaz clara y organizada que permite a los usuarios acceder a información relevante de manera sencilla. Al igual que otros módulos de reporte, está diseñado como una base estructural que se complementa con contenido dinámico proveniente del sistema.
+
+El módulo inicia con un título principal (Reporte: Partos), que establece de manera inmediata el propósito de la sección y orienta al usuario sobre el tipo de información que encontrará. Debajo de este título se ubica el contenedor de datos (wrap-reporte-partos), encargado de mostrar la información en formato tabular. Este contenedor aplica estilos CSS que mejoran tanto la legibilidad como la presentación visual de los datos.
+
+En cuanto a su funcionalidad, el módulo está preparado para recibir y mostrar información de manera dinámica. Esto puede lograrse mediante la inyección de HTML generado en el servidor a partir de consultas a la base de datos, o bien a través de solicitudes AJAX que permiten recuperar y desplegar la información directamente en el navegador del usuario.
+
+El reporte incluye datos clave relacionados con los partos, tales como la fecha en que se registró el evento, la identificación de la madre, así como el número y detalles de las crías (ID, sexo, peso al nacer). También contempla la posibilidad de mostrar observaciones adicionales que complementen el registro. Presentar esta información en forma de tabla facilita la lectura, comparación y análisis de los datos por parte de los usuarios.
+
+La imagen 4.19 ilustra de manera visual cómo se integra este módulo en la aplicación, mostrando la estructura y el estilo con que se despliega la información, lo que contribuye a una experiencia de usuario más completa y eficiente.
+
+ Imagen 4.19: Reporte de partos.
+
+4.5.17 Modulo reporte de usuarios:
+
+Este módulo corresponde al Reporte de Usuarios, cuya finalidad es proporcionar una vista organizada y dinámica de la información relacionada con las personas registradas en el sistema. La interfaz está diseñada para ser clara y efectiva, de modo que los administradores puedan consultar y gestionar la información de manera sencilla.
+
+En la parte superior se encuentra un título principal (Reporte de Usuarios), que indica de manera explícita el contenido de la sección. Debajo de este, se sitúa un contenedor de datos (wrap-tableU), encargado de mostrar la información en formato tabular. Dicho contenedor posee restricciones de altura y anchura que permiten mantener la presentación ordenada, utilizando barras de desplazamiento cuando la cantidad de información excede el espacio disponible en pantalla.
+
+En cuanto a la funcionalidad, este módulo está preparado para recibir y mostrar datos de manera dinámica. El contenedor puede llenarse mediante la carga inicial de la página o a través de llamadas asíncronas al servidor (AJAX), lo que ofrece una experiencia más fluida al usuario al evitar recargas completas.
+
+Los datos que se presentan incluyen aspectos esenciales como el nombre del usuario, su rol dentro del sistema, su estado de actividad y, en algunos casos, métricas adicionales o detalles relevantes. Además, la interfaz contempla la posibilidad de realizar acciones sobre estos registros, como editar, eliminar o visualizar información detallada de un perfil, dependiendo siempre de los permisos y la lógica de negocio establecida en la aplicación.
+
+La imagen 4.20 muestra de forma visual cómo este módulo se integra dentro de la aplicación, destacando tanto su funcionalidad como el diseño enfocado en la facilidad de uso.
+
+ Imagen 4.20: Reporte de usuarios.
+
+4.5.18 Modulo reportes:
+
+Este módulo tiene como propósito facilitar la navegación entre los diferentes reportes disponibles en el sistema, tales como el Diagnóstico de Gestación y los Reportes de Partos. Su diseño busca ofrecer una interfaz simple, clara y funcional, que permita al usuario acceder rápidamente a la información que necesita.
+
+La estructura comienza con un título principal (Reportes), que indica al usuario el propósito de la sección y actúa como punto de referencia. Debajo de este se encuentra el contenedor principal (container-main), encargado de organizar visualmente los accesos a los reportes.
+
+Dentro del contenedor, se despliega una lista de opciones en formato tabular, donde cada elemento contiene un enlace directo al reporte correspondiente. De esta manera, el usuario puede seleccionar fácilmente el documento que desea consultar, optimizando la navegación y reduciendo el tiempo de búsqueda.
+
+En cuanto a la usabilidad, el diseño está pensado para ser responsivo, es decir, se adapta a distintos tamaños de pantalla y dispositivos, garantizando que la experiencia sea clara y consistente, tanto en equipos de escritorio como en dispositivos móviles.
+
+El módulo también contempla aspectos de buenas prácticas y seguridad. Al integrar técnicas de limpieza tanto en el servidor (mediante sesiones en PHP) como en el cliente (a través de localStorage), se asegura una gestión más completa al momento de cerrar sesión. Además, el uso de JavaScript permite realizar tareas adicionales, como la limpieza de datos en el navegador, antes de redirigir al usuario a otra página, lo que incrementa la protección y flexibilidad del sistema.
+
+La imagen 4.21 ofrece una representación visual de este módulo, mostrando cómo se organiza y cómo contribuye a mejorar la experiencia global de uso dentro de la aplicación.
+
+ Imagen 4.21: Reporte.
+
+4.5.19 Modulo salir:
+
+Este módulo está encargado de gestionar el proceso de cierre de sesión dentro de la aplicación, garantizando tanto la finalización de la sesión en el servidor como la eliminación de la información almacenada en el navegador del usuario. Su propósito es reforzar la seguridad del sistema y asegurar que no permanezcan datos sensibles tras el cierre de sesión.
+
+En primer lugar, se lleva a cabo la limpieza de la sesión en PHP, mediante las funciones session_unset() y session_destroy(). Estas instrucciones eliminan todas las variables asociadas a la sesión y destruyen la sesión activa, lo que evita accesos indebidos a información que ya no debería estar disponible una vez que el usuario se desconecta.
+
+Posteriormente, se ejecuta la redirección del usuario hacia la página de inicio del sistema. Aunque la redirección tradicional con header("Location:/siarclig") se encuentra comentada en el código, el módulo opta por una alternativa más flexible mediante JavaScript. Esta elección permite realizar tareas adicionales antes de redirigir, en particular la limpieza del almacenamiento local.
+
+Con la instrucción localStorage.clear(), se eliminan todos los datos que pudieran haber quedado guardados en el navegador, como tokens de autenticación, preferencias del usuario o información temporal de sesión. Finalmente, mediante window.location = "/siarclig"; el usuario es conducido de nuevo a la página de inicio.
+
+Este flujo asegura que tanto el servidor como el cliente quedan libres de información residual, reforzando la seguridad y la privacidad en la aplicación. La imagen 4.22 ilustra cómo este proceso se integra dentro de la experiencia de usuario, mostrando una transición fluida y confiable al momento de cerrar sesión.
+
+ Imagen 4.22: Salir.
+
+ CAPÍTULO 5 Manejadores de base de datos:
+
+El proyecto SIARCLIG implementa un sistema integral para la administración de recursos clínicos y ganaderos, enfocado especialmente en el sector ovino. Una parte crucial de este sistema es la gestión de datos, para la cual se utilizan manejadores de bases de datos robustos y flexibles.
+
+5.1 Tecnologías de base de datos utilizadas:
+
+MariaDB es el sistema de gestión de bases de datos elegido para el almacenamiento, la organización y la recuperación de la información dentro del sistema. Se trata de un motor relacional (RDBMS) ampliamente reconocido por su eficiencia, confiabilidad y robustez, además de contar con un sólido respaldo por parte de la comunidad de software libre.
+
+Su incorporación en el sistema asegura una gestión estructurada de los datos mediante tablas relacionadas, lo que permite mantener la integridad, coherencia y disponibilidad de la información. Asimismo, al ser una tecnología de uso extendido y bien documentada, garantiza compatibilidad con múltiples entornos y facilidad de mantenimiento a largo plazo.
+
+5.2 Características principales:
+
+Dentro del sistema, MariaDB se consolida como el motor de base de datos relacional idóneo gracias a un conjunto de características que fortalecen la gestión de la información clínica y ganadera.
+
+En primer lugar, ofrece flexibilidad y escalabilidad en la modelación de datos, lo cual permite adaptarse a la complejidad de los registros propios del dominio y, al mismo tiempo, facilita el crecimiento de la base de datos conforme aumenta la cantidad de información almacenada.
+
+En cuanto a la seguridad, MariaDB dispone de mecanismos robustos como autenticación de usuarios, cifrado de datos y control de acceso basado en roles, asegurando que la información sensible se maneje de manera adecuada y bajo protocolos de protección confiables.
+
+Asimismo, garantiza un alto rendimiento, ya que está optimizado para responder con rapidez incluso en escenarios de cargas de trabajo elevadas y accesos concurrentes por múltiples usuarios.
+
+Finalmente, destaca por su compatibilidad con estándares, particularmente con el lenguaje SQL, lo que facilita su integración con diversas tecnologías de desarrollo web y aplicaciones complementarias.
+
+La imagen 5.1 muestra la relación entre las tablas del sistema, ilustrando la forma en que MariaDB organiza y conecta la información para asegurar coherencia e integridad en los datos.
+
+  Imagen 5.0: Diagrama entidad relación de la base de datos.
+
+  Imagen 5.1: versión de manejador de base de datos.
+
+La elección de MariaDB responde a la necesidad de contar con una solución probada, confiable y ampliamente utilizada en el ámbito de las aplicaciones web dinámicas y los sistemas de gestión de información. Su integración con el servidor web Apache y el lenguaje de programación PHP conforma la base tecnológica que sustenta el backend de SIARCLIG. Esta combinación garantiza un entorno sólido que ofrece eficiencia en el procesamiento de datos, seguridad en el manejo de la información y capacidad de escalabilidad para responder al crecimiento del sistema en el tiempo.
+
+ CAPÍTULO 6 Pruebas en el proyecto:
+
+Una de las principales pruebas que se realizaron en este proyecto fueron pruebas preventivas, las cuales consistieron en revisar que los datos de un veterinario no pudieran ser mezclados con otro al momento del reportero o al momento de la captura de información de uno vino en la interfaz de veterinario como se muestra en la imagen ‘6.1 y 6.2: Pruebas del proyecto’.
+
+   Imagen 6.1: Pruebas preventivas.
+
+ Imagen 6.2: Prueba exitosa.
+
+El sistema SIARCLIG, diseñado para la gestión integral de recursos clínicos y ganaderos, integra eficazmente los datos de ambos sectores en una única plataforma. Esta centralización de información facilita una gestión cohesiva y eficiente, mejorando significativamente la toma de decisiones y la optimización de recursos. La implementación de funcionalidades específicas para diferentes roles de usuario (administrador, operador, veterinario, productor) asegura que cada usuario pueda acceder y manipular los datos pertinentes a su función de manera intuitiva y eficaz como se muestra en las imágenes ‘6.3 a las 6.6: Pruebas del proyecto’.
+
+ Imagen 6.3: Prueba de funcionalidad administrador.
+
+ Imagen 6.4: Prueba de funcionalidad operador.
+
+ Imagen 6.5: Prueba de funcionalidad veterinario.
+
+ Imagen 6.6: Prueba de funcionalidad productor.
+
+6.2 Usabilidad y experiencia de usuario:
+
+Con interfaces de usuario diseñadas pensando en la facilidad de uso como se pretende reflejar en la imagen ‘6.7: Pruebas del proyecto’, el sistema promueve una experiencia de usuario positiva y accesible. La adopción de prácticas de diseño responsivo garantiza que el sistema sea accesible, aumentando su disponibilidad y utilidad en diferentes contextos operativos.
+
+ Imagen 6.7: Prueba de evaluación del módulo de citas.
+
+6.3 Rendimiento y escalabilidad:
+
+SIARCLIG está constituido para soportar altas cargas de trabajo como se muestra en la imagen ‘6.8: Pruebas del proyecto’ y un número creciente de usuarios sin degradar el rendimiento. La arquitectura del sistema permite escalabilidad tanto horizontal como vertical, lo que significa que puede adaptarse y crecer según las necesidades futuras del sector ganadero y clínico.
+
+ Imagen 6.8: Pruebas de rendimiento.
+
+6.4 Seguridad y protección de datos:
+
+La seguridad es una prioridad en el diseño e implementación de SIARCLIG representado en la imagen ‘6.9: Pruebas del proyecto’, con medidas robustas para proteger contra accesos no autorizados y ataques cibernéticos. La implementación de prácticas de cifrado, autenticación y autorización avanzadas asegura que los datos sensibles se manejen y almacenen de manera segura.
+
+ Imagen 6.9: Pruebas de seguridad y protección de datos.
+
+Referencias:
+
+Grant, R. M. (2021). Contemporary Strategy Analysis. Wiley & Sons, Incorporated,
+
+ John.Grant, R. M. (2020). Contemporary strategic analysis: Text and cases. John Wiley & Sons.
+
+OvisWebs. (n.d.). Software para administración de granjas ovinas y caprinas. Recuperado de http://oviswebs.com/
+
+Thompson, A. A., & Strickland, A. J. (2020). Strategic management: Concepts and cases. Pearson Education.
+
+SADEP LTDA. (2015). OvisWebs - Software para administración de granjas ovinas y caprinas. Tauruswebs.com. https://www.tauruswebs.com/wwwoviswebs/index.php
+
+‌Software Ovinca. (2024). Ovinca.com. https://www.ovinca.com/Ovinca.aspx
+
+‌OvinApp. (2022). OvinApp. https://ovinapp.com/
+
+Representación AGRICULTURA Hidalgo | Gobierno | gob.mx. (2023, November 6). Www.gob.mx. https://www.gob.mx/agricultura/hidalgo
+
+‌N. (2024). Instituto Nacional de Estadística y Geografía (INEGI). Inegi.org.mx. https://www.inegi.org.mx/
+
+Definiciones
+
+Acrónimos 
+
+SIARCLIG (Sistema Integral para la Administración de Recursos Clínicos y Ganaderos)
+
+SG (Software Ganadero)
+
+SGC (Sistema de Gestión de Calidad)
+
+VPN (Valor Presente Neto)
+
+TIR (Tasa Interna de Retorno)
+
+PR (Periodo de Recuperación)
+
+SQL (Structured Query Language)
+
+DBA (Data Base Administrator)
+
+RRHH (Recursos humanos)
+
+SAAS: software as a service (bajo demanda)

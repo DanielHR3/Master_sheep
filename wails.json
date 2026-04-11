@@ -1,0 +1,13 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "rancho_don_pablito",
+  "outputfilename": "rancho_don_pablito",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "DanielHR3",
+    "email": "danielhrubio3@gmail.com"
+  }
+}

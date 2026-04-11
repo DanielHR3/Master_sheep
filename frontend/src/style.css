@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Outfit", sans-serif;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --color-6666-maroon: #541e1b;
+  --color-6666-cream: #f4eade;
+  --color-6666-sand: #d7c4a5;
+  --color-clay: #1c1514;
+  --color-slate-950: #0a0808;
+}
+
+:root {
+  --ranch-bg: #0a0808;
+  --ranch-card: rgba(28, 21, 20, 0.4);
+  --ranch-text: #ffffff;
+  --ranch-border: rgba(255, 255, 255, 0.05);
+  --ranch-input: #0c0a09;
+}
+
+.light-theme {
+  --ranch-bg: #ffffff;
+  --ranch-card: #f8f9fa;
+  --ranch-text: #1a1a1a;
+  --ranch-accent: #8b4513;
+  --ranch-border: rgba(0, 0, 0, 0.1);
+  --ranch-input: #ffffff;
+}
+
+html, body {
+    margin: 0;
+    background-color: var(--ranch-bg);
+    color: var(--ranch-text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+h1, h2, h3, .font-display {
+    font-family: "Outfit", sans-serif;
+    letter-spacing: -0.03em;
+    font-weight: 900;
+}
+
+#app {
+    height: 100vh;
+}
+
+/* Custom Utilities for Dynamic Theme */
+.bg-ranch { background-color: var(--ranch-bg); }
+.bg-card-ranch { background-color: var(--ranch-card); }
+.text-ranch { color: var(--ranch-text); }
+.border-ranch { border-color: var(--ranch-border); }
+.bg-input-ranch { background-color: var(--ranch-input); }
