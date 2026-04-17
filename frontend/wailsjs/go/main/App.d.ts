@@ -62,6 +62,8 @@ export function RegistrarParto(arg1:main.Parto):Promise<void>;
 
 export function RegistrarTratamiento(arg1:main.Tratamiento):Promise<void>;
 
+export function StartAPIServer(arg1:number):Promise<void>;
+
 export function UpdateAnimal(arg1:main.Animal):Promise<void>;
 
 export function UpdateUser(arg1:main.User):Promise<void>;

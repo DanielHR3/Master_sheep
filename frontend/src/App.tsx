@@ -88,8 +88,10 @@ import {
   GetCurrentUser,
   ChangePassword,
   AddSeguimientoPeso,
-  GetSeguimientosPeso
-} from "../wailsjs/go/main/App";
+  GetSeguimientosPeso,
+  ToggleDemoMode,
+  GetIsDemoMode
+} from "./services/api";
 
 // --- STYLING UTILS ---
 const COLORS = ['#5d4037', '#8d6e63', '#a1887f', '#bcaaa4', '#795548'];
@@ -116,6 +118,7 @@ function App() {
   const [tareas, setTareas] = useState<any[]>([]);
   const [users, setUsers] = useState<main.User[]>([]);
   const [historialClinico, setHistorialClinico] = useState<any[]>([]);
+  const [isDemo, setIsDemo] = useState(false);
 
   // Modales
   const [showAddAnimal, setShowAddAnimal] = useState(false);
@@ -197,6 +200,8 @@ function App() {
       setTareas(t || []);
       setUsers(u || []);
       setCurrentUser(cur);
+      const demo = await GetIsDemoMode();
+      setIsDemo(demo);
     } catch (err: any) {
       const errMsg = err?.toString() || "";
       if (errMsg.includes("no autorizado") || errMsg.includes("no autenticado")) {
@@ -443,7 +448,9 @@ function App() {
   }
 
   return (
-    <div className={`min-h-screen flex transition-colors duration-500 ${theme === 'dark' ? 'bg-slate-950' : 'bg-stone-50'}`}>
+    <div className={`min-h-screen transition-all duration-1000 ${theme === 'dark' ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'} font-sans selection:bg-antique-brass selection:text-white`}>
+      {isLoggedIn && isDemo && <DemoBanner />}
+      
       {/* Sidebar Desktop */}
       <aside className={`fixed left-0 top-0 h-full w-80 z-40 hidden lg:block border-r transition-all ${theme === 'dark' ? 'bg-clay/20 border-white/5 backdrop-blur-3xl' : 'bg-white border-6666-cream/10'}`}>
         <div className="p-10">
@@ -527,13 +534,18 @@ function App() {
               await RegistrarEventoReproductivo(main.EventoReproductivo.createFrom(breedingForm)); 
               alert("Evento registrado con éxito");
               refreshData(); 
-            } catch (e) {
-              alert("Error al registrar: " + e);
+            } catch (err: any) {
+              console.error(err);
+              if (err.message?.includes("Modo Lectura")) {
+                alert("MODO LECTURA ACTIVO: Esta acción no está permitida.");
+              } else {
+                alert("Error al guardar: " + err.message);
+              }
             }
         }} theme={theme} onRegisterParto={() => setShowPartoModal(true)} />}
         {activeTab === 'clinical' && <ClinicalContent animals={animals} insumos={insumos} theme={theme} onTreatment={(a: any) => { setSelectedAnimal(a); setShowTreatment(true); }} />}
         {activeTab === 'staff' && <StaffContent users={users} form={usuarioForm} setForm={setUsuarioForm} onAdd={handleAddUser} onDelete={handleDeleteUser} theme={theme} />}
-        {activeTab === 'profile' && <ProfileContent theme={theme} setTheme={setTheme} onSecurity={() => setShowChangePassword(true)} onStaff={() => setActiveTab('staff')} user={currentUser} />}
+        {activeTab === 'profile' && <ProfileContent theme={theme} setTheme={setTheme} onSecurity={() => setShowChangePassword(true)} onStaff={() => setActiveTab('staff')} user={currentUser} isDemo={isDemo} toggleDemo={() => setIsDemo(!isDemo)} />}
       </main>
 
       {/* Navegación Móvil */}
@@ -1046,6 +1058,16 @@ function CorralesContent({ corrales, animals, theme, onAddCorral }: { corrales: 
   );
 }
 
+function DemoBanner() {
+  return (
+    <div className="bg-rose-600 text-white py-2 px-6 flex items-center justify-center gap-4 animate-pulse">
+      <Lock size={14} />
+      <span className="text-[10px] font-black uppercase tracking-[0.2em]">SISTEMA EN MODO LECTURA (DEMO) - NO SE PERMITEN MODIFICACIONES</span>
+      <Lock size={14} />
+    </div>
+  );
+}
+
 function InventoryContent({ animals, insumos, theme, subTab, setSubTab, onAddAnimal, onAddInsumo, onConfirmUltrasound, onTreatment, onViewHistory, onEditAnimal, onDeleteAnimal, onAddWeight, onViewWeights }: any) {
   return (
     <div className="space-y-10 pt-10 animate-in slide-in-from-right-8 duration-700">
@@ -1262,6 +1284,26 @@ function ProfileContent({ theme, setTheme, onSecurity, onStaff, user }: any) {
                 </div>
               )}
           </div>
+          
+          {user?.role === 'Admin' && (
+            <div className="mt-10 p-10 bg-clay/30 border border-white/5 rounded-[50px] flex justify-between items-center transition-all hover:bg-white/5">
+                <div>
+                   <h4 className="text-2xl font-black text-white italic font-serif flex items-center gap-3"><ShieldCheck className="text-antique-brass" /> Modo Demo (Lectura)</h4>
+                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-2 max-w-md">Cuando está activo, el sistema bloquea todas las modificaciones en la base de datos. Ideal para pruebas y demostraciones.</p>
+                </div>
+                <button 
+                  onClick={async () => {
+                    const next = !isDemo;
+                    await ToggleDemoMode(next);
+                    setIsDemo(next);
+                  }}
+                  className={`px-10 py-5 rounded-[24px] font-black text-xs uppercase transition-all flex items-center gap-4 ${isDemo ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/40' : 'bg-slate-800 text-slate-400'}`}
+                >
+                  {isDemo ? <Lock size={20} /> : <Shield size={20} />}
+                  {isDemo ? 'DESACTIVAR MODO DEMO' : 'ACTIVAR MODO DEMO'}
+                </button>
+            </div>
+          )}
       </div>
   );
 }

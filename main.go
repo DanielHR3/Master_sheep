@@ -15,9 +15,12 @@ func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 
+	// Iniciar servidor API para acceso móvil en puerto 8080
+	app.StartAPIServer(8080)
+
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "RANCHO DON PABLITO",
+		Title:  "Master Sheep Pro",
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{

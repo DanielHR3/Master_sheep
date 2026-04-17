@@ -15,9 +15,10 @@ import (
 
 // App struct
 type App struct {
-	ctx     context.Context
-	db      *sql.DB
-	user    *User // Usuario actualmente autenticado
+	ctx        context.Context
+	db         *sql.DB
+	user       *User // Usuario actualmente autenticado
+	IsDemoMode bool  // Modo Lectura (Bloquea mutaciones)
 }
 
 // NewApp creates a new App application struct
@@ -220,6 +221,11 @@ func (a *App) initDB() error {
 		tratamiento TEXT,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);
+
+	CREATE TABLE IF NOT EXISTS settings (
+		key TEXT PRIMARY KEY,
+		value TEXT
+	);
 	`
 	_, err = a.db.Exec(schema)
 	if err != nil {
@@ -247,7 +253,37 @@ func (a *App) initDB() error {
 		fmt.Printf("Error creando admin: %v\n", err)
 	}
 
+	// Cargar configuración de Modo Demo
+	var demoVal string
+	err = a.db.QueryRow("SELECT value FROM settings WHERE key = 'is_demo_mode'").Scan(&demoVal)
+	if err == nil {
+		a.IsDemoMode = (demoVal == "true")
+	} else {
+		// Valor por defecto si no existe
+		_, _ = a.db.Exec("INSERT OR IGNORE INTO settings (key, value) VALUES ('is_demo_mode', 'false')")
+		a.IsDemoMode = false
+	}
+
 	return nil
+}
+
+// ToggleDemoMode activa o desactiva el modo lectura
+func (a *App) ToggleDemoMode(enabled bool) error {
+	val := "false"
+	if enabled {
+		val = "true"
+	}
+	_, err := a.db.Exec("INSERT OR REPLACE INTO settings (key, value) VALUES ('is_demo_mode', ?)", val)
+	if err != nil {
+		return err
+	}
+	a.IsDemoMode = enabled
+	return nil
+}
+
+// GetIsDemoMode obtiene el estado actual del modo lectura
+func (a *App) GetIsDemoMode() bool {
+	return a.IsDemoMode
 }
 
 // Login maneja la autenticación local

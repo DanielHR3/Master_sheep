@@ -1,6 +1,6 @@
-# Guía de Gestión de Perfiles: SheepMaster Pro
+# Guía de Gestión de Perfiles: Master Sheep Pro
 
-Esta guía describe cómo administrar el acceso del personal a la plataforma SheepMaster Pro, asegurando que la información sensible (costos y reportes financieros) esté protegida y que el trabajo de campo sea fluido.
+Esta guía describe cómo administrar el acceso del personal a la plataforma Master Sheep Pro, asegurando que la información sensible (costos y reportes financieros) esté protegida y que el trabajo de campo sea fluido.
 
 ## 1. Jerarquía de Roles
 
@@ -46,4 +46,4 @@ Incluso si un usuario avanzado intentara acceder a datos de otro rancho, el sist
 
 ---
 > [!NOTE]
-> Esta configuración garantiza que SheepMaster Pro sea una herramienta profesional apta para ranchos con múltiples niveles de mando.
+> Esta configuración garantiza que Master Sheep Pro sea una herramienta profesional apta para ranchos con múltiples niveles de mando.

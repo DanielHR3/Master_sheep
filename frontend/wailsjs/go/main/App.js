@@ -122,6 +122,10 @@ export function RegistrarTratamiento(arg1) {
   return window['go']['main']['App']['RegistrarTratamiento'](arg1);
 }
 
+export function StartAPIServer(arg1) {
+  return window['go']['main']['App']['StartAPIServer'](arg1);
+}
+
 export function UpdateAnimal(arg1) {
   return window['go']['main']['App']['UpdateAnimal'](arg1);
 }
