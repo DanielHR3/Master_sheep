@@ -222,8 +222,14 @@ function App() {
       await Login(email, password);
       setIsLoggedIn(true);
       refreshData();
-    } catch (err) {
-      alert("Credenciales incorrectas o error de conexión");
+    } catch (err: any) {
+      console.error("Login error:", err);
+      // Check if it's a network error
+      if (err.message.includes("Failed to fetch") || err.message.includes("NetworkError")) {
+        alert("ERROR DE CONEXIÓN: El servidor no responde en: " + getApiBaseUrl() + "\n\nSi estás en móvil, asegúrate de haber configurado el túnel HTTPS en el icono de engranaje (⚙️).");
+      } else {
+        alert("CREDENCIALES INVÁLIDAS: Verifica tu correo y contraseña.");
+      }
     } finally {
       setLoading(false);
     }
