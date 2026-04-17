@@ -388,27 +388,8 @@ function App() {
   };
 
   const handleImportExcel = async () => {
-    if ((window as any).go) {
-      try {
-        const filePath = await (window as any).runtime.OpenFileDialog({
-          Title: 'Seleccionar Archivo Excel de Importación',
-          Filters: [
-            { Name: 'Archivos Excel', Pattern: '*.xlsx;*.xls' }
-          ]
-        });
-
-        if (filePath) {
-          const result = await ImportAnimalsExcel(filePath);
-          alert(`Éxito: Se han importado ${result} registros correctamente.`);
-          refreshData();
-        }
-      } catch (err: any) {
-        alert("Error en la importación: " + err);
-      }
-    } else {
-      // Modo Navegador
-      fileInputRef.current?.click();
-    }
+    // Usamos el input de archivo estándar para máxima compatibilidad (Escritorio y Web)
+    fileInputRef.current?.click();
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
