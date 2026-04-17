@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -38,6 +39,7 @@ func (a *App) StartAPIServer(port int) {
 	mux.HandleFunc("/api/treatments", corsWrapper(a.handleTreatments))
 	mux.HandleFunc("/api/tasks", corsWrapper(a.handleTasks))
 	mux.HandleFunc("/api/births", corsWrapper(a.handleBirths))
+	mux.HandleFunc("/api/import-excel", corsWrapper(a.handleImportExcelAPI))
 	mux.HandleFunc("/api/health", corsWrapper(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
@@ -208,4 +210,38 @@ func (a *App) handleBirths(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
+}
+func (a *App) handleImportExcelAPI(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Limite de 10MB
+	r.ParseMultipartForm(10 << 20)
+
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, "Error recuperando el archivo", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		http.Error(w, "Error leyendo el archivo", http.StatusInternalServerError)
+		return
+	}
+
+	count, err := a.ImportAnimalsExcelData(data)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"count":   count,
+	})
 }

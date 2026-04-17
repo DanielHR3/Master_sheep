@@ -74,6 +74,10 @@ export function GetInsumos() {
   return window['go']['main']['App']['GetInsumos']();
 }
 
+export function GetIsDemoMode() {
+  return window['go']['main']['App']['GetIsDemoMode']();
+}
+
 export function GetPartos(arg1) {
   return window['go']['main']['App']['GetPartos'](arg1);
 }
@@ -96,6 +100,10 @@ export function GetTareas() {
 
 export function GetUsers() {
   return window['go']['main']['App']['GetUsers']();
+}
+
+export function ImportAnimalsExcel(arg1) {
+  return window['go']['main']['App']['ImportAnimalsExcel'](arg1);
 }
 
 export function Login(arg1, arg2) {
@@ -124,6 +132,10 @@ export function RegistrarTratamiento(arg1) {
 
 export function StartAPIServer(arg1) {
   return window['go']['main']['App']['StartAPIServer'](arg1);
+}
+
+export function ToggleDemoMode(arg1) {
+  return window['go']['main']['App']['ToggleDemoMode'](arg1);
 }
 
 export function UpdateAnimal(arg1) {

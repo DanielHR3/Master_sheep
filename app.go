@@ -1,14 +1,17 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/xuri/excelize/v2"
 	"golang.org/x/crypto/bcrypt"
 	_ "modernc.org/sqlite"
 )
@@ -39,9 +42,9 @@ func (a *App) startup(ctx context.Context) {
 func (a *App) initDB() error {
 	// Determinar ruta de la base de datos (Carpeta de Documentos del usuario)
 	home, _ := os.UserHomeDir()
-	dbDir := filepath.Join(home, "Documents", "RanchoDonPablito")
+	dbDir := filepath.Join(home, "Documents", "MasterSheepPro")
 	_ = os.MkdirAll(dbDir, 0755)
-	dbPath := filepath.Join(dbDir, "donpablito.db")
+	dbPath := filepath.Join(dbDir, "master_sheep.db")
 
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
@@ -246,9 +249,9 @@ func (a *App) initDB() error {
 	adminID := uuid.New().String()
 	hashedPwd, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
 	// Primero borrar si existe (para reiniciar)
-	_, _ = a.db.Exec("DELETE FROM users WHERE email = ?", "admin@rancho-legacy.com")
+	_, _ = a.db.Exec("DELETE FROM users WHERE email = ?", "admin@mastersheep-pro.com")
 	_, err = a.db.Exec("INSERT INTO users (id, email, password, name, role) VALUES (?, ?, ?, ?, ?)", 
-		adminID, "admin@rancho-legacy.com", string(hashedPwd), "Administrador de Rancho", "Admin")
+		adminID, "admin@mastersheep-pro.com", string(hashedPwd), "Administrador de Master Sheep Pro", "Admin")
 	if err != nil {
 		fmt.Printf("Error creando admin: %v\n", err)
 	}
@@ -445,7 +448,7 @@ func (a *App) GetCorrales() ([]Corral, error) {
 		corrales = append(corrales, c)
 	}
 
-	// Si está vacío, agregar los 12 corrales de piso elevado para DON PABLITO
+	// Si está vacío, agregar los 12 corrales de piso elevado para MASTER SHEEP PRO
 	if len(corrales) == 0 {
 		var initialCorrales []Corral
 		for i := 1; i <= 12; i++ {
@@ -508,7 +511,7 @@ func (a *App) RegistrarEventoReproductivo(event EventoReproductivo) error {
 	return err
 }
 
-// GetStats obtiene los KPIs del dashboard de forma local (Rancho DON PABLITO)
+// GetStats obtiene los KPIs del dashboard de forma local (Master Sheep Pro)
 func (a *App) GetStats() (map[string]interface{}, error) {
 	if a.user == nil {
 		return nil, fmt.Errorf("no autenticado")
@@ -1093,4 +1096,97 @@ func (a *App) GetSeguimientosPeso(animalID string) ([]SeguimientoPeso, error) {
 		}
 	}
 	return seguimientos, nil
+}
+// ImportAnimalsExcel importa animales desde un archivo .xlsx
+// ImportAnimalsExcelData importa animales desde un buffer de bytes (para carga vía web)
+func (a *App) ImportAnimalsExcelData(data []byte) (int, error) {
+	if a.IsDemoMode {
+		return 0, fmt.Errorf("Modo Lectura Activo: No se permiten importaciones.")
+	}
+
+	reader := bytes.NewReader(data)
+	f, err := excelize.OpenReader(reader)
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+
+	return a.processExcel(f)
+}
+
+// processExcel contiene la lógica común para procesar el archivo excelizado
+func (a *App) processExcel(f *excelize.File) (int, error) {
+	sheetName := f.GetSheetName(0)
+	rows, err := f.GetRows(sheetName)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(rows) < 2 {
+		return 0, fmt.Errorf("El archivo está vacío o solo contiene encabezados.")
+	}
+
+	tx, err := a.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	count := 0
+	for i, row := range rows {
+		if i == 0 {
+			continue
+		}
+		if len(row) < 1 || row[0] == "" {
+			continue
+		}
+
+		id := uuid.New().String()
+		arete := row[0]
+		raza := ""
+		if len(row) > 1 { raza = row[1] }
+		sexo := "Hembra"
+		if len(row) > 2 { sexo = row[2] }
+		corral := ""
+		if len(row) > 3 { corral = row[3] }
+		fechaNac := ""
+		if len(row) > 4 { fechaNac = row[4] }
+		pesoNacer := 0.0
+		if len(row) > 5 { 
+			fmt.Sscanf(row[5], "%f", &pesoNacer) 
+		}
+		padreId := ""
+		if len(row) > 6 { padreId = row[6] }
+		madreId := ""
+		if len(row) > 7 { madreId = row[7] }
+		destino := "Engorda"
+		if len(row) > 8 { destino = row[8] }
+
+		_, err = tx.Exec(`INSERT INTO animales (id, arete, raza, sexo, corral_id, fecha_nacimiento, peso_nacer, padre_id, madre_id, destino, estatus, estado_reproductivo) 
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			id, arete, raza, sexo, corral, fechaNac, pesoNacer, padreId, madreId, destino, "Activo", "Crecimiento")
+		
+		if err != nil {
+			return count, fmt.Errorf("Error en fila %d: %v", i+1, err)
+		}
+		count++
+	}
+
+	err = tx.Commit()
+	return count, err
+}
+
+// ImportAnimalsExcel importa animales desde una ruta de archivo (para escritorio)
+func (a *App) ImportAnimalsExcel(path string) (int, error) {
+	if a.IsDemoMode {
+		return 0, fmt.Errorf("Modo Lectura Activo: No se permiten importaciones.")
+	}
+
+	f, err := excelize.OpenFile(path)
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+
+	return a.processExcel(f)
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Users, 
   Compass, 
@@ -17,7 +17,6 @@ import {
   MoreVertical,
   Plus,
   CircleUser,
-  Mountain,
   Sun,
   Moon,
   Table,
@@ -42,7 +41,8 @@ import {
   Stethoscope,
   ShieldCheck as Shield,
   FlaskConical,
-  ArrowRight
+  ArrowRight,
+  FileSpreadsheet
 } from 'lucide-react';
 import { 
   AreaChart, Area, 
@@ -90,7 +90,8 @@ import {
   AddSeguimientoPeso,
   GetSeguimientosPeso,
   ToggleDemoMode,
-  GetIsDemoMode
+  GetIsDemoMode,
+  ImportAnimalsExcel
 } from "./services/api";
 
 // --- STYLING UTILS ---
@@ -104,6 +105,7 @@ interface DashboardStats {
 }
 
 function App() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [subTab, setSubTab] = useState<'animals' | 'supplies'>('animals');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -385,6 +387,47 @@ function App() {
     }
   };
 
+  const handleImportExcel = async () => {
+    if ((window as any).go) {
+      try {
+        const filePath = await (window as any).runtime.OpenFileDialog({
+          Title: 'Seleccionar Archivo Excel de Importación',
+          Filters: [
+            { Name: 'Archivos Excel', Pattern: '*.xlsx;*.xls' }
+          ]
+        });
+
+        if (filePath) {
+          const result = await ImportAnimalsExcel(filePath);
+          alert(`Éxito: Se han importado ${result} registros correctamente.`);
+          refreshData();
+        }
+      } catch (err: any) {
+        alert("Error en la importación: " + err);
+      }
+    } else {
+      // Modo Navegador
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    try {
+      setLoading(true);
+      const result = await ImportAnimalsExcel(file);
+      alert(`Éxito: Se han importado ${result} registros correctamente.`);
+      refreshData();
+    } catch (err: any) {
+      alert("Error: " + err);
+    } finally {
+      setLoading(false);
+      if (e.target) e.target.value = ''; // Reset
+    }
+  };
+
   const handleUpdateAnimal = async () => {
     if (!editAnimalForm) return;
     try {
@@ -455,12 +498,12 @@ function App() {
       <aside className={`fixed left-0 top-0 h-full w-80 z-40 hidden lg:block border-r transition-all ${theme === 'dark' ? 'bg-clay/20 border-white/5 backdrop-blur-3xl' : 'bg-white border-6666-cream/10'}`}>
         <div className="p-10">
           <div className="flex items-center gap-4 mb-16 group">
-            <div className="w-14 h-14 bg-6666-maroon rounded-[22px] rotate-12 flex items-center justify-center shadow-2xl shadow-6666-maroon/40 group-hover:rotate-0 transition-transform duration-500 border border-6666-cream/20">
-              <Mountain size={28} className="text-white" />
+            <div className="w-14 h-14 bg-6666-maroon rounded-[22px] rotate-12 flex items-center justify-center shadow-2xl shadow-6666-maroon/40 group-hover:rotate-0 transition-transform duration-500 border border-6666-cream/20 overflow-hidden p-2">
+              <img src="/logo.png" alt="Master Sheep Logo" className="w-full h-full object-contain -rotate-12 group-hover:rotate-0 transition-transform duration-500" />
             </div>
             <div>
-              <h1 className={`text-2xl font-black tracking-tighter font-display ${theme === 'dark' ? 'bg-gradient-to-br from-white to-6666-cream bg-clip-text text-transparent' : 'text-slate-900'}`}>RANCHO<br /><span className="text-6666-cream">DON PABLITO</span></h1>
-              <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-tight mt-1">Gestión Ovina Especializada</p>
+              <h1 className={`text-2xl font-black tracking-tighter font-display ${theme === 'dark' ? 'bg-gradient-to-br from-white to-6666-cream bg-clip-text text-transparent' : 'text-slate-900'}`}>MASTER<br /><span className="text-6666-cream">SHEEP PRO</span></h1>
+              <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-tight mt-1">Gestión Genética & Productiva</p>
             </div>
           </div>
 
@@ -525,6 +568,7 @@ function App() {
             onDeleteAnimal={handleDeleteAnimal} 
             onAddWeight={handleOpenWeightModal} 
             onViewWeights={handleViewWeights} 
+            onImportExcel={handleImportExcel}
           />
         )}
         {activeTab === 'corrales' && <CorralesContent corrales={corrales} animals={animals} theme={theme} onAddCorral={() => setShowAddCorral(true)} />}
@@ -545,8 +589,16 @@ function App() {
         }} theme={theme} onRegisterParto={() => setShowPartoModal(true)} />}
         {activeTab === 'clinical' && <ClinicalContent animals={animals} insumos={insumos} theme={theme} onTreatment={(a: any) => { setSelectedAnimal(a); setShowTreatment(true); }} />}
         {activeTab === 'staff' && <StaffContent users={users} form={usuarioForm} setForm={setUsuarioForm} onAdd={handleAddUser} onDelete={handleDeleteUser} theme={theme} />}
-        {activeTab === 'profile' && <ProfileContent theme={theme} setTheme={setTheme} onSecurity={() => setShowChangePassword(true)} onStaff={() => setActiveTab('staff')} user={currentUser} isDemo={isDemo} toggleDemo={() => setIsDemo(!isDemo)} />}
+        {activeTab === 'profile' && <ProfileContent theme={theme} setTheme={setTheme} onSecurity={() => setShowChangePassword(true)} onStaff={() => setActiveTab('staff')} user={currentUser} isDemo={isDemo} setIsDemo={setIsDemo} ToggleDemoMode={ToggleDemoMode} />}
       </main>
+
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        className="hidden" 
+        accept=".xlsx,.xls" 
+        onChange={handleFileChange} 
+      />
 
       {/* Navegación Móvil */}
       <div className={`fixed bottom-0 left-0 right-0 h-24 lg:hidden z-50 border-t flex justify-around items-center px-6 transition-all ${theme === 'dark' ? 'bg-slate-950/80 border-white/5 backdrop-blur-xl' : 'bg-white/80 border-antique-brass/10 backdrop-blur-xl'}`}>
@@ -917,7 +969,7 @@ function DashboardContent({ stats, tareas, theme, onGlobalAdd, onCompleteTask }:
     <div className="space-y-10 pt-10 animate-in fade-in duration-700">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className={`text-5xl font-black font-display tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Bienvenido, Don Pablito</h2>
+          <h2 className={`text-5xl font-black font-display tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Bienvenido a Master Sheep Pro</h2>
           <p className="text-6666-cream font-black uppercase tracking-widest text-[10px] mt-1">Panel de Control de Engorda y Mejora Genética</p>
         </div>
       </div>
@@ -1068,7 +1120,7 @@ function DemoBanner() {
   );
 }
 
-function InventoryContent({ animals, insumos, theme, subTab, setSubTab, onAddAnimal, onAddInsumo, onConfirmUltrasound, onTreatment, onViewHistory, onEditAnimal, onDeleteAnimal, onAddWeight, onViewWeights }: any) {
+function InventoryContent({ animals, insumos, theme, subTab, setSubTab, onAddAnimal, onAddInsumo, onConfirmUltrasound, onTreatment, onViewHistory, onEditAnimal, onDeleteAnimal, onAddWeight, onViewWeights, onImportExcel }: any) {
   return (
     <div className="space-y-10 pt-10 animate-in slide-in-from-right-8 duration-700">
       <div className="flex justify-between items-center">
@@ -1077,7 +1129,16 @@ function InventoryContent({ animals, insumos, theme, subTab, setSubTab, onAddAni
            <button onClick={() => setSubTab('supplies')} className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${subTab === 'supplies' ? 'bg-saddle-tan text-white' : 'text-slate-500'}`}>Insumos</button>
         </div>
         <div className="flex gap-4">
-           {subTab === 'animals' && <button onClick={onAddAnimal} className="bg-saddle-tan text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-saddle-tan/20 flex items-center gap-2"><PlusCircle size={18} /> Alta de Animal</button>}
+           {subTab === 'animals' && (
+             <>
+               <button onClick={onImportExcel} className="bg-emerald-600/10 border border-emerald-500/30 text-emerald-500 px-6 py-3 rounded-xl font-black text-[10px] uppercase flex items-center gap-2 hover:bg-emerald-600 hover:text-white transition-all">
+                 <FileSpreadsheet size={18} /> Carga Masiva (Excel)
+               </button>
+               <button onClick={onAddAnimal} className="bg-saddle-tan text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-saddle-tan/20 flex items-center gap-2">
+                 <PlusCircle size={18} /> Alta de Animal
+               </button>
+             </>
+           )}
            {subTab === 'supplies' && <button onClick={onAddInsumo} className="bg-emerald-600 text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-emerald-500/20 flex items-center gap-2"><PlusCircle size={18} /> Agregar Stock</button>}
         </div>
       </div>
@@ -1253,7 +1314,7 @@ function StaffContent({ users, form, setForm, onAdd, onDelete, theme }: any) {
   );
 }
 
-function ProfileContent({ theme, setTheme, onSecurity, onStaff, user }: any) {
+function ProfileContent({ theme, setTheme, onSecurity, onStaff, user, isDemo, setIsDemo, ToggleDemoMode }: any) {
   return (
       <div className="space-y-10 pt-10 animate-in fade-in duration-700">
           <div className="p-10 bg-clay/30 border border-white/5 rounded-[50px] flex justify-between items-center">
@@ -1352,15 +1413,17 @@ function LoginView({ onLogin, loading, email, setEmail, password, setPassword }:
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-6666-cream/5 rounded-full blur-[120px] -translate-x-1/2 translate-y-1/2" />
       
       <div className="w-full max-md p-10 bg-clay/50 backdrop-blur-3xl border border-white/10 rounded-[60px] shadow-3xl relative z-10 text-center mx-4 max-w-md">
-        <div className="w-20 h-20 bg-6666-maroon rounded-[32px] rotate-12 flex items-center justify-center mx-auto mb-10 shadow-3xl shadow-6666-maroon/30 border border-white/10"><Mountain size={44} className="text-white -rotate-12" /></div>
-        <h2 className="text-5xl font-black text-white font-display mb-12 tracking-tighter leading-none">RANCHO<br /><span className="bg-gradient-to-r from-6666-cream to-6666-sand bg-clip-text text-transparent"> DON PABLITO</span></h2>
+        <div className="w-20 h-20 bg-6666-maroon rounded-[32px] rotate-12 flex items-center justify-center mx-auto mb-10 shadow-3xl shadow-6666-maroon/30 border border-white/10 overflow-hidden p-3">
+          <img src="/logo.png" alt="Master Sheep Logo" className="w-full h-full object-contain -rotate-12" />
+        </div>
+        <h2 className="text-5xl font-black text-white font-display mb-12 tracking-tighter leading-none">MASTER<br /><span className="bg-gradient-to-r from-6666-cream to-6666-sand bg-clip-text text-transparent"> SHEEP PRO</span></h2>
         
         <div className="space-y-6 text-left">
            <input type="email" placeholder="Correo Corporativo" className="w-full bg-slate-950 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold" value={email} onChange={e => setEmail(e.target.value)} />
            <input type="password" placeholder="Contraseña" className="w-full bg-slate-950 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold" value={password} onChange={e => setPassword(e.target.value)} />
            <button onClick={onLogin} disabled={loading} className="w-full py-5 bg-6666-maroon text-white rounded-[24px] font-black text-lg hover:bg-6666-sand hover:text-6666-maroon shadow-2xl shadow-6666-maroon/20 active:scale-95 transition-all">{loading ? '...' : 'ENTRAR AL SISTEMA'}</button>
         </div>
-        <p className="mt-10 text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-40">Acceso exclusivo - Rancho Don Pablito</p>
+        <p className="mt-10 text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-40">Acceso exclusivo - Master Sheep Pro</p>
       </div>
     </div>
   );

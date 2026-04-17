@@ -38,6 +38,8 @@ export function GetHistorialClinico(arg1:string):Promise<Array<Record<string, an
 
 export function GetInsumos():Promise<Array<main.Insumo>>;
 
+export function GetIsDemoMode():Promise<boolean>;
+
 export function GetPartos(arg1:string):Promise<Array<main.Parto>>;
 
 export function GetRecetas(arg1:string):Promise<Array<main.RecetaVeterinaria>>;
@@ -49,6 +51,8 @@ export function GetStats():Promise<Record<string, any>>;
 export function GetTareas():Promise<Array<main.Tarea>>;
 
 export function GetUsers():Promise<Array<main.User>>;
+
+export function ImportAnimalsExcel(arg1:string):Promise<void>;
 
 export function Login(arg1:string,arg2:string):Promise<void>;
 
@@ -63,6 +67,8 @@ export function RegistrarParto(arg1:main.Parto):Promise<void>;
 export function RegistrarTratamiento(arg1:main.Tratamiento):Promise<void>;
 
 export function StartAPIServer(arg1:number):Promise<void>;
+
+export function ToggleDemoMode(arg1:boolean):Promise<void>;
 
 export function UpdateAnimal(arg1:main.Animal):Promise<void>;
 

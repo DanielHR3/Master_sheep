@@ -54,3 +54,29 @@ h1, h2, h3, .font-display {
 .text-ranch { color: var(--ranch-text); }
 .border-ranch { border-color: var(--ranch-border); }
 .bg-input-ranch { background-color: var(--ranch-input); }
+
+/* Demo Mode Animations */
+@keyframes demo-pulse {
+  0% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 0.8; transform: scale(1); }
+}
+
+.animate-demo-banner {
+  animation: demo-pulse 2s infinite ease-in-out;
+}
+
+/* Scrollbar styling for premium feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

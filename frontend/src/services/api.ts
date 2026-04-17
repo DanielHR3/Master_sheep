@@ -95,3 +95,21 @@ export const AddSeguimientoPeso = WailsApp.AddSeguimientoPeso;
 export const GetSeguimientosPeso = WailsApp.GetSeguimientosPeso;
 export const ToggleDemoMode = WailsApp.ToggleDemoMode;
 export const GetIsDemoMode = WailsApp.GetIsDemoMode;
+export const ImportAnimalsExcel = async (filePathOrFile: string | File): Promise<number> => {
+  if (IS_WAILS) {
+    return (WailsApp.ImportAnimalsExcel(filePathOrFile as string) as any);
+  } else {
+    const formData = new FormData();
+    formData.append('file', filePathOrFile as File);
+    const res = await fetch(`${API_BASE_URL}/import-excel`, {
+      method: 'POST',
+      body: formData
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Error en importación');
+    }
+    const data = await res.json();
+    return data.count;
+  }
+};
