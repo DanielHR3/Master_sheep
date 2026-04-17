@@ -1,7 +1,12 @@
 package main
 
 import (
+	"context"
 	"embed"
+	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -16,9 +21,22 @@ func main() {
 	app := NewApp()
 
 	// Iniciar servidor API para acceso móvil en puerto 8080
-	app.StartAPIServer(8080)
+	port := 8080
+	app.StartAPIServer(port)
 
-	// Create application with options
+	// Verificar si estamos en modo servidor (Docker/Cloud)
+	if os.Getenv("SERVER_ONLY") == "true" {
+		fmt.Printf("Modo SERVIDOR ACTIVO. API escuchando en puerto %d...\n", port)
+		app.startup(context.Background())
+		
+		// Bloquear ejecución para mantener el contenedor vivo
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+		<-sigChan
+		return
+	}
+
+	// Modo Desktop (Wails)
 	err := wails.Run(&options.App{
 		Title:  "Master Sheep Pro",
 		Width:  1024,

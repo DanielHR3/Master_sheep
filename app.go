@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/xuri/excelize/v2"
 	"golang.org/x/crypto/bcrypt"
+	_ "github.com/lib/pq"
 	_ "modernc.org/sqlite"
 )
 
@@ -37,15 +38,25 @@ func (a *App) startup(ctx context.Context) {
 	}
 }
 
-// initDB inicializa la base de datos SQLite local
+// initDB inicializa la base de datos (PostgreSQL si hay URL, si no SQLite local)
 func (a *App) initDB() error {
-	// Determinar ruta de la base de datos (Carpeta de Documentos del usuario)
-	home, _ := os.UserHomeDir()
-	dbDir := filepath.Join(home, "Documents", "MasterSheepPro")
-	_ = os.MkdirAll(dbDir, 0755)
-	dbPath := filepath.Join(dbDir, "master_sheep.db")
+	dbURL := os.Getenv("DATABASE_URL")
+	var db *sql.DB
+	var err error
 
-	db, err := sql.Open("sqlite", dbPath)
+	if dbURL != "" {
+		fmt.Println("Conectando a base de datos PostgreSQL (Nube)...")
+		db, err = sql.Open("postgres", dbURL)
+	} else {
+		// Determinar ruta de la base de datos (Carpeta de Documentos del usuario)
+		fmt.Println("Conectando a base de datos SQLite (Local)...")
+		home, _ := os.UserHomeDir()
+		dbDir := filepath.Join(home, "Documents", "MasterSheepPro")
+		_ = os.MkdirAll(dbDir, 0755)
+		dbPath := filepath.Join(dbDir, "master_sheep.db")
+		db, err = sql.Open("sqlite", dbPath)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -59,7 +70,7 @@ func (a *App) initDB() error {
 		password TEXT,
 		name TEXT,
 		role TEXT,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
 	CREATE TABLE IF NOT EXISTS corrales (
@@ -68,7 +79,7 @@ func (a *App) initDB() error {
 		nombre TEXT NOT NULL,
 		tipo TEXT,
 		capacidad INTEGER DEFAULT 0,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
 	CREATE TABLE IF NOT EXISTS animales (
@@ -89,7 +100,7 @@ func (a *App) initDB() error {
 		destino TEXT,
 		fecha_defuncion TEXT,
 		motivo_defuncion TEXT,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		UNIQUE(user_id, arete)
 	);
 
@@ -100,7 +111,7 @@ func (a *App) initDB() error {
 		fecha TEXT,
 		peso REAL,
 		notas TEXT,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
 	CREATE TABLE IF NOT EXISTS eventos_reproductivos (
@@ -118,7 +129,7 @@ func (a *App) initDB() error {
 		resultado TEXT DEFAULT 'Pendiente',
 		conteo_fetos INTEGER DEFAULT 0,
 		notas TEXT,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
 	CREATE TABLE IF NOT EXISTS movimientos (
@@ -144,7 +155,7 @@ func (a *App) initDB() error {
 		lote TEXT,
 		fecha_vencimiento TEXT,
 		proveedor TEXT,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
 	CREATE TABLE IF NOT EXISTS movimientos_insumo (
@@ -156,7 +167,7 @@ func (a *App) initDB() error {
 		fecha TEXT,
 		motivo TEXT,
 		animal_id TEXT,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
 	CREATE TABLE IF NOT EXISTS tratamientos (
@@ -170,7 +181,7 @@ func (a *App) initDB() error {
 		fecha_fin_retiro TEXT,
 		tecnico TEXT,
 		observaciones TEXT,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
 	CREATE TABLE IF NOT EXISTS tareas (
@@ -185,7 +196,7 @@ func (a *App) initDB() error {
 		animal_id TEXT,
 		insumo_id TEXT,
 		prioridad TEXT DEFAULT 'Media',
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
 	CREATE TABLE IF NOT EXISTS diagnostico_gestacion (
@@ -197,7 +208,7 @@ func (a *App) initDB() error {
 		resultado INTEGER,
 		conteo_fetos INTEGER,
 		observaciones TEXT,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
 	CREATE TABLE IF NOT EXISTS partos (
@@ -208,7 +219,7 @@ func (a *App) initDB() error {
 		cantidad_crias INTEGER,
 		tipo_parto TEXT,
 		observaciones TEXT,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
 	CREATE TABLE IF NOT EXISTS recetas_veterinarias (
@@ -221,7 +232,7 @@ func (a *App) initDB() error {
 		peso REAL,
 		diagnostico TEXT,
 		tratamiento TEXT,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
 	CREATE TABLE IF NOT EXISTS settings (

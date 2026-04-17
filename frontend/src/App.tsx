@@ -14,6 +14,8 @@ import {
   Search,
   Bell,
   Settings,
+  RefreshCw,
+  HelpCircle,
   MoreVertical,
   Plus,
   CircleUser,
@@ -939,7 +941,7 @@ function SidebarItem({ icon, label, active, onClick }: { icon: React.ReactNode, 
 
 function MobileNavItem({ icon, active, onClick }: { icon: React.ReactNode, active: boolean, onClick: () => void }) {
   return (
-    <button onClick={onClick} className={`p-4 rounded-2xl transition-all ${active ? 'bg-saddle-tan text-white' : 'text-slate-500'}`}>
+    <button onClick={onClick} className={`p-4 rounded-2xl transition-all duration-300 ${active ? 'bg-antique-brass text-white shadow-lg shadow-antique-brass/20 scale-110' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
       {icon}
     </button>
   );
@@ -1414,7 +1416,7 @@ function LoginView({ onLogin, loading, email, setEmail, password, setPassword }:
         </button>
 
         <div className="w-20 h-20 bg-6666-maroon rounded-[32px] rotate-12 flex items-center justify-center mx-auto mb-10 shadow-3xl shadow-6666-maroon/30 border border-white/10 overflow-hidden p-3">
-          <img src="/logo.png" alt="Master Sheep Logo" className="w-full h-full object-contain -rotate-12" />
+          <img src="logo.png" alt="Master Sheep Logo" className="w-full h-full object-contain -rotate-12" />
         </div>
         
         <h2 className="text-5xl font-black text-white font-display mb-12 tracking-tighter leading-none uppercase">
@@ -1456,6 +1458,16 @@ function LoginView({ onLogin, loading, email, setEmail, password, setPassword }:
              <input type="email" placeholder="Correo Corporativo" className="w-full bg-slate-950 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold" value={email} onChange={e => setEmail(e.target.value)} />
              <input type="password" placeholder="Contraseña" className="w-full bg-slate-950 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold" value={password} onChange={e => setPassword(e.target.value)} />
              <button onClick={onLogin} disabled={loading} className="w-full py-5 bg-6666-maroon text-white rounded-[24px] font-black text-lg hover:bg-6666-sand hover:text-6666-maroon shadow-2xl shadow-6666-maroon/20 active:scale-95 transition-all">{loading ? '...' : 'ENTRAR AL SISTEMA'}</button>
+            <button 
+              onClick={() => {
+                localStorage.clear();
+                window.location.reload();
+              }}
+              className="w-full mt-4 flex items-center justify-center gap-2 py-3 border border-red-500/30 text-red-500 rounded-xl hover:bg-red-500/10 transition-all font-black uppercase text-[10px]"
+            >
+              <RefreshCw size={14} />
+              Limpiar Cache y Reiniciar
+            </button>
           </div>
         )}
         

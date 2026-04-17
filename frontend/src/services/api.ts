@@ -5,11 +5,19 @@ const IS_WAILS = !!(window as any).go;
 export const getApiBaseUrl = () => {
   const saved = localStorage.getItem('backend_url');
   if (saved) {
-    // Ensure it ends with /api but avoid double /api
-    const base = saved.replace(/\/api\/?$/, '');
+    // Clean spaces and enforce /api suffix
+    let base = saved.trim().replace(/\/api\/?$/, '');
+    // If the page is HTTPS and the user entered HTTP, warn or auto-fix (here auto-fix if it's a known tunnel)
+    if (window.location.protocol === 'https:' && base.startsWith('http:')) {
+      console.warn("Mezcla de contenido: Se recomienda usar https para evitar bloqueos.");
+    }
     return `${base}/api`;
   }
-  return `http://${window.location.hostname}:8080/api`;
+  
+  // Protocolo dinámico (http o https) según la página
+  const protocol = window.location.protocol;
+  const host = window.location.hostname;
+  return `${protocol}//${host}:8080/api`;
 };
 
 async function callApi(endpoint: string, method: string = 'GET', body?: any) {
