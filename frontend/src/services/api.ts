@@ -1,10 +1,20 @@
 import * as WailsApp from "../../wailsjs/go/main/App";
 
 const IS_WAILS = !!(window as any).go;
-const API_BASE_URL = `http://${window.location.hostname}:8080/api`;
+
+export const getApiBaseUrl = () => {
+  const saved = localStorage.getItem('backend_url');
+  if (saved) {
+    // Ensure it ends with /api but avoid double /api
+    const base = saved.replace(/\/api\/?$/, '');
+    return `${base}/api`;
+  }
+  return `http://${window.location.hostname}:8080/api`;
+};
 
 async function callApi(endpoint: string, method: string = 'GET', body?: any) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const baseUrl = getApiBaseUrl();
+  const response = await fetch(`${baseUrl}${endpoint}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
@@ -101,7 +111,8 @@ export const ImportAnimalsExcel = async (filePathOrFile: string | File): Promise
   } else {
     const formData = new FormData();
     formData.append('file', filePathOrFile as File);
-    const res = await fetch(`${API_BASE_URL}/import-excel`, {
+    const baseUrl = getApiBaseUrl();
+    const res = await fetch(`${baseUrl}/import-excel`, {
       method: 'POST',
       body: formData
     });
