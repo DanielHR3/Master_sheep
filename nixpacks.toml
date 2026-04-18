@@ -1,0 +1,17 @@
+# nixpacks.toml - Configuración de build para Railway
+# Indica a nixpacks: primero compila el frontend, luego el backend Go sin Wails
+
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["cd frontend && npm install"]
+
+[phases.build]
+cmds = [
+  "cd frontend && npm run build",
+  "go build -tags server -ldflags='-s -w' -o master_sheep_server ."
+]
+
+[start]
+cmd = "./master_sheep_server"
