@@ -1,17 +1,24 @@
-# nixpacks.toml - Configuración de build para Railway
-# Indica a nixpacks: primero compila el frontend, luego el backend Go sin Wails
+# nixpacks.toml - Optimizado para Railway (Memoria Limitada)
 
 [phases.setup]
-nixPkgs = ["nodejs_20"]
+nixPkgs = ["nodejs_20", "go_1_24"]
 
 [phases.install]
-cmds = ["cd frontend && npm install"]
+# Usar --no-audit y limitar memoria para evitar OOM
+cmds = ["cd frontend && npm install --no-audit --no-fund --prefer-offline"]
 
 [phases.build]
+# Limitar memoria de Node durante el build de Vite
 cmds = [
-  "cd frontend && npm run build",
+  "cd frontend && NODE_OPTIONS='--max-old-space-size=400' npm run build",
   "go build -tags server -ldflags='-s -w' -o master_sheep_server ."
 ]
 
 [start]
 cmd = "./master_sheep_server"
+
+[variables]
+CGO_ENABLED = "0"
+GOOS = "linux"
+GOPROXY = "https://proxy.golang.org,direct"
+NODE_ENV = "production"
