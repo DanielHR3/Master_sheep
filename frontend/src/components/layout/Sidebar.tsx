@@ -26,13 +26,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
       <div className="p-10">
         <div className="flex items-center gap-4 mb-16 group">
           <div className="w-14 h-14 bg-6666-maroon rounded-[22px] rotate-12 flex items-center justify-center shadow-2xl shadow-6666-maroon/40 group-hover:rotate-0 transition-transform duration-500 border border-6666-cream/20 overflow-hidden p-2">
-            <img src="/logo.png" alt="Master Sheep Logo" className="w-full h-full object-contain -rotate-12 group-hover:rotate-0 transition-transform duration-500" />
+            <img src="/logo.png" alt="SheepMaster Logo" className="w-full h-full object-contain -rotate-12 group-hover:rotate-0 transition-transform duration-500" />
           </div>
           <div>
             <h1 className={`text-2xl font-black tracking-tighter font-display ${
               theme === 'dark' ? 'bg-gradient-to-br from-white to-6666-cream bg-clip-text text-transparent' : 'text-slate-900'
             }`}>
-              MASTER<br /><span className="text-6666-cream">SHEEP</span>
+              Sheep<br /><span className="text-6666-cream">Master</span>
             </h1>
             <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-tight mt-1">Gestión Genética & Productiva</p>
           </div>

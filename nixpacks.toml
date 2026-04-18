@@ -14,11 +14,11 @@ cmds = [
 # Forzar NODE_ENV=development para que Vite encuentre sus plugins
 cmds = [
     "cd frontend && NODE_OPTIONS='--max-old-space-size=400' NODE_ENV=development npm run build",
-    "go build -tags server -ldflags='-s -w' -o master_sheep_server ."
+    "go build -tags server -ldflags='-s -w' -o sheepmaster ."
 ]
 
 [start]
-cmd = "./master_sheep_server"
+cmd = "./sheepmaster"
 
 [variables]
 CGO_ENABLED = "0"

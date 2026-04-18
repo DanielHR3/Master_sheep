@@ -52,7 +52,9 @@ export function GetTareas():Promise<Array<main.Tarea>>;
 
 export function GetUsers():Promise<Array<main.User>>;
 
-export function ImportAnimalsExcel(arg1:string):Promise<void>;
+export function ImportAnimalsExcel(arg1:string):Promise<number>;
+
+export function ImportAnimalsExcelData(arg1:Array<number>):Promise<number>;
 
 export function Login(arg1:string,arg2:string):Promise<void>;
 

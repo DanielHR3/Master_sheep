@@ -41,7 +41,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
       <div className="flex justify-between items-center">
         <div>
           <h2 className={`text-5xl font-black font-display tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-            Bienvenido a Master Sheep
+            Bienvenido a SheepMaster
           </h2>
           <p className="text-6666-cream font-black uppercase tracking-widest text-[10px] mt-1">
             Panel de Control de Engorda y Mejora Genética

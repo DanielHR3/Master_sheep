@@ -15,7 +15,7 @@ import (
 
 func main() {
 	home, _ := os.UserHomeDir()
-	dbPath := filepath.Join(home, "Documents", "MasterSheepPro", "master_sheep.db")
+	dbPath := filepath.Join(home, "Documents", "SheepMaster", "sheepmaster.db")
 
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
@@ -107,7 +107,7 @@ func main() {
 	hashedPwd, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
 	
 	_, err = db.Exec(`INSERT INTO users (id, email, password, name, role) VALUES (?, ?, ?, ?, ?)`,
-		userId, "admin@mastersheep-pro.com", string(hashedPwd), "Admin Master Sheep", "Administrador")
+		userId, "admin@sheepmaster.com", string(hashedPwd), "Admin SheepMaster", "Administrador")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -152,5 +152,5 @@ func main() {
 		}
 	}
 
-	fmt.Println("¡Base de datos de MASTER SHEEP PRO sembrada con éxito!")
+	fmt.Println("¡Base de datos de SHEEPMASTER sembrada con éxito!")
 }

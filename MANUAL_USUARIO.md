@@ -8,7 +8,7 @@
 
 ### 💻 Versión para Escritorio (Windows)
 1.  **Localización**: El archivo ejecutable se encuentra en su equipo en:
-    `C:\Users\mocas\OneDrive\Documentos\Master_sheep\build\bin\MasterSheepPro.exe`
+    `C:\Users\mocas\OneDrive\Documentos\Master_sheep\build\bin\sheepmaster.exe`
 2.  **Acceso Rápido**: Haga clic derecho sobre el archivo y seleccione "Enviar a" > "Escritorio (crear acceso directo)" para tenerlo siempre a mano.
 3.  **Ejecución**: Simplemente haga doble clic en el icono del borrego Dorper para iniciar el sistema.
 
@@ -49,7 +49,7 @@ Para cargar cientos de animales en segundos:
 ---
 
 ## 🛡️ 4. Seguridad y Respaldo
-*   **Base de Datos**: Sus datos se guardan localmente para garantizar privacidad y velocidad. Se recomienda hacer una copia de seguridad semanal de la carpeta `master_sheep.db`.
+*   **Base de Datos**: Sus datos se guardan localmente para garantizar privacidad y velocidad. Se recomienda hacer una copia de seguridad semanal del archivo `sheepmaster.db`.
 *   **Modo Dorper**: El sistema monitoriza automáticamente el estado reproductivo y de crecimiento basándose en las fechas de nacimiento ingresadas.
 
 ---
