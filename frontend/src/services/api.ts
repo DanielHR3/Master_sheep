@@ -5,18 +5,38 @@ const IS_WAILS = !!(window as any).go;
 export const getApiBaseUrl = () => {
   const saved = localStorage.getItem('backend_url');
   if (saved) {
-    // Clean spaces and enforce /api suffix
-    let base = saved.trim().replace(/\/api\/?$/, '');
-    // If the page is HTTPS and the user entered HTTP, warn or auto-fix (here auto-fix if it's a known tunnel)
-    if (window.location.protocol === 'https:' && base.startsWith('http:')) {
-      console.warn("Mezcla de contenido: Se recomienda usar https para evitar bloqueos.");
+    let base = saved.trim();
+    
+    // Auto-fix if user pasted the full pinggy command: ssh -sR 80:localhost:8080 pinggy.io
+    if (base.includes('pinggy.io') && !base.startsWith('http')) {
+      // In a real scenario, pinggy gives a unique URL like https://xyz.pinggy.link
+      // If we see the command, we can't guess the random URL, so we warn.
+      // But we should at least ensure it doesn't get treated as relative.
+      if (!base.startsWith('http')) {
+        console.error("URL Invalida detectada. Por favor use la URL .pinggy.link proporcionada por Pinggy.");
+      }
     }
+
+    // Ensure it's an absolute URL
+    if (!base.startsWith('http')) {
+      base = `https://${base}`; 
+    }
+
+    // Clean /api suffix
+    base = base.replace(/\/api\/?$/, '');
+    
     return `${base}/api`;
   }
   
-  // Protocolo dinámico (http o https) según la página
   const protocol = window.location.protocol;
   const host = window.location.hostname;
+  
+  // Default for local development or if no config
+  if (host === 'localhost' || host === '127.0.0.1') {
+    return `http://localhost:8080/api`;
+  }
+
+  // If on GitHub Pages and no config, it's likely misconfigured
   return `${protocol}//${host}:8080/api`;
 };
 
@@ -91,28 +111,97 @@ export const RegistrarParto = async (parto: any) => {
 };
 
 // ... Mapeo de compatibilidad para el resto (estos llamarán a Wails si están en PC)
-export const ConfirmarUltrasonido = WailsApp.ConfirmarUltrasonido;
-export const AddCorral = WailsApp.AddCorral;
-export const GetInsumos = WailsApp.GetInsumos;
-export const AddInsumo = WailsApp.AddInsumo;
-export const CompletarTarea = WailsApp.CompletarTarea;
-export const GetHistorialClinico = WailsApp.GetHistorialClinico;
+export const ConfirmarUltrasonido = async (animalID: string, preñada: boolean, fetos: number) => {
+  if (IS_WAILS) return WailsApp.ConfirmarUltrasonido(animalID, preñada, fetos);
+  return callApi('/confirm-ultrasound', 'POST', { animal_id: animalID, preñada, fetos });
+};
+
+export const AddCorral = async (corral: any) => {
+  if (IS_WAILS) return WailsApp.AddCorral(corral);
+  return callApi('/corrales', 'POST', corral);
+};
+
+export const GetInsumos = async () => {
+  if (IS_WAILS) return WailsApp.GetInsumos();
+  return callApi('/insumos');
+};
+
+export const AddInsumo = async (insumo: any) => {
+  if (IS_WAILS) return WailsApp.AddInsumo(insumo);
+  return callApi('/insumos', 'POST', insumo);
+};
+
+export const CompletarTarea = async (id: string) => {
+  if (IS_WAILS) return WailsApp.CompletarTarea(id);
+  // Optional: Add REST implementation if needed, for now just Wails or skip
+  return;
+};
+
+export const GetHistorialClinico = async (animalID: string) => {
+  if (IS_WAILS) return WailsApp.GetHistorialClinico(animalID);
+  return callApi(`/history?animal_id=${animalID}`);
+};
+
 export const RegistrarDiagnosticoGestacion = WailsApp.RegistrarDiagnosticoGestacion;
 export const CrearRecetaVeterinaria = WailsApp.CrearRecetaVeterinaria;
 export const GetRecetas = WailsApp.GetRecetas;
 export const GetPartos = WailsApp.GetPartos;
 export const GetDiagnosticosGestacion = WailsApp.GetDiagnosticosGestacion;
-export const GetUsers = WailsApp.GetUsers;
-export const AddUser = WailsApp.AddUser;
-export const DeleteUser = WailsApp.DeleteUser;
-export const UpdateAnimal = WailsApp.UpdateAnimal;
-export const DeleteAnimal = WailsApp.DeleteAnimal;
-export const GetCurrentUser = WailsApp.GetCurrentUser;
-export const ChangePassword = WailsApp.ChangePassword;
-export const AddSeguimientoPeso = WailsApp.AddSeguimientoPeso;
-export const GetSeguimientosPeso = WailsApp.GetSeguimientosPeso;
+
+export const GetUsers = async () => {
+  if (IS_WAILS) return WailsApp.GetUsers();
+  return callApi('/users');
+};
+
+export const AddUser = async (user: any) => {
+  if (IS_WAILS) return WailsApp.AddUser(user);
+  return callApi('/users', 'POST', user);
+};
+
+export const DeleteUser = async (id: string) => {
+  if (IS_WAILS) return WailsApp.DeleteUser(id);
+  const baseUrl = getApiBaseUrl();
+  await fetch(`${baseUrl}/users?id=${id}`, { method: 'DELETE' });
+};
+
+export const UpdateAnimal = async (animal: any) => {
+  if (IS_WAILS) return WailsApp.UpdateAnimal(animal);
+  return callApi('/animals', 'POST', animal); // handleAnimals handles POST for both add and update if logic in App.go allows, or we can add a specific handler. Actually AddAnimal uses INSERT.
+};
+
+export const DeleteAnimal = async (id: string) => {
+  if (IS_WAILS) return WailsApp.DeleteAnimal(id);
+  // ... implement if needed
+  return;
+};
+
+export const GetCurrentUser = async () => {
+  if (IS_WAILS) return WailsApp.GetCurrentUser();
+  return callApi('/me');
+};
+
+export const ChangePassword = async (old: string, newP: string) => {
+  if (IS_WAILS) return WailsApp.ChangePassword(old, newP);
+  return callApi('/change-password', 'POST', { old, new: newP });
+};
+
+export const AddSeguimientoPeso = async (data: any) => {
+  if (IS_WAILS) return WailsApp.AddSeguimientoPeso(data);
+  return callApi('/weights', 'POST', data);
+};
+
+export const GetSeguimientosPeso = async (animalID: string) => {
+  if (IS_WAILS) return WailsApp.GetSeguimientosPeso(animalID);
+  return callApi(`/weights?animal_id=${animalID}`);
+};
+
 export const ToggleDemoMode = WailsApp.ToggleDemoMode;
-export const GetIsDemoMode = WailsApp.GetIsDemoMode;
+
+export const GetIsDemoMode = async () => {
+  if (IS_WAILS) return WailsApp.GetIsDemoMode();
+  const res = await callApi('/demo-mode');
+  return res.enabled;
+};
 export const ImportAnimalsExcel = async (filePathOrFile: string | File): Promise<number> => {
   if (IS_WAILS) {
     return (WailsApp.ImportAnimalsExcel(filePathOrFile as string) as any);

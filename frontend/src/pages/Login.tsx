@@ -23,7 +23,20 @@ const Login: React.FC<LoginProps> = ({
   const [configUrl, setConfigUrl] = useState(localStorage.getItem('backend_url') || '');
 
   const handleSaveConfig = () => {
-    localStorage.setItem('backend_url', configUrl);
+    let url = configUrl.trim();
+    
+    // Check if user accidentally pasted the terminal command
+    if (url.includes('ssh ') || url.includes('80:localhost')) {
+      alert("⚠️ Error: Parece que pegaste el comando de la terminal.\n\nPor favor, pega el ENLACE (URL) que termina en .pinggy.link o .ngrok-free.app");
+      return;
+    }
+
+    if (url && !url.startsWith('http')) {
+      url = `https://${url}`;
+    }
+
+    localStorage.setItem('backend_url', url);
+    setConfigUrl(url);
     setShowConfig(false);
     alert("Dirección del servidor actualizada con éxito.");
   };
@@ -101,6 +114,7 @@ const Login: React.FC<LoginProps> = ({
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-slate-500 hover:text-white transition-colors"
+                title={showPassword ? "Ocultar" : "Mostrar"}
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
