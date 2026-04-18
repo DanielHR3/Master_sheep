@@ -56,12 +56,12 @@ const Login: React.FC<LoginProps> = ({
         </button>
 
         <div className="w-20 h-20 bg-6666-maroon rounded-[32px] rotate-12 flex items-center justify-center mx-auto mb-10 shadow-3xl shadow-6666-maroon/30 border border-white/10 overflow-hidden p-3">
-          <img src="logo.png" alt="Master Sheep Logo" className="w-full h-full object-contain -rotate-12" />
+          <img src="logo.png" alt="SheepMaster Logo" className="w-full h-full object-contain -rotate-12" />
         </div>
         
         <h2 translate="no" className="text-5xl font-black text-white font-display mb-12 tracking-tighter leading-none uppercase">
-          Master<br />
-          <span className="bg-gradient-to-r from-6666-cream to-6666-sand bg-clip-text text-transparent">Sheep</span>
+          Sheep<br />
+          <span className="bg-gradient-to-r from-6666-cream to-6666-sand bg-clip-text text-transparent">Master</span>
         </h2>
         
         {showConfig ? (
@@ -139,7 +139,7 @@ const Login: React.FC<LoginProps> = ({
           </div>
         )}
         
-        <p className="mt-10 text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-40">Acceso exclusivo - Master Sheep</p>
+        <p className="mt-10 text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-40">Acceso exclusivo - SheepMaster</p>
       </div>
     </div>
   );

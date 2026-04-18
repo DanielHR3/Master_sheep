@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "./master_sheep_server",
+    "startCommand": "./sheepmaster",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 30,
     "restartPolicyType": "ON_FAILURE",

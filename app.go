@@ -54,9 +54,9 @@ func (a *App) initDB() error {
 		// Determinar ruta de la base de datos (Carpeta de Documentos del usuario)
 		fmt.Println("Conectando a base de datos SQLite (Local)...")
 		home, _ := os.UserHomeDir()
-		dbDir := filepath.Join(home, "Documents", "MasterSheepPro")
+		dbDir := filepath.Join(home, "Documents", "SheepMaster")
 		_ = os.MkdirAll(dbDir, 0755)
-		dbPath := filepath.Join(dbDir, "master_sheep.db")
+		dbPath := filepath.Join(dbDir, "sheepmaster.db")
 		db, err = sql.Open("sqlite", dbPath)
 		a.driverName = "sqlite"
 	}
@@ -272,10 +272,10 @@ func (a *App) initDB() error {
 	
 	if a.driverName == "postgres" {
 		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role) VALUES (?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
-			adminID, "admin@mastersheep-pro.com", string(hashedPwd), "Administrador Master Sheep", "Admin")
+			adminID, "admin@sheepmaster.com", string(hashedPwd), "Admin SheepMaster", "Admin")
 	} else {
 		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role) VALUES (?, ?, ?, ?, ?)",
-			adminID, "admin@mastersheep-pro.com", string(hashedPwd), "Administrador Master Sheep", "Admin")
+			adminID, "admin@sheepmaster.com", string(hashedPwd), "Admin SheepMaster", "Admin")
 	}
 
 	// Cargar configuración de Modo Demo

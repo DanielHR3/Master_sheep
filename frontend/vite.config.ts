@@ -5,7 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/Master_sheep/',
+  base: './',
   plugins: [
     react(),
     tailwindcss(),
@@ -13,9 +13,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       manifest: {
-        name: 'Master Sheep',
-        short_name: 'MasterSheep',
-        description: 'Sistema de Gestión Ganadera - Master Sheep',
+        name: 'SheepMaster',
+        short_name: 'SheepMaster',
+        description: 'Sistema de Gestión Ganadera - SheepMaster',
         theme_color: '#1b2636',
         icons: [
           {
