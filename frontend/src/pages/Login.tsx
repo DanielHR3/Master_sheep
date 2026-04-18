@@ -48,7 +48,7 @@ const Login: React.FC<LoginProps> = ({
         
         <h2 translate="no" className="text-5xl font-black text-white font-display mb-12 tracking-tighter leading-none uppercase">
           Master<br />
-          <span className="bg-gradient-to-r from-6666-cream to-6666-sand bg-clip-text text-transparent">Sheep Pro</span>
+          <span className="bg-gradient-to-r from-6666-cream to-6666-sand bg-clip-text text-transparent">Sheep</span>
         </h2>
         
         {showConfig ? (
@@ -125,7 +125,7 @@ const Login: React.FC<LoginProps> = ({
           </div>
         )}
         
-        <p className="mt-10 text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-40">Acceso exclusivo - Master Sheep Pro</p>
+        <p className="mt-10 text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-40">Acceso exclusivo - Master Sheep</p>
       </div>
     </div>
   );
