@@ -3,40 +3,32 @@ import * as WailsApp from "../../wailsjs/go/main/App";
 const IS_WAILS = !!(window as any).go;
 
 export const getApiBaseUrl = () => {
+  // 1. Si el usuario configuró manualmente una URL, esa tiene prioridad total
   const saved = localStorage.getItem('backend_url');
-  if (saved) {
+  if (saved && saved.trim() !== '') {
     let base = saved.trim();
-    
-    // Auto-fix if user pasted the full pinggy command: ssh -sR 80:localhost:8080 pinggy.io
-    if (base.includes('pinggy.io') && !base.startsWith('http')) {
-      // In a real scenario, pinggy gives a unique URL like https://xyz.pinggy.link
-      // If we see the command, we can't guess the random URL, so we warn.
-      // But we should at least ensure it doesn't get treated as relative.
-      if (!base.startsWith('http')) {
-        console.error("URL Invalida detectada. Por favor use la URL .pinggy.link proporcionada por Pinggy.");
-      }
-    }
-
-    // Ensure it's an absolute URL
     if (!base.startsWith('http')) {
-      base = `https://${base}`; 
+      base = `https://${base}`;
     }
-
-    // Clean /api suffix
     base = base.replace(/\/api\/?$/, '');
-    
     return `${base}/api`;
   }
-  
-  const protocol = window.location.protocol;
+
   const host = window.location.hostname;
-  
-  // Default for local development or if no config
+
+  // 2. Desarrollo local
   if (host === 'localhost' || host === '127.0.0.1') {
     return `http://localhost:8080/api`;
   }
 
-  // If on GitHub Pages and no config, it's likely misconfigured
+  // 3. Producción en la nube: variable de entorno definida en el build
+  const backendUrl = import.meta.env.VITE_API_URL;
+  if (backendUrl) {
+    return `${backendUrl}/api`;
+  }
+
+  // 4. Último recurso: mismo host, puerto 8080
+  const protocol = window.location.protocol;
   return `${protocol}//${host}:8080/api`;
 };
 
@@ -58,7 +50,7 @@ async function callApi(endpoint: string, method: string = 'GET', body?: any) {
   return response.json();
 }
 
-// Abstracción de funciones
+// --- Funciones de la API ---
 export const GetAnimales = async () => {
   if (IS_WAILS) return WailsApp.GetAnimales();
   return callApi('/animals');
@@ -110,7 +102,6 @@ export const RegistrarParto = async (parto: any) => {
   return callApi('/births', 'POST', parto);
 };
 
-// ... Mapeo de compatibilidad para el resto (estos llamarán a Wails si están en PC)
 export const ConfirmarUltrasonido = async (animalID: string, preñada: boolean, fetos: number) => {
   if (IS_WAILS) return WailsApp.ConfirmarUltrasonido(animalID, preñada, fetos);
   return callApi('/confirm-ultrasound', 'POST', { animal_id: animalID, preñada, fetos });
@@ -133,7 +124,6 @@ export const AddInsumo = async (insumo: any) => {
 
 export const CompletarTarea = async (id: string) => {
   if (IS_WAILS) return WailsApp.CompletarTarea(id);
-  // Optional: Add REST implementation if needed, for now just Wails or skip
   return;
 };
 
@@ -166,12 +156,11 @@ export const DeleteUser = async (id: string) => {
 
 export const UpdateAnimal = async (animal: any) => {
   if (IS_WAILS) return WailsApp.UpdateAnimal(animal);
-  return callApi('/animals', 'POST', animal); // handleAnimals handles POST for both add and update if logic in App.go allows, or we can add a specific handler. Actually AddAnimal uses INSERT.
+  return callApi('/animals', 'POST', animal);
 };
 
 export const DeleteAnimal = async (id: string) => {
   if (IS_WAILS) return WailsApp.DeleteAnimal(id);
-  // ... implement if needed
   return;
 };
 
@@ -202,6 +191,7 @@ export const GetIsDemoMode = async () => {
   const res = await callApi('/demo-mode');
   return res.enabled;
 };
+
 export const ImportAnimalsExcel = async (filePathOrFile: string | File): Promise<number> => {
   if (IS_WAILS) {
     return (WailsApp.ImportAnimalsExcel(filePathOrFile as string) as any);

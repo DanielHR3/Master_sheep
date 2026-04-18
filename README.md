@@ -1,8 +1,8 @@
-# Master Sheep Pro 🐑
+# Master Sheep 🐑
 
 ![Master Sheep Logo](file:///C:/Users/mocas/.gemini/antigravity/brain/e9589eef-7f5e-4f66-a6dd-723907782df3/master_sheep_logo_1775941006524.png)
 
-**Master Sheep Pro** es una solución Agrotech de última generación diseñada para la gestión integral de ganado ovino. Enfocada en la eficiencia operativa, el sistema permite llevar un control estricto de pesajes, eventos reproductivos, tratamientos médicos e inventarios, todo bajo una arquitectura **Offline-First**.
+**Master Sheep** es una solución Agrotech de última generación diseñada para la gestión integral de ganado ovino. Enfocada en la eficiencia operativa, el sistema permite llevar un control estricto de pesajes, eventos reproductivos, tratamientos médicos e inventarios, todo bajo una arquitectura **Offline-First**.
 
 ## 🚀 Características Principales
 

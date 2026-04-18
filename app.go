@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,6 +23,7 @@ type App struct {
 	db         *sql.DB
 	user       *User // Usuario actualmente autenticado
 	IsDemoMode bool  // Modo Lectura (Bloquea mutaciones)
+	driverName string
 }
 
 // NewApp creates a new App application struct
@@ -47,6 +49,7 @@ func (a *App) initDB() error {
 	if dbURL != "" {
 		fmt.Println("Conectando a base de datos PostgreSQL (Nube)...")
 		db, err = sql.Open("postgres", dbURL)
+		a.driverName = "postgres"
 	} else {
 		// Determinar ruta de la base de datos (Carpeta de Documentos del usuario)
 		fmt.Println("Conectando a base de datos SQLite (Local)...")
@@ -55,6 +58,7 @@ func (a *App) initDB() error {
 		_ = os.MkdirAll(dbDir, 0755)
 		dbPath := filepath.Join(dbDir, "master_sheep.db")
 		db, err = sql.Open("sqlite", dbPath)
+		a.driverName = "sqlite"
 	}
 
 	if err != nil {
@@ -242,42 +246,68 @@ func (a *App) initDB() error {
 	`
 	_, err = a.db.Exec(schema)
 	if err != nil {
-		return err
+		fmt.Printf("Aviso: Error en esquema inicial (posiblemente tablas ya existen): %v\n", err)
 	}
 
-	// Migraciones
-	_, _ = a.db.Exec("ALTER TABLE animales ADD COLUMN peso_nacer REAL DEFAULT 0")
-	_, _ = a.db.Exec("ALTER TABLE animales ADD COLUMN peso_destete REAL DEFAULT 0")
-	_, _ = a.db.Exec("ALTER TABLE animales ADD COLUMN padre_id TEXT")
-	_, _ = a.db.Exec("ALTER TABLE animales ADD COLUMN madre_id TEXT")
-	_, _ = a.db.Exec("ALTER TABLE animales ADD COLUMN destino TEXT")
-	_, _ = a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_defuncion TEXT")
-	_, _ = a.db.Exec("ALTER TABLE animales ADD COLUMN motivo_defuncion TEXT")
-	_, _ = a.db.Exec("ALTER TABLE tratamientos ADD COLUMN via_administracion TEXT")
+	// Migraciones y Setup Inicial con ON CONFLICT para Postgres / OR IGNORE para SQLite
+	if a.driverName == "postgres" {
+		_, _ = a.db.Exec("INSERT INTO settings (key, value) VALUES ('is_demo_mode', 'false') ON CONFLICT DO NOTHING")
+	} else {
+		_, _ = a.db.Exec("INSERT OR IGNORE INTO settings (key, value) VALUES ('is_demo_mode', 'false')")
+	}
+
+	// Migraciones (Silenciosas si fallan por ya existir columnas)
+	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_nacer REAL DEFAULT 0")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_destete REAL DEFAULT 0")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN padre_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN madre_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN destino TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_defuncion TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN motivo_defuncion TEXT")
+	a.db.Exec("ALTER TABLE tratamientos ADD COLUMN via_administracion TEXT")
 
 	// Insertar usuario administrador por defecto si no existe
 	adminID := uuid.New().String()
 	hashedPwd, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
-	// Primero borrar si existe (para reiniciar)
-	_, _ = a.db.Exec("DELETE FROM users WHERE email = ?", "admin@mastersheep-pro.com")
-	_, err = a.db.Exec("INSERT INTO users (id, email, password, name, role) VALUES (?, ?, ?, ?, ?)", 
-		adminID, "admin@mastersheep-pro.com", string(hashedPwd), "Administrador de Master Sheep Pro", "Admin")
-	if err != nil {
-		fmt.Printf("Error creando admin: %v\n", err)
+	
+	if a.driverName == "postgres" {
+		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role) VALUES (?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
+			adminID, "admin@mastersheep-pro.com", string(hashedPwd), "Administrador Master Sheep", "Admin")
+	} else {
+		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role) VALUES (?, ?, ?, ?, ?)",
+			adminID, "admin@mastersheep-pro.com", string(hashedPwd), "Administrador Master Sheep", "Admin")
 	}
 
 	// Cargar configuración de Modo Demo
 	var demoVal string
-	err = a.db.QueryRow("SELECT value FROM settings WHERE key = 'is_demo_mode'").Scan(&demoVal)
+	err = a.db.QueryRow(a.q("SELECT value FROM settings WHERE key = 'is_demo_mode'")).Scan(&demoVal)
 	if err == nil {
 		a.IsDemoMode = (demoVal == "true")
 	} else {
-		// Valor por defecto si no existe
-		_, _ = a.db.Exec("INSERT OR IGNORE INTO settings (key, value) VALUES ('is_demo_mode', 'false')")
 		a.IsDemoMode = false
 	}
 
 	return nil
+}
+
+// q es un helper para formatear consultas según el motor (Postgres usa $1, $2... SQLite usa ?)
+func (a *App) q(query string) string {
+	if a.driverName != "postgres" {
+		return query
+	}
+
+	parts := strings.Split(query, "?")
+	if len(parts) == 1 {
+		return query
+	}
+
+	var pb strings.Builder
+	for i := 0; i < len(parts)-1; i++ {
+		pb.WriteString(parts[i])
+		pb.WriteString(fmt.Sprintf("$%d", i+1))
+	}
+	pb.WriteString(parts[len(parts)-1])
+	return pb.String()
 }
 
 // ToggleDemoMode activa o desactiva el modo lectura
@@ -286,7 +316,12 @@ func (a *App) ToggleDemoMode(enabled bool) error {
 	if enabled {
 		val = "true"
 	}
-	_, err := a.db.Exec("INSERT OR REPLACE INTO settings (key, value) VALUES ('is_demo_mode', ?)", val)
+	var err error
+	if a.driverName == "postgres" {
+		_, err = a.db.Exec(a.q("INSERT INTO settings (key, value) VALUES ('is_demo_mode', ?) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value"), val)
+	} else {
+		_, err = a.db.Exec("INSERT OR REPLACE INTO settings (key, value) VALUES ('is_demo_mode', ?)", val)
+	}
 	if err != nil {
 		return err
 	}
@@ -304,7 +339,7 @@ func (a *App) Login(email, password string) error {
 	var user User
 	var dbPassword string
 	fmt.Printf("Intentando login con: %s\n", email)
-	err := a.db.QueryRow("SELECT id, email, password, role FROM users WHERE email = ?", email).
+	err := a.db.QueryRow(a.q("SELECT id, email, password, role FROM users WHERE email = ?"), email).
 		Scan(&user.ID, &user.Email, &dbPassword, &user.Role)
 	
 	if err != nil {
@@ -334,11 +369,11 @@ func (a *App) GetAnimales() ([]Animal, error) {
 		return nil, fmt.Errorf("no autenticado")
 	}
 
-	rows, err := a.db.Query(`SELECT id, COALESCE(arete, ''), COALESCE(raza, ''), COALESCE(sexo, ''), COALESCE(fecha_nacimiento, ''), 
+	rows, err := a.db.Query(a.q(`SELECT id, COALESCE(arete, ''), COALESCE(raza, ''), COALESCE(sexo, ''), COALESCE(fecha_nacimiento, ''), 
 		COALESCE(estatus, ''), COALESCE(estado_reproductivo, ''), conteo_fetos, COALESCE(corral_id, ''),
 		peso_nacer, peso_destete, COALESCE(padre_id, ''), COALESCE(madre_id, ''), COALESCE(destino, ''),
 		COALESCE(fecha_defuncion, ''), COALESCE(motivo_defuncion, '')
-		FROM animales WHERE user_id = ?`, a.user.ID)
+		FROM animales WHERE user_id = ?`), a.user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -379,10 +414,10 @@ func (a *App) AddAnimal(animal Animal) error {
 		animal.ID = uuid.New().String()
 	}
 
-	_, err := a.db.Exec(`INSERT INTO animales 
+	_, err := a.db.Exec(a.q(`INSERT INTO animales 
 		(id, user_id, arete, raza, sexo, fecha_nacimiento, estatus, estado_reproductivo, conteo_fetos, corral_id, 
 		 peso_nacer, peso_destete, padre_id, madre_id, destino, fecha_defuncion, motivo_defuncion) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		animal.ID, a.user.ID, animal.Arete, animal.Raza, animal.Sexo, 
 		animal.FechaNacimiento, animal.Estatus, animal.EstadoRepro, 
 		animal.ConteoFetos, animal.CorralID, animal.PesoNacer, animal.PesoDestete,
@@ -427,7 +462,7 @@ func (a *App) DeleteAnimal(id string) error {
 		_, _ = tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE animal_id = ?", table), id)
 	}
 
-	_, err = tx.Exec("DELETE FROM animales WHERE id = ? AND user_id = ?", id, a.user.ID)
+	_, err = tx.Exec(a.q("DELETE FROM animales WHERE id = ? AND user_id = ?"), id, a.user.ID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -442,7 +477,7 @@ func (a *App) GetCorrales() ([]Corral, error) {
 		return nil, fmt.Errorf("no autenticado")
 	}
 
-	rows, err := a.db.Query("SELECT id, nombre, tipo, capacidad FROM corrales WHERE user_id = ? ORDER BY nombre ASC", a.user.ID)
+	rows, err := a.db.Query(a.q("SELECT id, nombre, tipo, capacidad FROM corrales WHERE user_id = ? ORDER BY nombre ASC"), a.user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -486,7 +521,7 @@ func (a *App) AddCorral(corral Corral) error {
 		corral.ID = uuid.New().String()
 	}
 
-	_, err := a.db.Exec("INSERT INTO corrales (id, user_id, nombre, tipo, capacidad) VALUES (?, ?, ?, ?, ?)",
+	_, err := a.db.Exec(a.q("INSERT INTO corrales (id, user_id, nombre, tipo, capacidad) VALUES (?, ?, ?, ?, ?)"),
 		corral.ID, a.user.ID, corral.Nombre, corral.Tipo, corral.Capacidad)
 	return err
 }
@@ -505,9 +540,9 @@ func (a *App) RegistrarEventoReproductivo(event EventoReproductivo) error {
 	event.FechaProbableParto = parsedFecha.AddDate(0, 0, 147).Format("2006-01-02")
 	event.Resultado = "Pendiente"
 
-	_, err := a.db.Exec(`INSERT INTO eventos_reproductivos 
+	_, err := a.db.Exec(a.q(`INSERT INTO eventos_reproductivos 
 		(id, user_id, animal_id, tipo, fecha_evento, id_macho, lote_semen, tecnico, protocolo, fecha_probable_parto, resultado)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		event.ID, a.user.ID, event.AnimalID, event.Tipo, 
 		event.FechaEvento, event.IDMacho, event.LoteSemen, 
 		event.Tecnico, event.Protocolo, event.FechaProbableParto, event.Resultado)
@@ -517,7 +552,7 @@ func (a *App) RegistrarEventoReproductivo(event EventoReproductivo) error {
 	}
 
 	// Actualizar animal
-	_, err = a.db.Exec("UPDATE animales SET estado_reproductivo = 'Gestación' WHERE id = ?", event.AnimalID)
+	_, err = a.db.Exec(a.q("UPDATE animales SET estado_reproductivo = 'Gestación' WHERE id = ?"), event.AnimalID)
 	return err
 }
 
@@ -528,25 +563,25 @@ func (a *App) GetStats() (map[string]interface{}, error) {
 	}
 
 	var total int
-	a.db.QueryRow("SELECT COUNT(*) FROM animales WHERE user_id = ? AND estatus = 'Activo'", a.user.ID).Scan(&total)
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND estatus = 'Activo'"), a.user.ID).Scan(&total)
 
 	var engorda int
-	a.db.QueryRow("SELECT COUNT(*) FROM animales WHERE user_id = ? AND destino = 'Engorda' AND estatus = 'Activo'", a.user.ID).Scan(&engorda)
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND destino = 'Engorda' AND estatus = 'Activo'"), a.user.ID).Scan(&engorda)
 
 	var cria int
-	a.db.QueryRow("SELECT COUNT(*) FROM animales WHERE user_id = ? AND destino = 'Pie de Cría' AND estatus = 'Activo'", a.user.ID).Scan(&cria)
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND destino = 'Pie de Cría' AND estatus = 'Activo'"), a.user.ID).Scan(&cria)
 
 	var bajas int
-	a.db.QueryRow("SELECT COUNT(*) FROM animales WHERE user_id = ? AND estatus = 'Baja'", a.user.ID).Scan(&bajas)
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND estatus = 'Baja'"), a.user.ID).Scan(&bajas)
 
 	// Corrales con ocupación (enfocado en los 12 elevados)
-	rows, err := a.db.Query(`
+	rows, err := a.db.Query(a.q(`
 		SELECT c.nombre, COUNT(a.id) as cantidad, c.capacidad 
 		FROM corrales c 
 		LEFT JOIN animales a ON c.id = a.corral_id AND a.estatus = 'Activo'
 		WHERE c.user_id = ? 
-		GROUP BY c.id
-		ORDER BY c.nombre ASC`, a.user.ID)
+		GROUP BY c.id, c.nombre, c.capacidad
+		ORDER BY c.nombre ASC`), a.user.ID)
 	
 	corralesData := []map[string]interface{}{}
 	if err == nil {
@@ -586,15 +621,15 @@ func (a *App) ConfirmarUltrasonido(animalID string, preñada bool, fetos int) er
 		estado = "Pregñada Confirmada"
 	}
 
-	_, err := a.db.Exec("UPDATE animales SET estado_reproductivo = ?, conteo_fetos = ? WHERE id = ?",
+	_, err := a.db.Exec(a.q("UPDATE animales SET estado_reproductivo = ?, conteo_fetos = ? WHERE id = ?"),
 		estado, fetos, animalID)
 	
 	// Si es positivo, generar tarea de seguimiento
 	if preñada {
 		taskID := uuid.New().String()
 		vencimiento := time.Now().AddDate(0, 0, 45).Format("2006-01-02")
-		a.db.Exec(`INSERT INTO tareas (id, user_id, titulo, descripcion, fecha_vencimiento, estatus, prioridad) 
-			VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		a.db.Exec(a.q(`INSERT INTO tareas (id, user_id, titulo, descripcion, fecha_vencimiento, estatus, prioridad) 
+			VALUES (?, ?, ?, ?, ?, ?, ?)`),
 			taskID, a.user.ID, "REVISIÓN: Segundo Ultrasonido", "Verificar viabilidad fetal del animal "+animalID, vencimiento, "Pendiente", "Media")
 	}
 	
@@ -609,13 +644,13 @@ func (a *App) MoverAnimal(animalID string, toCorralID string, motivo string) err
 
 	// Obtener origen
 	var fromCorralID string
-	_ = a.db.QueryRow("SELECT corral_id FROM animales WHERE id = ?", animalID).Scan(&fromCorralID)
+	_ = a.db.QueryRow(a.q("SELECT corral_id FROM animales WHERE id = ?"), animalID).Scan(&fromCorralID)
 
 	// Registrar movimiento
 	movID := uuid.New().String()
-	_, err := a.db.Exec(`INSERT INTO movimientos 
+	_, err := a.db.Exec(a.q(`INSERT INTO movimientos 
 		(id, user_id, animal_id, corral_previo, corral_nuevo, fecha_movimiento, motivo) 
-		VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?)`),
 		movID, a.user.ID, animalID, fromCorralID, toCorralID, time.Now().Format("2006-01-02"), motivo)
 	
 	if err != nil {
@@ -623,7 +658,7 @@ func (a *App) MoverAnimal(animalID string, toCorralID string, motivo string) err
 	}
 
 	// Actualizar animal
-	_, err = a.db.Exec("UPDATE animales SET corral_id = ? WHERE id = ?", toCorralID, animalID)
+	_, err = a.db.Exec(a.q("UPDATE animales SET corral_id = ? WHERE id = ?"), toCorralID, animalID)
 	return err
 }
 
@@ -633,8 +668,8 @@ func (a *App) GetInsumos() ([]Insumo, error) {
 		return nil, fmt.Errorf("no autenticado")
 	}
 
-	rows, err := a.db.Query(`SELECT id, COALESCE(nombre, ''), COALESCE(tipo, ''), COALESCE(unidad, ''), stock_actual, stock_minimo, costo_unitario, dias_retiro, COALESCE(lote, ''), COALESCE(fecha_vencimiento, ''), COALESCE(proveedor, '') 
-		FROM insumos WHERE user_id = ?`, a.user.ID)
+	rows, err := a.db.Query(a.q(`SELECT id, COALESCE(nombre, ''), COALESCE(tipo, ''), COALESCE(unidad, ''), stock_actual, stock_minimo, costo_unitario, dias_retiro, COALESCE(lote, ''), COALESCE(fecha_vencimiento, ''), COALESCE(proveedor, '') 
+		FROM insumos WHERE user_id = ?`), a.user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -660,9 +695,9 @@ func (a *App) AddInsumo(i Insumo) error {
 		i.ID = uuid.New().String()
 	}
 
-	_, err := a.db.Exec(`INSERT INTO insumos 
+	_, err := a.db.Exec(a.q(`INSERT INTO insumos 
 		(id, user_id, nombre, tipo, unidad, stock_actual, stock_minimo, costo_unitario, dias_retiro, lote, fecha_vencimiento, proveedor) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		i.ID, a.user.ID, i.Nombre, i.Tipo, i.Unidad, i.StockActual, i.StockMinimo, i.CostoUnitario, i.DiasRetiro, i.Lote, i.FechaVencimiento, i.Proveedor)
 	return err
 }
@@ -676,7 +711,7 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 	// Obtener info del insumo para calcular retiro
 	var diasRetiro int
 	var nombreInsumo string
-	err := a.db.QueryRow("SELECT dias_retiro, nombre FROM insumos WHERE id = ?", t.InsumoID).Scan(&diasRetiro, &nombreInsumo)
+	err := a.db.QueryRow(a.q("SELECT dias_retiro, nombre FROM insumos WHERE id = ?"), t.InsumoID).Scan(&diasRetiro, &nombreInsumo)
 	if err != nil {
 		return fmt.Errorf("insumo no encontrado")
 	}
@@ -694,9 +729,9 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 	}
 
 	// 1. Insertar tratamiento inicial
-	_, err = tx.Exec(`INSERT INTO tratamientos 
+	_, err = tx.Exec(a.q(`INSERT INTO tratamientos 
 		(id, user_id, animal_id, insumo_id, dosis, via_administracion, fecha, fecha_fin_retiro, tecnico, observaciones) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		t.ID, a.user.ID, t.AnimalID, t.InsumoID, t.Dosis, t.ViaAdministracion,
 		t.Fecha, t.FechaFinRetiro, t.Tecnico, t.Observaciones)
 	
@@ -706,7 +741,7 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 	}
 
 	// 2. Descontar stock
-	_, err = tx.Exec("UPDATE insumos SET stock_actual = stock_actual - ? WHERE id = ?", t.Dosis, t.InsumoID)
+	_, err = tx.Exec(a.q("UPDATE insumos SET stock_actual = stock_actual - ? WHERE id = ?"), t.Dosis, t.InsumoID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -714,9 +749,9 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 
 	// 3. Registrar movimiento de insumo
 	movID := uuid.New().String()
-	_, err = tx.Exec(`INSERT INTO movimientos_insumo 
+	_, err = tx.Exec(a.q(`INSERT INTO movimientos_insumo 
 		(id, user_id, insumo_id, tipo, cantidad, fecha, motivo, animal_id) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
 		movID, a.user.ID, t.InsumoID, "Salida", t.Dosis, t.Fecha, "Tratamiento Animal", t.AnimalID)
 	
 	if err != nil {
@@ -732,9 +767,9 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 			titulo := fmt.Sprintf("REMINDER: Medicar %s - Animal %s", nombreInsumo, t.AnimalID)
 			desc := fmt.Sprintf("APLICACIÓN REQUERIDA: Día %d de %d. Dosis: %.2f. Vía: %s. Obs: %s", i+1, t.DuracionDias, t.Dosis, t.ViaAdministracion, t.Observaciones)
 			
-			_, err = tx.Exec(`INSERT INTO tareas 
+			_, err = tx.Exec(a.q(`INSERT INTO tareas 
 				(id, user_id, asignado_a, creado_por, titulo, descripcion, estatus, fecha_vencimiento, animal_id, insumo_id, prioridad) 
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 				taskID, a.user.ID, "", a.user.ID, titulo, desc, "Pendiente", 
 				fechaVenc, t.AnimalID, t.InsumoID, "Alta")
 			
@@ -763,7 +798,7 @@ func (a *App) RegistrarParto(p Parto) error {
 	}
 
 	// 1. Insertar en tabla partos
-	_, err = tx.Exec(`INSERT INTO partos (id, user_id, animal_id, fecha, cantidad_crias, tipo_parto, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+	_, err = tx.Exec(a.q(`INSERT INTO partos (id, user_id, animal_id, fecha, cantidad_crias, tipo_parto, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)`),
 		p.ID, a.user.ID, p.AnimalID, p.Fecha, p.CantidadCrias, p.TipoParto, p.Observaciones)
 	if err != nil {
 		tx.Rollback()
@@ -771,7 +806,7 @@ func (a *App) RegistrarParto(p Parto) error {
 	}
 
 	// 2. Actualizar estado de la madre
-	_, err = tx.Exec("UPDATE animales SET estado_reproductivo = 'Lactancia', conteo_fetos = 0 WHERE id = ?", p.AnimalID)
+	_, err = tx.Exec(a.q("UPDATE animales SET estado_reproductivo = 'Lactancia', conteo_fetos = 0 WHERE id = ?"), p.AnimalID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -814,13 +849,13 @@ func (a *App) RegistrarDiagnosticoGestacion(dg DiagnosticoGestacion) error {
 	if dg.ID == "" {
 		dg.ID = uuid.New().String()
 	}
-	_, err := a.db.Exec(`INSERT INTO diagnostico_gestacion (id, user_id, animal_id, fecha, condicion_corporal, resultado, conteo_fetos, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+	_, err := a.db.Exec(a.q(`INSERT INTO diagnostico_gestacion (id, user_id, animal_id, fecha, condicion_corporal, resultado, conteo_fetos, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
 		dg.ID, a.user.ID, dg.AnimalID, dg.Fecha, dg.CondicionCorporal, dg.Resultado, dg.ConteoFetos, dg.Observaciones)
 	return err
 }
 
 func (a *App) GetDiagnosticosGestacion(animalID string) ([]DiagnosticoGestacion, error) {
-	rows, err := a.db.Query("SELECT id, animal_id, COALESCE(fecha, ''), condicion_corporal, resultado, conteo_fetos, COALESCE(observaciones, '') FROM diagnostico_gestacion WHERE animal_id = ? ORDER BY fecha DESC", animalID)
+	rows, err := a.db.Query(a.q("SELECT id, animal_id, COALESCE(fecha, ''), condicion_corporal, resultado, conteo_fetos, COALESCE(observaciones, '') FROM diagnostico_gestacion WHERE animal_id = ? ORDER BY fecha DESC"), animalID)
 	if err != nil {
 		return nil, err
 	}
@@ -843,13 +878,13 @@ func (a *App) CrearRecetaVeterinaria(rv RecetaVeterinaria) error {
 	if rv.ID == "" {
 		rv.ID = uuid.New().String()
 	}
-	_, err := a.db.Exec(`INSERT INTO recetas_veterinarias (id, user_id, animal_id, mvz, productor, fecha, peso, diagnostico, tratamiento) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+	_, err := a.db.Exec(a.q(`INSERT INTO recetas_veterinarias (id, user_id, animal_id, mvz, productor, fecha, peso, diagnostico, tratamiento) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		rv.ID, a.user.ID, rv.AnimalID, rv.MVZ, rv.Productor, time.Now().Format("2006-01-02"), rv.Peso, rv.Diagnostico, rv.Tratamiento)
 	return err
 }
 
 func (a *App) GetRecetas(animalID string) ([]RecetaVeterinaria, error) {
-	rows, err := a.db.Query("SELECT id, animal_id, COALESCE(mvz, ''), COALESCE(productor, ''), COALESCE(fecha, ''), peso, COALESCE(diagnostico, ''), COALESCE(tratamiento, '') FROM recetas_veterinarias WHERE animal_id = ? ORDER BY fecha DESC", animalID)
+	rows, err := a.db.Query(a.q("SELECT id, animal_id, COALESCE(mvz, ''), COALESCE(productor, ''), COALESCE(fecha, ''), peso, COALESCE(diagnostico, ''), COALESCE(tratamiento, '') FROM recetas_veterinarias WHERE animal_id = ? ORDER BY fecha DESC"), animalID)
 	if err != nil {
 		return nil, err
 	}
@@ -871,8 +906,8 @@ func (a *App) GetTareas() ([]Tarea, error) {
 		return nil, fmt.Errorf("no autenticado")
 	}
 
-	rows, err := a.db.Query(`SELECT id, COALESCE(asignado_a, ''), COALESCE(creado_por, ''), COALESCE(titulo, ''), COALESCE(descripcion, ''), COALESCE(estatus, ''), COALESCE(fecha_vencimiento, ''), COALESCE(animal_id, ''), COALESCE(insumo_id, ''), COALESCE(prioridad, '') 
-		FROM tareas WHERE user_id = ? OR asignado_a = ? ORDER BY fecha_vencimiento ASC`, a.user.ID, a.user.ID)
+	rows, err := a.db.Query(a.q(`SELECT id, COALESCE(asignado_a, ''), COALESCE(creado_por, ''), COALESCE(titulo, ''), COALESCE(descripcion, ''), COALESCE(estatus, ''), COALESCE(fecha_vencimiento, ''), COALESCE(animal_id, ''), COALESCE(insumo_id, ''), COALESCE(prioridad, '') 
+		FROM tareas WHERE user_id = ? OR asignado_a = ? ORDER BY fecha_vencimiento ASC`), a.user.ID, a.user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -902,9 +937,9 @@ func (a *App) AddTarea(t Tarea) error {
 	}
 	t.CreadoPor = a.user.ID
 
-	_, err := a.db.Exec(`INSERT INTO tareas 
+	_, err := a.db.Exec(a.q(`INSERT INTO tareas 
 		(id, user_id, asignado_a, creado_por, titulo, descripcion, estatus, fecha_vencimiento, animal_id, insumo_id, prioridad) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		t.ID, a.user.ID, t.AsignadoA, t.CreadoPor, t.Titulo, t.Descripcion, t.Estatus, 
 		t.FechaVenc, t.AnimalID, t.InsumoID, t.Prioridad)
 	return err
@@ -916,7 +951,7 @@ func (a *App) CompletarTarea(tareaID string) error {
 		return fmt.Errorf("no autenticado")
 	}
 
-	_, err := a.db.Exec("UPDATE tareas SET estatus = 'Completada' WHERE id = ?", tareaID)
+	_, err := a.db.Exec(a.q("UPDATE tareas SET estatus = 'Completada' WHERE id = ?"), tareaID)
 	return err
 }
 
@@ -926,12 +961,12 @@ func (a *App) GetHistorialClinico(animalID string) ([]map[string]interface{}, er
 		return nil, fmt.Errorf("no autenticado")
 	}
 
-	rows, err := a.db.Query(`
+	rows, err := a.db.Query(a.q(`
 		SELECT t.fecha, i.nombre, t.dosis, i.unidad, t.tecnico, t.observaciones, t.fecha_fin_retiro
 		FROM tratamientos t
 		JOIN insumos i ON t.insumo_id = i.id
 		WHERE t.animal_id = ?
-		ORDER BY t.fecha DESC`, animalID)
+		ORDER BY t.fecha DESC`), animalID)
 	
 	if err != nil {
 		return nil, err
@@ -970,7 +1005,7 @@ func (a *App) GetUsers() ([]User, error) {
 		return nil, fmt.Errorf("no autorizado")
 	}
 
-	rows, err := a.db.Query("SELECT id, email, name, role, created_at FROM users")
+	rows, err := a.db.Query(a.q("SELECT id, email, name, role, created_at FROM users"))
 	if err != nil {
 		return nil, err
 	}
@@ -1004,7 +1039,7 @@ func (a *App) AddUser(u User) error {
 		return err
 	}
 
-	_, err = a.db.Exec("INSERT INTO users (id, email, password, name, role) VALUES (?, ?, ?, ?, ?)",
+	_, err = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role) VALUES (?, ?, ?, ?, ?)"),
 		u.ID, u.Email, string(hashedPwd), u.Name, u.Role)
 	return err
 }
@@ -1015,7 +1050,7 @@ func (a *App) UpdateUser(u User) error {
 		return fmt.Errorf("no autorizado")
 	}
 
-	_, err := a.db.Exec("UPDATE users SET email = ?, name = ?, role = ? WHERE id = ?",
+	_, err := a.db.Exec(a.q("UPDATE users SET email = ?, name = ?, role = ? WHERE id = ?"),
 		u.Email, u.Name, u.Role, u.ID)
 	return err
 }
@@ -1030,7 +1065,7 @@ func (a *App) DeleteUser(id string) error {
 		return fmt.Errorf("no puedes eliminarte a ti mismo")
 	}
 
-	_, err := a.db.Exec("DELETE FROM users WHERE id = ?", id)
+	_, err := a.db.Exec(a.q("DELETE FROM users WHERE id = ?"), id)
 	return err
 }
 
@@ -1041,7 +1076,7 @@ func (a *App) ChangePassword(oldPwd, newPwd string) error {
 	}
 
 	var currentPwd string
-	err := a.db.QueryRow("SELECT password FROM users WHERE id = ?", a.user.ID).Scan(&currentPwd)
+	err := a.db.QueryRow(a.q("SELECT password FROM users WHERE id = ?"), a.user.ID).Scan(&currentPwd)
 	if err != nil {
 		return err
 	}
@@ -1056,7 +1091,7 @@ func (a *App) ChangePassword(oldPwd, newPwd string) error {
 		return err
 	}
 
-	_, err = a.db.Exec("UPDATE users SET password = ? WHERE id = ?", string(hashedPwd), a.user.ID)
+	_, err = a.db.Exec(a.q("UPDATE users SET password = ? WHERE id = ?"), string(hashedPwd), a.user.ID)
 	return err
 }
 
@@ -1080,7 +1115,7 @@ func (a *App) AddSeguimientoPeso(sp SeguimientoPeso) error {
 		sp.Fecha = time.Now().Format("2006-01-02")
 	}
 
-	_, err := a.db.Exec(`INSERT INTO seguimientos_peso (id, user_id, animal_id, fecha, peso, notas) VALUES (?, ?, ?, ?, ?, ?)`,
+	_, err := a.db.Exec(a.q(`INSERT INTO seguimientos_peso (id, user_id, animal_id, fecha, peso, notas) VALUES (?, ?, ?, ?, ?, ?)`),
 		sp.ID, a.user.ID, sp.AnimalID, sp.Fecha, sp.Peso, sp.Notas)
 	return err
 }
@@ -1091,7 +1126,7 @@ func (a *App) GetSeguimientosPeso(animalID string) ([]SeguimientoPeso, error) {
 		return nil, fmt.Errorf("no autenticado")
 	}
 
-	rows, err := a.db.Query(`SELECT id, animal_id, fecha, peso, COALESCE(notas, '') FROM seguimientos_peso WHERE animal_id = ? ORDER BY fecha ASC`, animalID)
+	rows, err := a.db.Query(a.q(`SELECT id, animal_id, fecha, peso, COALESCE(notas, '') FROM seguimientos_peso WHERE animal_id = ? ORDER BY fecha ASC`), animalID)
 	if err != nil {
 		return nil, err
 	}
@@ -1172,8 +1207,8 @@ func (a *App) processExcel(f *excelize.File) (int, error) {
 		destino := "Engorda"
 		if len(row) > 8 { destino = row[8] }
 
-		_, err = tx.Exec(`INSERT INTO animales (id, arete, raza, sexo, corral_id, fecha_nacimiento, peso_nacer, padre_id, madre_id, destino, estatus, estado_reproductivo) 
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		_, err = tx.Exec(a.q(`INSERT INTO animales (id, arete, raza, sexo, corral_id, fecha_nacimiento, peso_nacer, padre_id, madre_id, destino, estatus, estado_reproductivo) 
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 			id, arete, raza, sexo, corral, fechaNac, pesoNacer, padreId, madreId, destino, "Activo", "Crecimiento")
 		
 		if err != nil {

@@ -38,7 +38,7 @@ func main() {
 
 	// Modo Desktop (Wails)
 	err := wails.Run(&options.App{
-		Title:  "Master Sheep Pro",
+		Title:  "Master Sheep",
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{
