@@ -13,9 +13,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       manifest: {
-        name: 'Master Sheep Pro',
+        name: 'Master Sheep',
         short_name: 'MasterSheep',
-        description: 'Sistema de Gestión Agrotech - Master Sheep',
+        description: 'Sistema de Gestión Ganadera - Master Sheep',
         theme_color: '#1b2636',
         icons: [
           {

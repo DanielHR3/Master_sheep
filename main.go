@@ -1,3 +1,5 @@
+//go:build !server
+
 package main
 
 import (
@@ -17,10 +19,8 @@ import (
 var assets embed.FS
 
 func main() {
-	// Create an instance of the app structure
 	app := NewApp()
 
-	// Iniciar servidor API para acceso móvil en puerto 8080
 	port := 8080
 	app.StartAPIServer(port)
 
@@ -28,8 +28,7 @@ func main() {
 	if os.Getenv("SERVER_ONLY") == "true" {
 		fmt.Printf("Modo SERVIDOR ACTIVO. API escuchando en puerto %d...\n", port)
 		app.startup(context.Background())
-		
-		// Bloquear ejecución para mantener el contenedor vivo
+
 		sigChan := make(chan os.Signal, 1)
 		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 		<-sigChan
