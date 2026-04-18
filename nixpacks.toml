@@ -1,7 +1,7 @@
 # nixpacks.toml - Optimizado para Railway (Memoria Limitada)
 
 [phases.setup]
-nixPkgs = ["nodejs_20", "go_1_24"]
+nixPkgs = ["nodejs_20", "go"]
 
 [phases.install]
 # Usar --no-audit y limitar memoria para evitar OOM
