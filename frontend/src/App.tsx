@@ -74,9 +74,9 @@ function App() {
             state.setInsumoForm({ nombre: '', tipo: 'Medicamente', stock_actual: 0, stock_minimo: 0, unidad: 'ml', costo_unitario: 0, dlas_retiro: 0, lote: '', fecha_vencimiento: '', proveedor: '' }); 
             state.modals.setShowAddInsumo(true); 
           }} 
-          onConfirmUltrasound={(a) => { state.setSelectedAnimal(a); state.modals.setShowConfirmModal(true); }} 
-          onTreatment={(a) => { state.setSelectedAnimal(a); state.modals.setShowTreatment(true); }} 
-          onViewHistory={async (a) => { 
+          onConfirmUltrasound={(a: any) => { state.setSelectedAnimal(a); state.modals.setShowConfirmModal(true); }} 
+          onTreatment={(a: any) => { state.setSelectedAnimal(a); state.modals.setShowTreatment(true); }} 
+          onViewHistory={async (a: any) => { 
             state.setSelectedAnimal(a); 
             try {
               const history = await GetHistorialClinico(a.id);
