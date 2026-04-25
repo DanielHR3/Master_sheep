@@ -1,58 +1,53 @@
-# Manual de Usuario: Master Sheep
+# Manual de Usuario - SheepMaster Pro
+## Versión Rancho Don Pablito
 
-¡Bienvenido a **Master Sheep**, la plataforma de gestión ganadera de precisión definitiva! Este manual le guiará a través del proceso de instalación y uso diario de su nuevo sistema.
-
----
-
-## 🚀 1. Instalación y Puesta en Marcha
-
-### 💻 Versión para Escritorio (Windows)
-1.  **Localización**: El archivo ejecutable se encuentra en su equipo en:
-    `C:\Users\mocas\OneDrive\Documentos\Master_sheep\build\bin\sheepmaster.exe`
-2.  **Acceso Rápido**: Haga clic derecho sobre el archivo y seleccione "Enviar a" > "Escritorio (crear acceso directo)" para tenerlo siempre a mano.
-3.  **Ejecución**: Simplemente haga doble clic en el icono del borrego Dorper para iniciar el sistema.
-
-### 📱 Versión Móvil (PWA)
-Master Sheep está diseñado para funcionar en su teléfono como una aplicación nativa, incluso sin conexión estable.
-1.  **Acceso**: Abra el navegador en su teléfono (Safari en iOS o Chrome en Android) e ingrese la URL de su servidor (o la IP local mientras esté en el rancho).
-2.  **Instalar en iPhone**:
-    *   Toque el botón **Compartir** (cuadrado con flecha hacia arriba).
-    *   Deslice hacia abajo y seleccione **"Añadir a la pantalla de inicio"**.
-    *   ¡Listo! Ahora aparecerá el icono del borrego Dorper en su menú principal.
-3.  **Instalar en Android**:
-    *   Toque los **tres puntos** de la esquina superior derecha.
-    *   Seleccione **"Instalar aplicación"** o **"Añadir a pantalla de inicio"**.
+¡Bienvenido al sistema de gestión ganadera **SheepMaster Pro**! Este manual te guiará en el uso básico de la aplicación para el control de tu hato en el Rancho Don Pablito.
 
 ---
 
-## 🔑 2. Credenciales de Acceso
-Para ingresar al sistema por primera vez o realizar cambios administrativos, utilice:
-- **Usuario**: `admin@mastersheep-pro.com`
-- **Contraseña**: `admin123`
+### 1. Acceso al Sistema
+Para ingresar, utiliza las siguientes credenciales de administrador:
+- **Usuario:** `admin@sheepmaster.com`
+- **Contraseña:** `admin123`
 
 ---
 
-## 📦 3. Operaciones de Inventario
+### 2. Módulos Principales
 
-### 📥 Carga Masiva (Excel)
-Para cargar cientos de animales en segundos:
-1.  Vaya a la sección **Inventario**.
-2.  Haga clic en el botón superior **"Carga Masiva (Excel)"**.
-3.  Seleccione su archivo. **IMPORTANTE**: El archivo debe seguir el formato de columnas:
-    *   *Arete, Raza, Sexo, Corral, Fecha Nacimiento, Peso Nacer, Padre ID, Madre ID, Destino.*
-4.  El sistema procesará los datos automáticamente y actualizará sus corrales.
+#### 📊 Dashboard (Tablero)
+Aquí verás un resumen gráfico de tu rancho: total de animales, nacimientos recientes, tareas pendientes y estadísticas de salud.
 
-### 📋 Gestión de Animales
-*   **Ficha Individual**: Haga clic en cualquier animal para ver su historial médico y genealógico.
-*   **Modo Demo**: Si desea practicar sin alterar la base de datos real, active el **Modo Lectura** en su perfil. Esto bloqueará cualquier cambio accidental.
+#### 🐑 Inventario Hato
+El corazón de la aplicación.
+- **Animales:** Lista completa de tus borregos. Puedes ver detalles, editar información o darlos de baja.
+- **Insumos:** Control de stock de medicamentos, vacunas y alimentos. El sistema te avisará si el stock es bajo o si hay productos próximos a vencer.
+- **Carga Masiva:** Usa el botón de **Excel** para importar cientos de animales en segundos.
+
+#### 🏥 Control Clínico
+Registra la salud de tus animales de forma rápida.
+1. Busca al animal en la lista.
+2. Haz clic en "Aplicar Tratamiento".
+3. Selecciona el medicamento (vinculará automáticamente el stock de Insumos) y guarda el expediente.
+
+#### 🏗️ Corrales
+Organiza tus animales por ubicación física. Puedes ver cuántos animales hay en cada corral y su capacidad total.
+
+#### 🧬 Reproducción
+Control de empadres, diagnósticos de gestación (ultrasonidos) y registros de partos.
 
 ---
 
-## 🛡️ 4. Seguridad y Respaldo
-*   **Base de Datos**: Sus datos se guardan localmente para garantizar privacidad y velocidad. Se recomienda hacer una copia de seguridad semanal del archivo `sheepmaster.db`.
-*   **Modo Dorper**: El sistema monitoriza automáticamente el estado reproductivo y de crecimiento basándose en las fechas de nacimiento ingresadas.
+### 3. Carga Masiva (Excel)
+Para importar datos masivos:
+1. Haz clic en el botón verde **"Carga Masiva (Excel)"** en el Inventario.
+2. Selecciona tu archivo `.xlsx`.
+3. El sistema procesará los datos e informará cuántos animales se agregaron exitosamente.
 
 ---
 
-**Master Sheep.** 
-*Tecnología para el linaje. Linaje para el futuro.*
+### 4. Soporte y Notas Importantes
+- **Datos Locales:** Toda tu información se guarda de forma segura en tu computadora. 
+- **Respaldo:** Se recomienda respaldar periódicamente el archivo ubicado en tu carpeta de `Documentos\SheepMaster\sheepmaster.db`.
+
+---
+*Rancho Don Pablito - Gestión Ganadera de Clase Mundial*

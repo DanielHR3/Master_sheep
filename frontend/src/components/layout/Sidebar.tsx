@@ -34,7 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
             }`}>
               Sheep<br /><span className="text-6666-cream">Master</span>
             </h1>
-            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-tight mt-1">Gestión Genética & Productiva</p>
+            <p className="text-[10px] font-black text-6666-cream uppercase tracking-widest leading-tight mt-1">RANCHO DON PABLITO</p>
           </div>
         </div>
 

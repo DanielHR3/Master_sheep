@@ -9,6 +9,7 @@ interface AppState {
   loading: boolean;
   isLoggedIn: boolean;
   isDemo: boolean;
+  notification: { message: string, type: 'success' | 'error' } | null;
   
   // Data State
   stats: any;
@@ -27,6 +28,7 @@ interface AppState {
   setLoading: (loading: boolean) => void;
   setIsLoggedIn: (isLoggedIn: boolean) => void;
   setIsDemo: (isDemo: boolean) => void;
+  setNotification: (notification: { message: string, type: 'success' | 'error' } | null) => void;
   setStats: (stats: any) => void;
   setAnimals: (animals: main.Animal[]) => void;
   setCorrales: (corrales: main.Corral[]) => void;
@@ -40,10 +42,11 @@ interface AppState {
 export const useStore = create<AppState>((set) => ({
   activeTab: 'dashboard',
   subTab: 'animals',
-  theme: 'dark',
+  theme: 'light',
   loading: false,
   isLoggedIn: false,
   isDemo: false,
+  notification: null,
   
   stats: { total_cabezas: 0, fertilidad: 0, corrales: [] },
   animals: [],
@@ -60,6 +63,7 @@ export const useStore = create<AppState>((set) => ({
   setLoading: (loading) => set({ loading }),
   setIsLoggedIn: (isLoggedIn) => set({ isLoggedIn }),
   setIsDemo: (isDemo) => set({ isDemo }),
+  setNotification: (notification) => set({ notification }),
   setStats: (stats) => set({ stats }),
   setAnimals: (animals) => set({ animals }),
   setCorrales: (corrales) => set({ corrales }),

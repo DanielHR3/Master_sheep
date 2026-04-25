@@ -186,6 +186,11 @@ export const GetSeguimientosPeso = async (animalID: string) => {
 
 export const ToggleDemoMode = WailsApp.ToggleDemoMode;
 
+export const SyncToJarvis = async () => {
+  if (IS_WAILS) return WailsApp.SyncToJarvis();
+  throw new Error("Sincronización solo disponible en modo escritorio.");
+};
+
 export const GetIsDemoMode = async () => {
   if (IS_WAILS) return WailsApp.GetIsDemoMode();
   const res = await callApi('/demo-mode');
@@ -194,6 +199,14 @@ export const GetIsDemoMode = async () => {
 
 export const ImportAnimalsExcel = async (filePathOrFile: string | File): Promise<number> => {
   if (IS_WAILS) {
+    if (typeof filePathOrFile !== 'string') {
+      // In Wails desktop, we convert the HTML File to a byte array and send it to Go
+      const file = filePathOrFile as File;
+      const buffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(buffer);
+      // Array.from converts it to a standard JS array of numbers, matching Go's []byte
+      return (WailsApp.ImportAnimalsExcelData(Array.from(uint8Array)) as any);
+    }
     return (WailsApp.ImportAnimalsExcel(filePathOrFile as string) as any);
   } else {
     const formData = new FormData();
