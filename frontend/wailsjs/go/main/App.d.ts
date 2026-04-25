@@ -70,6 +70,8 @@ export function RegistrarTratamiento(arg1:main.Tratamiento):Promise<void>;
 
 export function StartAPIServer(arg1:number):Promise<void>;
 
+export function SyncToJarvis():Promise<string>;
+
 export function ToggleDemoMode(arg1:boolean):Promise<void>;
 
 export function UpdateAnimal(arg1:main.Animal):Promise<void>;

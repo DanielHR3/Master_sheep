@@ -34,7 +34,8 @@ import {
   GetSeguimientosPeso,
   ToggleDemoMode,
   GetIsDemoMode,
-  ImportAnimalsExcel
+  ImportAnimalsExcel,
+  SyncToJarvis
 } from "../services/api";
 
 export const useAppLogic = () => {
@@ -117,27 +118,37 @@ export const useAppLogic = () => {
 
   const refreshData = async () => {
     try {
-      const [s, a, c, i, t, u, cur] = await Promise.all([
+      const [s, a, c, i, t, cur] = await Promise.all([
         GetStats(),
         GetAnimales(),
         GetCorrales(),
         GetInsumos(),
         GetTareas(),
-        GetUsers(),
         GetCurrentUser()
       ]);
+      
+      // GetUsers puede fallar si no es admin, así que lo manejamos aparte para no romper todo
+      let u = [];
+      try {
+        u = await GetUsers() || [];
+      } catch (e) {
+        console.warn("Usuario no tiene permisos para ver staff", e);
+      }
+
       store.setStats(s);
       store.setAnimals(a || []);
       store.setCorrales(c || []);
       store.setInsumos(i || []);
       store.setTareas(t || []);
-      store.setUsers(u || []);
+      store.setUsers(u);
       store.setCurrentUser(cur);
+      
       const demo = await GetIsDemoMode();
       store.setIsDemo(demo);
     } catch (err: any) {
       const errMsg = err?.toString() || "";
-      if (errMsg.includes("no autorizado") || errMsg.includes("no autenticado")) {
+      // Solo hacer logout si NO está autenticado. "no autorizado" significa falta de rol, no falta de cuenta.
+      if (errMsg.includes("no autenticado")) {
         store.setIsLoggedIn(false);
       } else {
         console.error("Error al refrescar datos:", err);
@@ -146,6 +157,7 @@ export const useAppLogic = () => {
   };
 
   const handleLogin = async () => {
+    store.setNotification(null); // Limpiar notificaciones previas
     store.setLoading(true);
     try {
       await Login(email, password);
@@ -153,7 +165,14 @@ export const useAppLogic = () => {
       refreshData();
     } catch (err: any) {
       console.error("Login error:", err);
-      alert("Error de autenticación. Verifique sus credenciales.");
+      let errorMsg = "Error de autenticación. Verifique sus credenciales.";
+      
+      const rawError = err?.toString() || "";
+      if (rawError.includes("Failed to fetch") || rawError.includes("NAME_NOT_RESOLVED") || rawError.includes("network")) {
+         errorMsg = "No se pudo conectar al servidor. Verifica tu conexión o limpia la caché (Botón rojo abajo).";
+      }
+
+      store.setNotification({ message: errorMsg, type: 'error' });
     } finally {
       store.setLoading(false);
     }
@@ -438,6 +457,17 @@ export const useAppLogic = () => {
       handleFileChange,
       toggleTheme: () => store.setTheme(store.theme === 'dark' ? 'light' : 'dark'),
       handleImportExcel: () => fileInputRef.current?.click(),
+      handleSyncToJarvis: async () => {
+        try {
+          store.setLoading(true);
+          const result = await SyncToJarvis();
+          store.setNotification({ message: result, type: 'success' });
+        } catch (err: any) {
+          store.setNotification({ message: "Error: " + err, type: 'error' });
+        } finally {
+          store.setLoading(false);
+        }
+      },
       handleConfirmUltrasound: async (result: string) => {
         if (!selectedAnimal) return;
         try {

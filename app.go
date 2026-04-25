@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -574,7 +576,7 @@ func (a *App) GetStats() (map[string]interface{}, error) {
 	var bajas int
 	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND estatus = 'Baja'"), a.user.ID).Scan(&bajas)
 
-	// Corrales con ocupación (enfocado en los 12 elevados)
+	// Corrales con ocupación
 	rows, err := a.db.Query(a.q(`
 		SELECT c.nombre, COUNT(a.id) as cantidad, c.capacidad 
 		FROM corrales c 
@@ -590,14 +592,96 @@ func (a *App) GetStats() (map[string]interface{}, error) {
 			var cantidad int
 			var capacidad int
 			rows.Scan(&nombre, &cantidad, &capacidad)
+			var ocupacion float64 = 0
+			if capacidad > 0 {
+				ocupacion = float64(cantidad) / float64(capacidad) * 100
+			}
 			corralesData = append(corralesData, map[string]interface{}{
 				"nombre":    nombre,
 				"cantidad":  cantidad,
 				"capacidad": capacidad,
-				"ocupacion": float64(cantidad) / float64(capacidad) * 100,
+				"ocupacion": ocupacion,
 			})
 		}
 		rows.Close()
+	}
+
+	// ALERTAS DE VENTA (Semáforo)
+	// Rojo: >= 4 meses o >= 42kg
+	// Amarillo: 3 meses
+	// Verde: 2 meses
+	alertasVenta := []map[string]interface{}{}
+	rowsV, err := a.db.Query(a.q(`
+		SELECT arete, fecha_nacimiento, 
+		(SELECT IFNULL(MAX(peso), 0) FROM seguimientos_peso WHERE animal_id = a.id) as peso_actual 
+		FROM animales a 
+		WHERE user_id = ? AND destino = 'Engorda' AND estatus = 'Activo'`), a.user.ID)
+	
+	if err == nil {
+		now := time.Now()
+		for rowsV.Next() {
+			var arete, fechaNac string
+			var pesoActual float64
+			rowsV.Scan(&arete, &fechaNac, &pesoActual)
+			
+			// Cálculo de meses exacto por calendario
+			birth, err := time.Parse("2006-01-02", fechaNac)
+			months := 0
+			if err == nil {
+				years := now.Year() - birth.Year()
+				months = years*12 + int(now.Month()) - int(birth.Month())
+				if now.Day() < birth.Day() {
+					months--
+				}
+			}
+
+			if months < 0 { months = 0 }
+			
+			color := "verde"
+			if months >= 4 || pesoActual >= 42 {
+				color = "rojo"
+			} else if months == 3 || (pesoActual >= 35 && pesoActual < 42) {
+				color = "amarillo"
+			} else if months <= 1 {
+				continue // Muy jóvenes para alerta
+			}
+
+			alertasVenta = append(alertasVenta, map[string]interface{}{
+				"arete": arete,
+				"meses": months,
+				"peso":  pesoActual,
+				"color": color,
+			})
+		}
+		rowsV.Close()
+	}
+
+	// ESTADÍSTICAS DE ENFERMEDADES POR TEMPORADA
+	// Temporadas (Norte): Primavera (Mar-May), Verano (Jun-Ago), Otoño (Sep-Nov), Invierno (Dic-Feb)
+	enfermedades := map[string]map[string]int{
+		"Primavera": {}, "Verano": {}, "Otoño": {}, "Invierno": {},
+	}
+	rowsE, err := a.db.Query(a.q(`
+		SELECT r.diagnostico, r.fecha 
+		FROM recetas_veterinarias r 
+		WHERE r.user_id = ?`), a.user.ID)
+	
+	if err == nil {
+		for rowsE.Next() {
+			var diag, fecha string
+			rowsE.Scan(&diag, &fecha)
+			t, _ := time.Parse("2006-01-02", fecha)
+			season := "Invierno"
+			month := t.Month()
+			if month >= 3 && month <= 5 { season = "Primavera" }
+			if month >= 6 && month <= 8 { season = "Verano" }
+			if month >= 9 && month <= 11 { season = "Otoño" }
+			
+			if diag != "" {
+				enfermedades[season][diag]++
+			}
+		}
+		rowsE.Close()
 	}
 
 	stats := map[string]interface{}{
@@ -606,6 +690,8 @@ func (a *App) GetStats() (map[string]interface{}, error) {
 		"pie_de_cria":   cria,
 		"bajas":         bajas,
 		"corrales":      corralesData,
+		"alertas_venta": alertasVenta,
+		"enfermedades":  enfermedades,
 	}
 	return stats, nil
 }
@@ -1145,6 +1231,9 @@ func (a *App) GetSeguimientosPeso(animalID string) ([]SeguimientoPeso, error) {
 // ImportAnimalsExcel importa animales desde un archivo .xlsx
 // ImportAnimalsExcelData importa animales desde un buffer de bytes (para carga vía web)
 func (a *App) ImportAnimalsExcelData(data []byte) (int, error) {
+	if a.user == nil {
+		return 0, fmt.Errorf("no autenticado")
+	}
 	if a.IsDemoMode {
 		return 0, fmt.Errorf("Modo Lectura Activo: No se permiten importaciones.")
 	}
@@ -1156,11 +1245,11 @@ func (a *App) ImportAnimalsExcelData(data []byte) (int, error) {
 	}
 	defer f.Close()
 
-	return a.processExcel(f)
+	return a.processExcel(f, a.user.ID)
 }
 
 // processExcel contiene la lógica común para procesar el archivo excelizado
-func (a *App) processExcel(f *excelize.File) (int, error) {
+func (a *App) processExcel(f *excelize.File, userID string) (int, error) {
 	sheetName := f.GetSheetName(0)
 	rows, err := f.GetRows(sheetName)
 	if err != nil {
@@ -1195,7 +1284,24 @@ func (a *App) processExcel(f *excelize.File) (int, error) {
 		corral := ""
 		if len(row) > 3 { corral = row[3] }
 		fechaNac := ""
-		if len(row) > 4 { fechaNac = row[4] }
+		if len(row) > 4 { 
+			val := strings.TrimSpace(row[4])
+			// Intentar diversos formatos de fecha common en Excel/Latam
+			formats := []string{"2006-01-02", "02/01/2006", "02-01-2006", "1/2/06"}
+			parsedDate := time.Time{}
+			for _, f := range formats {
+				t, err := time.Parse(f, val)
+				if err == nil {
+					parsedDate = t
+					break
+				}
+			}
+			if !parsedDate.IsZero() {
+				fechaNac = parsedDate.Format("2006-01-02")
+			} else {
+				fechaNac = val // Fallback al original si no parsea
+			}
+		}
 		pesoNacer := 0.0
 		if len(row) > 5 { 
 			fmt.Sscanf(row[5], "%f", &pesoNacer) 
@@ -1207,9 +1313,9 @@ func (a *App) processExcel(f *excelize.File) (int, error) {
 		destino := "Engorda"
 		if len(row) > 8 { destino = row[8] }
 
-		_, err = tx.Exec(a.q(`INSERT INTO animales (id, arete, raza, sexo, corral_id, fecha_nacimiento, peso_nacer, padre_id, madre_id, destino, estatus, estado_reproductivo) 
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
-			id, arete, raza, sexo, corral, fechaNac, pesoNacer, padreId, madreId, destino, "Activo", "Crecimiento")
+		_, err = tx.Exec(a.q(`INSERT INTO animales (id, user_id, arete, raza, sexo, corral_id, fecha_nacimiento, peso_nacer, padre_id, madre_id, destino, estatus, estado_reproductivo) 
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+			id, userID, arete, raza, sexo, corral, fechaNac, pesoNacer, padreId, madreId, destino, "Activo", "Crecimiento")
 		
 		if err != nil {
 			return count, fmt.Errorf("Error en fila %d: %v", i+1, err)
@@ -1223,6 +1329,9 @@ func (a *App) processExcel(f *excelize.File) (int, error) {
 
 // ImportAnimalsExcel importa animales desde una ruta de archivo (para escritorio)
 func (a *App) ImportAnimalsExcel(path string) (int, error) {
+	if a.user == nil {
+		return 0, fmt.Errorf("no autenticado")
+	}
 	if a.IsDemoMode {
 		return 0, fmt.Errorf("Modo Lectura Activo: No se permiten importaciones.")
 	}
@@ -1233,5 +1342,40 @@ func (a *App) ImportAnimalsExcel(path string) (int, error) {
 	}
 	defer f.Close()
 
-	return a.processExcel(f)
+	return a.processExcel(f, a.user.ID)
+}
+
+// SyncToJarvis sincroniza los animales locales con el backend central en la nube de JARVIS.
+func (a *App) SyncToJarvis() (string, error) {
+	if a.user == nil {
+		return "", fmt.Errorf("no autenticado")
+	}
+	
+	animales, err := a.GetAnimales()
+	if err != nil {
+		return "", fmt.Errorf("error obteniendo animales: %v", err)
+	}
+
+	payload, err := json.Marshal(map[string]interface{}{
+		"source": "master_sheep",
+		"userId": a.user.ID,
+		"animales": animales,
+	})
+	if err != nil {
+		return "", fmt.Errorf("error serializando datos: %v", err)
+	}
+
+	// Post data to JARVIS
+	jarvisURL := "http://localhost:3000/api/sync/master-sheep"
+	resp, err := http.Post(jarvisURL, "application/json", bytes.NewBuffer(payload))
+	if err != nil {
+		return "", fmt.Errorf("error conectando con JARVIS en %s: %v", jarvisURL, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		return "", fmt.Errorf("JARVIS devolvió estado de error: %d", resp.StatusCode)
+	}
+
+	return fmt.Sprintf("Sincronización a JARVIS completada. %d animales enviados.", len(animales)), nil
 }

@@ -20,11 +20,11 @@
 }
 
 .light-theme {
-  --ranch-bg: #ffffff;
-  --ranch-card: #f8f9fa;
-  --ranch-text: #1a1a1a;
-  --ranch-accent: #8b4513;
-  --ranch-border: rgba(0, 0, 0, 0.1);
+  --ranch-bg: #fdfaf7; /* Fondo crema muy sutil para descanso visual */
+  --ranch-card: #ffffff;
+  --ranch-text: #0f172a; /* Slate 900 para máximo contraste */
+  --ranch-accent: #541e1b; /* Maroon como acento principal */
+  --ranch-border: rgba(0, 0, 0, 0.08);
   --ranch-input: #ffffff;
 }
 

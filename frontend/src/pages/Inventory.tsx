@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   PlusCircle, 
   FileSpreadsheet, 
@@ -42,21 +42,38 @@ const Inventory: React.FC<InventoryProps> = ({
   onViewWeights, 
   onImportExcel 
 }) => {
+  const [filterDestino, setFilterDestino] = useState<'all' | 'Engorda' | 'Pie de Cría'>('all');
+
   return (
     <div className="space-y-10 pt-10 animate-in slide-in-from-right-8 duration-700">
-      <div className="flex justify-between items-center">
-        <div className="flex bg-slate-900/50 p-1 rounded-2xl border border-white/5">
-           <button onClick={() => setSubTab('animals')} className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${subTab === 'animals' ? 'bg-saddle-tan text-white' : 'text-slate-500'}`}>Animales</button>
-           <button onClick={() => setSubTab('supplies')} className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${subTab === 'supplies' ? 'bg-saddle-tan text-white' : 'text-slate-500'}`}>Insumos</button>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="flex flex-wrap gap-4">
+          <div className={`flex p-1 rounded-2xl border ${theme === 'dark' ? 'bg-slate-900/50 border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+             <button onClick={() => setSubTab('animals')} className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${subTab === 'animals' ? 'bg-6666-maroon text-white shadow-lg shadow-6666-maroon/20' : 'text-slate-500 hover:text-6666-maroon'}`}>Animales</button>
+             <button onClick={() => setSubTab('supplies')} className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${subTab === 'supplies' ? 'bg-6666-maroon text-white shadow-lg shadow-6666-maroon/20' : 'text-slate-500 hover:text-6666-maroon'}`}>Insumos</button>
+          </div>
+
+          {subTab === 'animals' && (
+            <div className={`flex p-1 rounded-2xl border ${theme === 'dark' ? 'bg-slate-900/50 border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+               <button onClick={() => setFilterDestino('all')} className={`px-4 py-3 rounded-xl text-[9px] font-black uppercase transition-all ${filterDestino === 'all' ? (theme === 'dark' ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-800') : 'text-slate-500'}`}>Todos</button>
+               <button onClick={() => setFilterDestino('Engorda')} className={`px-4 py-3 rounded-xl text-[9px] font-black uppercase transition-all ${filterDestino === 'Engorda' ? (theme === 'dark' ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-800') : 'text-slate-500'}`}>Engorda</button>
+               <button onClick={() => setFilterDestino('Pie de Cría')} className={`px-4 py-3 rounded-xl text-[9px] font-black uppercase transition-all ${filterDestino === 'Pie de Cría' ? (theme === 'dark' ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-800') : 'text-slate-500'}`}>Pie de Cría</button>
+            </div>
+          )}
         </div>
-        <div className="flex gap-4">
+
+        <div className="flex flex-wrap gap-4">
            {subTab === 'animals' && (
              <>
-               <button onClick={onImportExcel} className="bg-emerald-600/10 border border-emerald-500/30 text-emerald-500 px-6 py-3 rounded-xl font-black text-[10px] uppercase flex items-center gap-2 hover:bg-emerald-600 hover:text-white transition-all">
-                 <FileSpreadsheet size={18} /> Carga Masiva (Excel)
+               <button onClick={onImportExcel} className={`px-6 py-3 rounded-xl font-black text-[10px] uppercase flex items-center gap-2 border transition-all ${
+                 theme === 'dark' 
+                   ? 'bg-emerald-600/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-600 hover:text-white' 
+                   : 'bg-white border-emerald-200 text-emerald-600 shadow-sm hover:bg-emerald-50'
+               }`}>
+                 <FileSpreadsheet size={18} /> Carga Masiva
                </button>
-               <button onClick={onAddAnimal} className="bg-saddle-tan text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-saddle-tan/20 flex items-center gap-2">
-                 <PlusCircle size={18} /> Alta de Animal
+               <button onClick={onAddAnimal} className="bg-6666-maroon text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase shadow-xl shadow-6666-maroon/30 flex items-center gap-2 hover:bg-6666-sand hover:text-6666-maroon transition-all">
+                 <PlusCircle size={18} /> Alta Animal
                </button>
              </>
            )}
@@ -70,7 +87,7 @@ const Inventory: React.FC<InventoryProps> = ({
 
       {subTab === 'animals' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {animals.map((a: main.Animal) => (
+          {animals.filter(a => filterDestino === 'all' || a.destino === filterDestino).map((a: main.Animal) => (
             <AnimalCard 
               key={a.id} 
               animal={a} 

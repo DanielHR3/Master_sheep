@@ -8,6 +8,8 @@ import { CompletarTarea, ToggleDemoMode, GetHistorialClinico } from "./services/
 // Components
 import Sidebar from './components/layout/Sidebar';
 import MobileNav from './components/layout/MobileNav';
+import Snackbar from './components/ui/Snackbar';
+
 
 // Modals
 import AddAnimalModal from './components/modals/AddAnimalModal';
@@ -38,14 +40,17 @@ function App() {
 
   if (!store.isLoggedIn) {
     return (
-      <Login 
-        onLogin={actions.handleLogin} 
-        loading={store.loading} 
-        email={state.email} 
-        setEmail={state.setEmail} 
-        password={state.password} 
-        setPassword={state.setPassword} 
-      />
+      <>
+        <Snackbar />
+        <Login 
+          onLogin={actions.handleLogin} 
+          loading={store.loading} 
+          email={state.email} 
+          setEmail={state.setEmail} 
+          password={state.password} 
+          setPassword={state.setPassword} 
+        />
+      </>
     );
   }
 
@@ -58,6 +63,7 @@ function App() {
           theme={store.theme} 
           onGlobalAdd={() => state.modals.setShowAddAnimal(true)} 
           onCompleteTask={async (id) => { await CompletarTarea(id); actions.refreshData(); }} 
+          onSync={actions.handleSyncToJarvis}
         />;
       case 'inventory':
         return <Inventory 
@@ -101,12 +107,21 @@ function App() {
       case 'profile':
         return <Profile theme={store.theme} setTheme={store.setTheme} onSecurity={() => state.modals.setShowChangePassword(true)} onStaff={() => store.setActiveTab('staff')} user={store.currentUser} isDemo={store.isDemo} setIsDemo={store.setIsDemo} ToggleDemoMode={ToggleDemoMode} />;
       default:
-        return <Dashboard stats={store.stats} tareas={store.tareas} theme={store.theme} onGlobalAdd={() => state.modals.setShowAddAnimal(true)} onCompleteTask={async (id) => { await CompletarTarea(id); actions.refreshData(); }} />;
+        return <Dashboard 
+          stats={store.stats} 
+          tareas={store.tareas} 
+          theme={store.theme} 
+          onGlobalAdd={() => state.modals.setShowAddAnimal(true)} 
+          onCompleteTask={async (id) => { await CompletarTarea(id); actions.refreshData(); }} 
+          onSync={actions.handleSyncToJarvis}
+        />;
     }
   };
 
   return (
     <div className={`min-h-screen transition-all duration-1000 ${store.theme === 'dark' ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'} font-sans selection:bg-antique-brass selection:text-white`}>
+      <Snackbar />
+      
       {store.isDemo && (
         <div className="bg-rose-600 text-white py-2 px-6 flex items-center justify-center gap-4 animate-pulse">
           <span className="text-[10px] font-black uppercase tracking-[0.2em]">SISTEMA EN MODO LECTURA (DEMO) - NO SE PERMITEN MODIFICACIONES</span>

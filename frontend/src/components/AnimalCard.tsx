@@ -33,53 +33,109 @@ const AnimalCard: React.FC<AnimalCardProps> = ({
   onAddWeight, 
   onViewWeights 
 }) => {
+  const isDark = theme === 'dark';
+
   return (
-    <div className="p-6 bg-clay/30 border border-white/5 rounded-[40px] relative group hover:scale-[1.02] transition-all">
-       <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button onClick={onAddWeight} className="p-2 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white rounded-lg transition-all" title="Registrar Peso">
-            <ArrowRightLeft size={14} className="rotate-90" />
-          </button>
-          <button onClick={onViewWeights} className="p-2 bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white rounded-lg transition-all" title="Historial de Pesos">
-            <TrendingUp size={14} />
-          </button>
-          <button onClick={onEdit} className="p-2 bg-white/10 hover:bg-antique-brass text-white rounded-lg transition-all">
-            <Edit3 size={14} />
-          </button>
-          <button onClick={onDelete} className="p-2 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-lg transition-all">
-            <Trash2 size={14} />
-          </button>
-       </div>
-       <div className="flex justify-between mb-4">
-          <div className="p-3 bg-slate-950 rounded-2xl">
-            <Activity size={20} className="text-antique-brass" />
+    <div className={`
+      group relative overflow-hidden rounded-[32px] border transition-all duration-500 hover:scale-[1.01] hover:shadow-2xl
+      ${isDark 
+        ? 'bg-clay/40 border-white/5 shadow-black/40 text-white' 
+        : 'bg-white border-slate-200 shadow-slate-200/50 text-slate-900'}
+    `}>
+      {/* Decorative Accent Line */}
+      <div className="absolute top-0 left-0 w-full h-1.5 bg-6666-maroon opacity-80" />
+
+      {/* Header Info */}
+      <div className="p-6 pb-4">
+        <div className="flex justify-between items-start mb-4">
+          <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-[0.2em] border shadow-sm ${
+            animal.destino === 'Pie de Cría' 
+              ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+              : 'bg-6666-maroon/10 text-6666-maroon border-6666-maroon/20'
+          }`}>
+            {animal.destino}
           </div>
-          <div className="text-right pr-12">
-            <p className="text-[10px] text-slate-500 font-bold uppercase">{animal.raza}</p>
-            <p className="text-white font-bold">{animal.sexo}</p>
+          
+          <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+            <button onClick={onEdit} className={`p-2 rounded-xl transition-colors ${isDark ? 'bg-white/5 hover:bg-white/10' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'}`}>
+              <Edit3 size={14} />
+            </button>
+            <button onClick={onDelete} className={`p-2 rounded-xl transition-colors ${isDark ? 'bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white' : 'bg-rose-50 hover:bg-rose-500 text-rose-500 hover:text-white'}`}>
+              <Trash2 size={14} />
+            </button>
           </div>
-       </div>
-       <h4 className="text-3xl font-black font-display text-white mb-4 tracking-tight">{animal.arete}</h4>
-       <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="p-3 bg-slate-950 rounded-xl text-center">
-            <p className="text-[8px] text-slate-500 uppercase font-black">Estatus</p>
-            <p className="text-[10px] text-emerald-400 font-bold truncate">{animal.estado_reproductivo}</p>
+        </div>
+
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>IDENTIFICADOR</span>
+            <h4 className="text-4xl font-black font-display tracking-tighter mt-1">{animal.arete}</h4>
           </div>
-          <div className="p-3 bg-slate-950 rounded-xl text-center">
-            <p className="text-[8px] text-slate-500 uppercase font-black">Corral</p>
-            <p className="text-[10px] text-white font-bold">{animal.corral_id}</p>
+          <div className="text-right">
+             <div className={`text-[10px] font-bold px-2 py-1 rounded-lg inline-block mb-1 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+               {animal.raza}
+             </div>
+             <p className={`text-xs font-bold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+               {animal.sexo} • <span className={isDark ? 'text-white' : 'text-6666-maroon'}>
+                  {Math.floor((new Date().getTime() - new Date(animal.fecha_nacimiento).getTime()) / (1000 * 60 * 60 * 24 * 30.44))}
+               </span> meses
+             </p>
           </div>
-       </div>
-       <div className="flex gap-2">
-          <button onClick={onSelect} className="flex-1 bg-white/5 p-3 rounded-xl hover:bg-white/10 transition-all flex justify-center" title="Confirmar Gestación">
-            <Activity size={18} className="text-slate-400" />
-          </button>
-          <button onClick={onTreatment} className="flex-1 bg-rose-500/10 p-3 rounded-xl hover:bg-rose-500 transition-all flex justify-center" title="Tratamiento">
-            <Syringe size={18} className="text-rose-500 group-hover:text-white" />
-          </button>
-          <button onClick={onViewHistory} className="flex-1 bg-blue-500/10 p-3 rounded-xl hover:bg-blue-500 transition-all flex justify-center" title="Ver Historial">
-            <HistoryIcon size={18} className="text-blue-500 group-hover:text-white" />
-          </button>
-       </div>
+        </div>
+      </div>
+
+      {/* Separator / Vital Stats */}
+      <div className={`mx-6 py-4 border-y flex divide-x ${isDark ? 'border-white/5 divide-white/5' : 'border-slate-100 divide-slate-100'}`}>
+        <div className="flex-1 px-2 text-center">
+            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">LINAGE</p>
+            <p className="text-[10px] font-bold truncate">
+              {animal.padre_id || '--'} x {animal.madre_id || '--'}
+            </p>
+        </div>
+        <div className="flex-1 px-2 text-center">
+            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">CORRAL</p>
+            <p className="text-[10px] font-bold">{animal.corral_id || 'SIN ASIGNAR'}</p>
+        </div>
+      </div>
+
+      {/* Footer Actions */}
+      <div className="p-6 pt-4 flex gap-3">
+        <button 
+          onClick={onAddWeight}
+          className={`group/btn flex-1 flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all border ${
+            isDark 
+              ? 'bg-clay/50 border-white/5 hover:bg-antique-brass/20 hover:border-antique-brass/40' 
+              : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+          }`}
+        >
+          <TrendingUp size={18} className={isDark ? 'text-antique-brass' : 'text-slate-600'} />
+          <span className="text-[8px] font-black uppercase text-slate-500">Peso</span>
+        </button>
+
+        <button 
+          onClick={onTreatment}
+          className={`group/btn flex-1 flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all border ${
+            isDark 
+              ? 'bg-clay/50 border-white/5 hover:bg-rose-500/20 hover:border-rose-500/40' 
+              : 'bg-slate-50 border-slate-200 hover:bg-rose-50 hover:border-rose-200'
+          }`}
+        >
+          <Syringe size={18} className="text-rose-500" />
+          <span className="text-[8px] font-black uppercase text-slate-500">Clínico</span>
+        </button>
+
+        <button 
+          onClick={onViewHistory}
+          className={`group/btn flex-1 flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all border ${
+            isDark 
+              ? 'bg-clay/50 border-white/5 hover:bg-blue-500/20 hover:border-blue-500/40' 
+              : 'bg-slate-50 border-slate-200 hover:bg-blue-50 hover:border-blue-200'
+          }`}
+        >
+          <HistoryIcon size={18} className="text-blue-500" />
+          <span className="text-[8px] font-black uppercase text-slate-500">Kardex</span>
+        </button>
+      </div>
     </div>
   );
 };

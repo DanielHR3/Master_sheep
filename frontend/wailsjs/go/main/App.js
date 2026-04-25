@@ -138,6 +138,10 @@ export function StartAPIServer(arg1) {
   return window['go']['main']['App']['StartAPIServer'](arg1);
 }
 
+export function SyncToJarvis() {
+  return window['go']['main']['App']['SyncToJarvis']();
+}
+
 export function ToggleDemoMode(arg1) {
   return window['go']['main']['App']['ToggleDemoMode'](arg1);
 }
