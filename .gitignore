@@ -1,4 +1,30 @@
+# Binaries
 build/bin
-node_modules
-frontend/dist
 *.exe
+*.dll
+*.so
+*.dylib
+
+# Node.js
+node_modules
+npm-debug.log
+yarn-error.log
+.pnpm-debug.log
+
+# Frontend build
+frontend/dist
+frontend/.next
+frontend/out
+
+# IDEs and OS junk
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Temp files
+deploy_temp/
+scratch/
+seeder/
+*.zip
+*.log
