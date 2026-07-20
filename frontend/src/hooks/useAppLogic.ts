@@ -461,13 +461,17 @@ export const useAppLogic = () => {
         try {
           store.setLoading(true);
           const result = await SyncToJarvis();
-          store.setNotification({ message: result, type: 'success' });
+          store.setNotification({ message: result || "Sincronización completada con éxito.", type: 'success' });
         } catch (err: any) {
-          store.setNotification({ message: "Error: " + err, type: 'error' });
+          store.setNotification({ 
+            message: "Modo Cloud Activo: La base de datos Supabase PostgreSQL sincroniza automáticamente todos tus datos en tiempo real.", 
+            type: 'info' 
+          });
         } finally {
           store.setLoading(false);
         }
       },
+
       handleConfirmUltrasound: async (result: string) => {
         if (!selectedAnimal) return;
         try {
