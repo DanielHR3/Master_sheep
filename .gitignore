@@ -28,3 +28,4 @@ scratch/
 seeder/
 *.zip
 *.log
+.env
