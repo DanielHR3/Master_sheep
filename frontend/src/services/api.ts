@@ -27,10 +27,10 @@ export const getApiBaseUrl = () => {
     return `${backendUrl}/api`;
   }
 
-  // 4. Último recurso: mismo host, puerto 8080
-  const protocol = window.location.protocol;
-  return `${protocol}//${host}:8080/api`;
+  // 4. Último recurso: mismo origen web (ej: Cloud Run)
+  return `${window.location.origin}/api`;
 };
+
 
 async function callApi(endpoint: string, method: string = 'GET', body?: any) {
   const baseUrl = getApiBaseUrl();
