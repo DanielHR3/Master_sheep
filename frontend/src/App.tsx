@@ -119,7 +119,18 @@ function App() {
       case 'staff':
         return <Staff users={store.users} form={state.usuarioForm} setForm={state.setUsuarioForm} onAdd={actions.handleAddUser} onDelete={actions.handleDeleteUser} theme={store.theme} />;
       case 'profile':
-        return <Profile theme={store.theme} setTheme={store.setTheme} onSecurity={() => state.modals.setShowChangePassword(true)} onStaff={() => store.setActiveTab('staff')} user={store.currentUser} isDemo={store.isDemo} setIsDemo={store.setIsDemo} ToggleDemoMode={ToggleDemoMode} />;
+        return <Profile 
+          theme={store.theme} 
+          setTheme={store.setTheme} 
+          onSecurity={() => state.modals.setShowChangePassword(true)} 
+          onStaff={() => store.setActiveTab('staff')} 
+          onReports={() => store.setActiveTab('reports')}
+          onCorrales={() => store.setActiveTab('corrales')}
+          user={store.currentUser} 
+          isDemo={store.isDemo} 
+          setIsDemo={store.setIsDemo} 
+          toggleDemoMode={ToggleDemoMode} 
+        />;
       default:
         return <Dashboard 
           stats={store.stats} 
@@ -144,7 +155,7 @@ function App() {
       
       <Sidebar activeTab={store.activeTab} setActiveTab={store.setActiveTab} theme={store.theme} onLogout={actions.handleLogout} />
 
-      <main className="lg:ml-80 flex-1 p-6 md:p-12 pb-32 lg:pb-12 max-w-7xl mx-auto w-full">
+      <main className="md:ml-80 flex-1 p-6 md:p-12 pb-32 md:pb-12 max-w-7xl mx-auto w-full">
         {renderContent()}
       </main>
 

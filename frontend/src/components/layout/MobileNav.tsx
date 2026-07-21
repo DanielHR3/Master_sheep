@@ -16,7 +16,7 @@ interface MobileNavProps {
 
 const MobileNav: React.FC<MobileNavProps> = ({ activeTab, setActiveTab, theme }) => {
   return (
-    <div className={`fixed bottom-0 left-0 right-0 h-24 lg:hidden z-50 border-t flex justify-around items-center px-6 transition-all ${
+    <div className={`fixed bottom-0 left-0 right-0 h-24 md:hidden z-50 border-t flex justify-around items-center px-6 transition-all ${
       theme === 'dark' ? 'bg-slate-950/80 border-white/5 backdrop-blur-xl' : 'bg-white/80 border-antique-brass/10 backdrop-blur-xl'
     }`}>
       <MobileNavItem icon={<Compass size={24} />} active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
