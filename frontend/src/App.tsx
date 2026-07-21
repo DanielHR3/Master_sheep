@@ -213,7 +213,9 @@ function App() {
         setForm={state.setPartoForm} 
         onRegister={actions.handleRegisterParto} 
         selectedAnimal={state.selectedAnimal} 
+        animals={store.animals}
       />
+
 
       <ConfirmModal 
         show={state.modals.showConfirmModal} 

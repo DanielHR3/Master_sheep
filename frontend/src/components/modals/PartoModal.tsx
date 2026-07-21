@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Save, Baby, Calendar, MessageSquare, Plus, Minus } from 'lucide-react';
+import { X, Save, Baby, Calendar, MessageSquare, Plus, Minus, HeartHandshake } from 'lucide-react';
 
 interface PartoModalProps {
   show: boolean;
@@ -7,91 +7,129 @@ interface PartoModalProps {
   form: any;
   setForm: (form: any) => void;
   onRegister: () => void;
-  selectedAnimal: any;
+  selectedAnimal?: any;
+  animals?: any[];
 }
 
-const PartoModal: React.FC<PartoModalProps> = ({ show, onClose, form, setForm, onRegister, selectedAnimal }) => {
-  if (!show || !selectedAnimal) return null;
+const PartoModal: React.FC<PartoModalProps> = ({ 
+  show, 
+  onClose, 
+  form, 
+  setForm, 
+  onRegister, 
+  selectedAnimal,
+  animals = []
+}) => {
+  if (!show) return null;
+
+  const femaleAnimals = animals.filter(a => a.sexo === 'Hembra');
+  const mother = selectedAnimal || femaleAnimals.find(a => a.id === form.animal_id);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-slate-900 border border-white/10 rounded-[40px] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
-        <div className="flex justify-between items-center p-8 border-b border-white/5 bg-rose-500/5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-300">
+      <div className="bg-slate-900 border border-slate-700/80 rounded-[36px] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 text-white">
+        
+        {/* Modal Header */}
+        <div className="flex justify-between items-center p-6 px-8 border-b border-slate-800 bg-emerald-950/40">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-rose-500/20 rounded-2xl text-rose-500">
-              <Baby size={24} />
+            <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400 border border-emerald-500/30">
+              <Baby size={26} />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-white italic font-serif">Registrar Parto</h2>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Madre: {selectedAnimal.arete}</p>
+              <h2 className="text-2xl font-black font-display tracking-tight text-white">Registrar Parto</h2>
+              <p className="text-xs text-emerald-400 font-extrabold uppercase tracking-wider mt-0.5">
+                {mother ? `Madre: ${mother.arete} (${mother.raza || 'Borrega'})` : 'Selección de Madre'}
+              </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full text-slate-400 transition-colors">
-            <X size={24} />
+          <button 
+            onClick={onClose} 
+            className="p-2.5 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors"
+          >
+            <X size={22} />
           </button>
         </div>
 
-        <div className="p-8 space-y-8">
-          <div className="space-y-4">
-            <label className="text-[10px] font-black text-slate-500 uppercase ml-2 flex items-center gap-2">
-              <Baby size={12} /> Cantidad de Crías
+        {/* Modal Body */}
+        <div className="p-8 space-y-6">
+          
+          {/* Madre Selector if no mother was pre-selected */}
+          {!selectedAnimal && (
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-300 uppercase tracking-wider ml-1 flex items-center gap-2">
+                <HeartHandshake size={14} className="text-emerald-400" /> Borrega Madre (Arete)
+              </label>
+              <select
+                className="w-full bg-slate-950 border border-slate-700 rounded-2xl p-4 text-white font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
+                value={form.animal_id || ''}
+                onChange={e => setForm({ ...form, animal_id: e.target.value })}
+              >
+                <option value="">-- Seleccionar Borrega --</option>
+                {femaleAnimals.map(a => (
+                  <option key={a.id} value={a.id}>
+                    Arete: {a.arete} ({a.raza || 'Sin Raza'}) - Corral: {a.corral_id || 'General'}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Cantidad de crías */}
+          <div className="space-y-3">
+            <label className="text-xs font-black text-slate-300 uppercase tracking-wider ml-1 flex items-center gap-2">
+              <Baby size={14} className="text-emerald-400" /> Cantidad de Crías Nacidas
             </label>
-            <div className="flex items-center justify-center gap-8 bg-slate-950 p-6 rounded-3xl border border-white/5">
+            <div className="flex items-center justify-center gap-6 bg-slate-950 p-5 rounded-3xl border border-slate-800">
               <button 
-                onClick={() => setForm({ ...form, cantidad_crias: Math.max(1, form.cantidad_crias - 1) })}
-                className="p-4 bg-slate-900 border border-white/10 rounded-2xl text-white hover:bg-rose-500 transition-all shadow-lg"
+                type="button"
+                onClick={() => setForm({ ...form, cantidad_crias: Math.max(1, (form.cantidad_crias || 1) - 1) })}
+                className="p-4 bg-slate-800 border border-slate-700 rounded-2xl text-white hover:bg-rose-600 transition-all shadow-md active:scale-95 cursor-pointer"
               >
-                <Minus size={24} />
+                <Minus size={22} />
               </button>
-              <span className="text-6xl font-black text-white italic font-serif w-20 text-center">{form.cantidad_crias}</span>
+              <span className="text-5xl font-black text-white font-display w-20 text-center">{form.cantidad_crias || 1}</span>
               <button 
-                onClick={() => setForm({ ...form, cantidad_crias: form.cantidad_crias + 1 })}
-                className="p-4 bg-slate-900 border border-white/10 rounded-2xl text-white hover:bg-rose-500 transition-all shadow-lg"
+                type="button"
+                onClick={() => setForm({ ...form, cantidad_crias: (form.cantidad_crias || 1) + 1 })}
+                className="p-4 bg-slate-800 border border-slate-700 rounded-2xl text-white hover:bg-emerald-600 transition-all shadow-md active:scale-95 cursor-pointer"
               >
-                <Plus size={24} />
+                <Plus size={22} />
               </button>
             </div>
           </div>
 
+          {/* Observaciones */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-500 uppercase ml-2 flex items-center gap-2">
-              <Calendar size={12} /> Fecha del Evento
-            </label>
-            <input
-              type="date"
-              className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-white focus:outline-none focus:border-rose-500/50 transition-all font-bold"
-              value={new Date().toISOString().split('T')[0]} // Fixed today, but could be dynamic
-              readOnly
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-500 uppercase ml-2 flex items-center gap-2">
-              <MessageSquare size={12} /> Observaciones
+            <label className="text-xs font-black text-slate-300 uppercase tracking-wider ml-1 flex items-center gap-2">
+              <MessageSquare size={14} className="text-emerald-400" /> Observaciones o Estado
             </label>
             <textarea
-              className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-white focus:outline-none focus:border-rose-500/50 transition-all font-bold min-h-[100px] resize-none"
-              placeholder="Ej. Parto normal, crías fuertes..."
-              value={form.observaciones}
+              className="w-full bg-slate-950 border border-slate-700 rounded-2xl p-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-medium min-h-[90px] resize-none"
+              placeholder="Ej. Parto sin complicaciones, 2 corderos sanos..."
+              value={form.observaciones || ''}
               onChange={e => setForm({ ...form, observaciones: e.target.value })}
             />
           </div>
         </div>
 
-        <div className="p-8 border-t border-white/5 bg-slate-950/50 flex gap-4">
+        {/* Modal Footer */}
+        <div className="p-6 px-8 border-t border-slate-800 bg-slate-950 flex gap-4">
           <button
+            type="button"
             onClick={onClose}
-            className="flex-1 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:bg-white/5 transition-all"
+            className="flex-1 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-wider text-slate-400 hover:bg-slate-800 hover:text-white transition-all cursor-pointer"
           >
             Cancelar
           </button>
           <button
+            type="button"
             onClick={onRegister}
-            className="flex-3 px-12 py-4 bg-rose-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-rose-600/20 flex items-center justify-center gap-3 hover:bg-rose-500 transition-all"
+            className="flex-2 px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-950 flex items-center justify-center gap-3 hover:bg-emerald-500 transition-all active:scale-95 cursor-pointer"
           >
-            <Save size={18} /> Confirmar Parto
+            <Save size={18} /> Confirmar y Guardar Parto
           </button>
         </div>
+
       </div>
     </div>
   );
