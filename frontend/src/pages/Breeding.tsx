@@ -27,7 +27,9 @@ const Breeding: React.FC<BreedingProps> = ({
       <div className={`lg:col-span-2 p-8 md:p-10 border rounded-[40px] shadow-xl ${
         isDark ? 'bg-slate-900/90 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
       }`}>
-        <h3 className="text-3xl font-black font-display tracking-tight mb-8 flex items-center gap-3 text-white">
+        <h3 className={`text-3xl font-black font-display tracking-tight mb-8 flex items-center gap-3 ${
+          isDark ? 'text-white' : 'text-slate-900'
+        }`}>
           <Heart className="text-emerald-400" size={32} /> Gestión de Ciclos Reproductivos
         </h3>
         
@@ -71,13 +73,17 @@ const Breeding: React.FC<BreedingProps> = ({
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <button 
               onClick={onRegister} 
-              className="flex-1 py-5 bg-teal-600 hover:bg-teal-500 text-white font-black rounded-2xl text-base shadow-lg shadow-teal-950 uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
+              className={`flex-1 py-5 bg-teal-600 hover:bg-teal-500 text-white font-black rounded-2xl text-base shadow-lg uppercase tracking-wider active:scale-95 transition-all cursor-pointer ${
+                isDark ? 'shadow-teal-950/80' : 'shadow-teal-500/20'
+              }`}
             >
               Registrar Evento Reproductivo
             </button>
             <button 
               onClick={onRegisterParto} 
-              className="flex-1 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl text-base shadow-lg shadow-emerald-950 uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+              className={`flex-1 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl text-base shadow-lg uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer ${
+                isDark ? 'shadow-emerald-950/80' : 'shadow-emerald-500/20'
+              }`}
             >
               <Baby size={22} /> Registrar Parto
             </button>
