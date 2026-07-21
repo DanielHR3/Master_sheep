@@ -17,11 +17,28 @@ export default defineConfig({
         short_name: 'SheepMaster',
         description: 'Sistema de Gestión Ganadera - SheepMaster',
         theme_color: '#1b2636',
+        background_color: '#1b2636',
+        display: 'standalone',
+        start_url: './',
+        orientation: 'portrait',
         icons: [
           {
             src: 'appicon.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'appicon.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'appicon.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       }
