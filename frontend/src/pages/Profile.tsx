@@ -5,7 +5,9 @@ import {
   Lock, 
   Users, 
   ShieldCheck, 
-  Shield 
+  Shield,
+  Warehouse,
+  FileSpreadsheet
 } from 'lucide-react';
 
 interface ProfileProps {
@@ -14,6 +16,8 @@ interface ProfileProps {
   setTheme: (theme: string) => void;
   onSecurity: () => void;
   onStaff: () => void;
+  onReports: () => void;
+  onCorrales: () => void;
   isDemo: boolean;
   setIsDemo: (isDemo: boolean) => void;
   toggleDemoMode: (next: boolean) => Promise<void>;
@@ -25,6 +29,8 @@ const Profile: React.FC<ProfileProps> = ({
   setTheme, 
   onSecurity, 
   onStaff, 
+  onReports,
+  onCorrales,
   isDemo, 
   setIsDemo, 
   toggleDemoMode 
@@ -54,7 +60,7 @@ const Profile: React.FC<ProfileProps> = ({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         <div 
           onClick={onSecurity} 
           className={`p-8 border rounded-[40px] cursor-pointer transition-all group hover:scale-[1.02] ${
@@ -65,6 +71,29 @@ const Profile: React.FC<ProfileProps> = ({
           <h4 className={`font-black uppercase text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>Seguridad</h4>
           <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold">Cambiar Contraseña</p>
         </div>
+
+        <div 
+          onClick={onCorrales} 
+          className={`p-8 border rounded-[40px] cursor-pointer transition-all group hover:scale-[1.02] ${
+            isDark ? 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/80 text-white' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-900 shadow-sm'
+          }`}
+        >
+          <Warehouse size={24} className="text-cyan-500 mb-4 group-hover:scale-110 transition-transform" />
+          <h4 className={`font-black uppercase text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>Corrales</h4>
+          <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold">Gestionar Corrales</p>
+        </div>
+
+        <div 
+          onClick={onReports} 
+          className={`p-8 border rounded-[40px] cursor-pointer transition-all group hover:scale-[1.02] ${
+            isDark ? 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/80 text-white' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-900 shadow-sm'
+          }`}
+        >
+          <FileSpreadsheet size={24} className="text-emerald-500 mb-4 group-hover:scale-110 transition-transform" />
+          <h4 className={`font-black uppercase text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>Reportes</h4>
+          <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold">Descargas e Informes</p>
+        </div>
+
         {user?.role === 'Admin' && (
           <div 
             onClick={onStaff} 
