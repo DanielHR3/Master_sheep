@@ -132,10 +132,39 @@ export const GetHistorialClinico = async (animalID: string) => {
   return callApi(`/history?animal_id=${animalID}`);
 };
 
+export const GetHistorialClinicoGeneral = async () => {
+  if (IS_WAILS && (WailsApp as any).GetHistorialClinico) {
+    return (WailsApp as any).GetHistorialClinico("");
+  }
+  return callApi('/history');
+};
+
+export const GetSeguimientosPesoGeneral = async () => {
+  if (IS_WAILS && (WailsApp as any).GetSeguimientosPeso) {
+    return (WailsApp as any).GetSeguimientosPeso("");
+  }
+  return callApi('/weights');
+};
+
+export const GetEventosReproductivos = async () => {
+  if (IS_WAILS && (WailsApp as any).GetEventosReproductivos) {
+    return (WailsApp as any).GetEventosReproductivos();
+  }
+  return callApi('/reproduction-events');
+};
+
 export const RegistrarDiagnosticoGestacion = WailsApp.RegistrarDiagnosticoGestacion;
 export const CrearRecetaVeterinaria = WailsApp.CrearRecetaVeterinaria;
 export const GetRecetas = WailsApp.GetRecetas;
-export const GetPartos = WailsApp.GetPartos;
+
+export const GetPartos = async (animalID: string = "") => {
+  if (IS_WAILS && (WailsApp as any).GetPartos) {
+    return (WailsApp as any).GetPartos(animalID);
+  }
+  const url = animalID ? `/births?animal_id=${animalID}` : '/births';
+  return callApi(url);
+};
+
 export const GetDiagnosticosGestacion = WailsApp.GetDiagnosticosGestacion;
 
 export const GetUsers = async () => {

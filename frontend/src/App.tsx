@@ -33,6 +33,7 @@ import Clinical from './pages/Clinical';
 import Staff from './pages/Staff';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
+import Reports from './pages/Reports';
 
 function App() {
   const store = useStore();
@@ -113,6 +114,8 @@ function App() {
         return <Breeding animals={store.animals} form={state.breedingForm} setForm={state.setBreedingForm} onRegister={actions.handleRegisterBreeding} theme={store.theme} onRegisterParto={() => actions.handleOpenPartoModal()} />;
       case 'clinical':
         return <Clinical animals={store.animals} insumos={store.insumos} theme={store.theme} onTreatment={(a) => { state.setSelectedAnimal(a); state.modals.setShowTreatment(true); }} />;
+      case 'reports':
+        return <Reports theme={store.theme} />;
       case 'staff':
         return <Staff users={store.users} form={state.usuarioForm} setForm={state.setUsuarioForm} onAdd={actions.handleAddUser} onDelete={actions.handleDeleteUser} theme={store.theme} />;
       case 'profile':

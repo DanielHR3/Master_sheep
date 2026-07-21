@@ -1041,18 +1041,28 @@ func (a *App) CompletarTarea(tareaID string) error {
 	return err
 }
 
-// GetHistorialClinico obtiene tratamientos de un animal
+// GetHistorialClinico obtiene tratamientos de un animal (o de todos si animalID está vacío)
 func (a *App) GetHistorialClinico(animalID string) ([]map[string]interface{}, error) {
 	if a.user == nil {
 		return nil, fmt.Errorf("no autenticado")
 	}
 
-	rows, err := a.db.Query(a.q(`
-		SELECT t.fecha, i.nombre, t.dosis, i.unidad, t.tecnico, t.observaciones, t.fecha_fin_retiro
-		FROM tratamientos t
-		JOIN insumos i ON t.insumo_id = i.id
-		WHERE t.animal_id = ?
-		ORDER BY t.fecha DESC`), animalID)
+	var rows *sql.Rows
+	var err error
+	if animalID != "" {
+		rows, err = a.db.Query(a.q(`
+			SELECT t.fecha, i.nombre, t.dosis, i.unidad, t.tecnico, t.observaciones, t.fecha_fin_retiro, t.animal_id
+			FROM tratamientos t
+			JOIN insumos i ON t.insumo_id = i.id
+			WHERE t.animal_id = ?
+			ORDER BY t.fecha DESC`), animalID)
+	} else {
+		rows, err = a.db.Query(a.q(`
+			SELECT t.fecha, i.nombre, t.dosis, i.unidad, t.tecnico, t.observaciones, t.fecha_fin_retiro, t.animal_id
+			FROM tratamientos t
+			JOIN insumos i ON t.insumo_id = i.id
+			ORDER BY t.fecha DESC`))
+	}
 	
 	if err != nil {
 		return nil, err
@@ -1061,9 +1071,9 @@ func (a *App) GetHistorialClinico(animalID string) ([]map[string]interface{}, er
 
 	var historial []map[string]interface{}
 	for rows.Next() {
-		var fecha, nombre, unidad, tecnico, observaciones, fechaRetiro string
+		var fecha, nombre, unidad, tecnico, observaciones, fechaRetiro, animalIDStr string
 		var dosis float64
-		rows.Scan(&fecha, &nombre, &dosis, &unidad, &tecnico, &observaciones, &fechaRetiro)
+		rows.Scan(&fecha, &nombre, &dosis, &unidad, &tecnico, &observaciones, &fechaRetiro, &animalIDStr)
 		historial = append(historial, map[string]interface{}{
 			"fecha":             fecha,
 			"insumo":            nombre,
@@ -1072,6 +1082,7 @@ func (a *App) GetHistorialClinico(animalID string) ([]map[string]interface{}, er
 			"tecnico":           tecnico,
 			"observaciones":     observaciones,
 			"fecha_fin_retiro":  fechaRetiro,
+			"animal_id":         animalIDStr,
 			"en_retiro":         time.Now().Before(parseDate(fechaRetiro)),
 		})
 	}
@@ -1206,13 +1217,20 @@ func (a *App) AddSeguimientoPeso(sp SeguimientoPeso) error {
 	return err
 }
 
-// GetSeguimientosPeso obtiene el historial de pesajes de un animal
+// GetSeguimientosPeso obtiene el historial de pesajes de un animal (o de todos si animalID está vacío)
 func (a *App) GetSeguimientosPeso(animalID string) ([]SeguimientoPeso, error) {
 	if a.user == nil {
 		return nil, fmt.Errorf("no autenticado")
 	}
 
-	rows, err := a.db.Query(a.q(`SELECT id, animal_id, fecha, peso, COALESCE(notas, '') FROM seguimientos_peso WHERE animal_id = ? ORDER BY fecha ASC`), animalID)
+	var rows *sql.Rows
+	var err error
+	if animalID != "" {
+		rows, err = a.db.Query(a.q(`SELECT id, animal_id, fecha, peso, COALESCE(notas, '') FROM seguimientos_peso WHERE animal_id = ? ORDER BY fecha DESC`), animalID)
+	} else {
+		rows, err = a.db.Query(a.q(`SELECT id, animal_id, fecha, peso, COALESCE(notas, '') FROM seguimientos_peso ORDER BY fecha DESC`))
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -1378,4 +1396,27 @@ func (a *App) SyncToJarvis() (string, error) {
 	}
 
 	return fmt.Sprintf("Sincronización a JARVIS completada. %d animales enviados.", len(animales)), nil
+}
+
+// GetEventosReproductivos obtiene todo el historial de montas e IAs
+func (a *App) GetEventosReproductivos() ([]EventoReproductivo, error) {
+	if a.user == nil {
+		return nil, fmt.Errorf("no autenticado")
+	}
+
+	rows, err := a.db.Query(a.q(`SELECT id, animal_id, tipo, fecha_evento, COALESCE(fecha_fin_monta, ''), id_macho, COALESCE(lote_semen, ''), COALESCE(tecnico, ''), COALESCE(protocolo, ''), fecha_probable_parto, conteo_fetos, resultado, COALESCE(notas, '') FROM eventos_reproductivos ORDER BY fecha_evento DESC`))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var events []EventoReproductivo
+	for rows.Next() {
+		var ev EventoReproductivo
+		err := rows.Scan(&ev.ID, &ev.AnimalID, &ev.Tipo, &ev.FechaEvento, &ev.FechaFinMonta, &ev.IDMacho, &ev.LoteSemen, &ev.Tecnico, &ev.Protocolo, &ev.FechaProbableParto, &ev.ConteoFetos, &ev.Resultado, &ev.Notas)
+		if err == nil {
+			events = append(events, ev)
+		}
+	}
+	return events, nil
 }
