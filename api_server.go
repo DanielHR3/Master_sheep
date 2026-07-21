@@ -40,6 +40,7 @@ func (a *App) StartAPIServer(port int) {
 	mux.HandleFunc("/api/corrales", corsWrapper(a.handleCorrales))
 	mux.HandleFunc("/api/stats", corsWrapper(a.handleStats))
 	mux.HandleFunc("/api/reproduction", corsWrapper(a.handleReproduction))
+	mux.HandleFunc("/api/reproduction-events", corsWrapper(a.handleReproductionEvents))
 	mux.HandleFunc("/api/treatments", corsWrapper(a.handleTreatments))
 	mux.HandleFunc("/api/tasks", corsWrapper(a.handleTasks))
 	mux.HandleFunc("/api/births", corsWrapper(a.handleBirths))
@@ -274,21 +275,44 @@ func (a *App) handleTasks(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) handleBirths(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	switch r.Method {
+	case http.MethodGet:
+		partos, err := a.GetPartos("")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(partos)
+	case http.MethodPost:
+		var p Parto
+		if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+			http.Error(w, "JSON inválido", http.StatusBadRequest)
+			return
+		}
+		err := a.RegistrarParto(p)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+	default:
+		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
+	}
+}
+
+func (a *App) handleReproductionEvents(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
 		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
 		return
 	}
-	var p Parto
-	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
-		http.Error(w, "JSON inválido", http.StatusBadRequest)
-		return
-	}
-	err := a.RegistrarParto(p)
+	events, err := a.GetEventosReproductivos()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(events)
 }
 func (a *App) handleImportExcelAPI(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {

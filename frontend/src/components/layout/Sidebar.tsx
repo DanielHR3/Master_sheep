@@ -5,6 +5,7 @@ import {
   Warehouse, 
   ClipboardList, 
   Stethoscope, 
+  FileSpreadsheet,
   ShieldCheck, 
   CircleUser, 
   LogOut 
@@ -45,6 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
           <SidebarItem icon={<Warehouse size={22} />} label="Corrales" active={activeTab === 'corrales'} onClick={() => setActiveTab('corrales')} />
           <SidebarItem icon={<ClipboardList size={22} />} label="Reproducción" active={activeTab === 'breeding'} onClick={() => setActiveTab('breeding')} />
           <SidebarItem icon={<Stethoscope size={22} />} label="Control Clínico" active={activeTab === 'clinical'} onClick={() => setActiveTab('clinical')} />
+          <SidebarItem icon={<FileSpreadsheet size={22} />} label="Reportes y Descargas" active={activeTab === 'reports'} onClick={() => setActiveTab('reports')} />
           <SidebarItem icon={<ShieldCheck size={22} />} label="Personal" active={activeTab === 'staff'} onClick={() => setActiveTab('staff')} />
           
           <div className={`pt-6 mt-6 border-t ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
