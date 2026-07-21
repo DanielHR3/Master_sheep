@@ -91,3 +91,33 @@ h1, h2, h3, h4, .font-display {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.6);
 }
+
+/* Light Theme Form Elements & Inputs Overrides */
+.light-theme input:not([type="submit"]):not([type="button"]),
+.light-theme select,
+.light-theme textarea {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.light-theme input:not([type="submit"]):not([type="button"]):focus,
+.light-theme select:focus,
+.light-theme textarea:focus {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15) !important;
+  background-color: #ffffff !important;
+}
+
+.light-theme input::placeholder,
+.light-theme textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Light Theme Card Overrides */
+.light-theme .glass-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
+}
+

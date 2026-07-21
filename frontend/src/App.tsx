@@ -38,6 +38,17 @@ function App() {
   const store = useStore();
   const { state, actions, refs } = useAppLogic();
 
+  React.useEffect(() => {
+    const root = document.documentElement;
+    if (store.theme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light-theme');
+    } else {
+      root.classList.add('light-theme');
+      root.classList.remove('dark');
+    }
+  }, [store.theme]);
+
   if (!store.isLoggedIn) {
     return (
       <>
@@ -99,7 +110,7 @@ function App() {
       case 'corrales':
         return <Corrales animals={store.animals} corrales={store.corrales} theme={store.theme} onAddCorral={() => state.modals.setShowAddCorral(true)} />;
       case 'breeding':
-        return <Breeding animals={store.animals} form={state.breedingForm} setForm={state.setBreedingForm} onRegister={actions.handleRegisterBreeding} theme={store.theme} onRegisterParto={() => state.modals.setShowPartoModal(true)} />;
+        return <Breeding animals={store.animals} form={state.breedingForm} setForm={state.setBreedingForm} onRegister={actions.handleRegisterBreeding} theme={store.theme} onRegisterParto={() => actions.handleOpenPartoModal()} />;
       case 'clinical':
         return <Clinical animals={store.animals} insumos={store.insumos} theme={store.theme} onTreatment={(a) => { state.setSelectedAnimal(a); state.modals.setShowTreatment(true); }} />;
       case 'staff':
@@ -212,7 +223,6 @@ function App() {
         form={state.partoForm} 
         setForm={state.setPartoForm} 
         onRegister={actions.handleRegisterParto} 
-        selectedAnimal={state.selectedAnimal} 
         animals={store.animals}
       />
 

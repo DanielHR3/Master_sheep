@@ -319,22 +319,40 @@ export const useAppLogic = () => {
     }
   };
 
+  const handleOpenPartoModal = (animalId?: string) => {
+    const targetId = animalId || breedingForm.animal_id || selectedAnimal?.id || '';
+    setPartoForm({
+      animal_id: targetId,
+      cantidad_crias: 1,
+      observaciones: ''
+    });
+    setShowPartoModal(true);
+  };
+
   const handleRegisterParto = async () => {
     try {
+      const animalIdToUse = partoForm.animal_id || breedingForm.animal_id || selectedAnimal?.id;
+      if (!animalIdToUse || animalIdToUse.trim() === '') {
+        alert("Por favor seleccione la borrega madre (arete) antes de confirmar el parto.");
+        return;
+      }
       const p = main.Parto.createFrom({
-        animal_id: partoForm.animal_id,
-        cantidad_crias: parseInt(partoForm.cantidad_crias.toString()),
-        observaciones: partoForm.observaciones,
+        animal_id: animalIdToUse,
+        cantidad_crias: parseInt((partoForm.cantidad_crias || 1).toString()),
+        observaciones: partoForm.observaciones || 'Parto registrado',
         fecha: new Date().toISOString()
       });
       await RegistrarParto(p);
       setShowPartoModal(false);
       setPartoForm({ animal_id: '', cantidad_crias: 1, observaciones: '' });
+      store.setNotification({ message: "¡Parto registrado exitosamente!", type: 'success' });
       refreshData();
-    } catch (err) {
-      alert("Error al registrar parto");
+    } catch (err: any) {
+      console.error("Error al registrar parto:", err);
+      alert("Error al registrar parto: " + (err?.message || err || 'Ocurrió un error en el servidor'));
     }
   };
+
 
   const handleAddWeight = async () => {
     if (!selectedAnimal) return;
@@ -449,7 +467,9 @@ export const useAppLogic = () => {
       handleAddCorral,
       handleRegisterTreatment,
       handleRegisterParto,
+      handleOpenPartoModal,
       handleRegisterBreeding,
+
       handleAddWeight,
       handleViewWeights,
       handleAddUser,

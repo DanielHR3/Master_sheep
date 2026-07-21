@@ -79,7 +79,9 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
           {onSync && (
             <button 
               onClick={onSync} 
-              className="bg-teal-600 hover:bg-teal-500 text-white px-6 py-3.5 rounded-2xl font-black uppercase text-xs tracking-wider transition-all shadow-lg shadow-teal-950 flex items-center gap-2.5 active:scale-95 cursor-pointer"
+              className={`bg-teal-650 bg-teal-600 hover:bg-teal-500 text-white px-6 py-3.5 rounded-2xl font-black uppercase text-xs tracking-wider transition-all shadow-lg flex items-center gap-2.5 active:scale-95 cursor-pointer ${
+                isDark ? 'shadow-teal-950/80' : 'shadow-teal-500/20'
+              }`}
               title="Sincronizar Datos Cloud"
             >
               <Cloud size={18} /> SYNC CLOUD
@@ -87,7 +89,9 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
           )}
           <button 
             onClick={onGlobalAdd} 
-            className="bg-emerald-600 hover:bg-emerald-500 text-white px-7 py-3.5 rounded-2xl font-black uppercase text-xs tracking-wider transition-all shadow-lg shadow-emerald-950 flex items-center gap-2.5 active:scale-95 cursor-pointer"
+            className={`bg-emerald-600 hover:bg-emerald-500 text-white px-7 py-3.5 rounded-2xl font-black uppercase text-xs tracking-wider transition-all shadow-lg flex items-center gap-2.5 active:scale-95 cursor-pointer ${
+              isDark ? 'shadow-emerald-950/80' : 'shadow-emerald-500/20'
+            }`}
           >
             <PlusCircle size={18} /> ALTA ANIMAL
           </button>
@@ -97,17 +101,17 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
       {/* KPIs SUPERIORES */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {[
-          { label: 'Total Hato', value: stats?.total_cabezas || 0, icon: Users, color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20' },
-          { label: 'En Engorda', value: stats?.en_engorda || 0, icon: TrendingUp, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
-          { label: 'Pie de Cría', value: stats?.pie_de_cria || 0, icon: Award, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-          { label: 'Bajas', value: stats?.bajas || 0, icon: AlertTriangle, color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
+          { label: 'Total Hato', value: stats?.total_cabezas || 0, icon: Users, color: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20' },
+          { label: 'En Engorda', value: stats?.en_engorda || 0, icon: TrendingUp, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
+          { label: 'Pie de Cría', value: stats?.pie_de_cria || 0, icon: Award, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+          { label: 'Bajas', value: stats?.bajas || 0, icon: AlertTriangle, color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
         ].map((kpi, idx) => (
-          <div key={idx} className={`p-6 rounded-[32px] border transition-all hover:scale-[1.01] ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md'}`}>
+          <div key={idx} className={`p-6 rounded-[32px] border transition-all hover:scale-[1.01] ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
             <div className={`p-3.5 rounded-2xl w-fit mb-3 border ${kpi.bg}`}>
               <kpi.icon size={22} className={kpi.color} />
             </div>
             <p className={`font-black uppercase text-xs tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{kpi.label}</p>
-            <h3 className="text-4xl font-black tracking-tight mt-1 font-display">{kpi.value || 0}</h3>
+            <h3 className={`text-4xl font-black tracking-tight mt-1 font-display ${isDark ? 'text-white' : 'text-slate-900'}`}>{kpi.value || 0}</h3>
           </div>
         ))}
       </div>
@@ -117,8 +121,8 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
         <div className={`lg:col-span-2 p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h3 className="text-2xl font-black font-display tracking-tight flex items-center gap-3">
-                <Zap size={22} className="text-amber-400" /> Alertas de Venta (Engorda)
+              <h3 className={`text-2xl font-black font-display tracking-tight flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                <Zap size={22} className="text-amber-500 dark:text-amber-400" /> Alertas de Venta (Engorda)
               </h3>
               <p className={`text-xs font-bold uppercase tracking-wider mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Sugerencia basada en Peso y Edad (4 meses / 42kg)</p>
             </div>
@@ -128,9 +132,11 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
             {(stats?.alertas_venta || []).length > 0 ? (
               (stats?.alertas_venta || []).map((a: any, i: number) => (
                 <div key={i} className={`p-5 rounded-[28px] border flex items-center justify-between transition-all ${
-                  a.color === 'rojo' ? 'bg-rose-500/10 border-rose-500/30' :
-                  a.color === 'amarillo' ? 'bg-amber-500/10 border-amber-500/30' :
-                  'bg-emerald-500/10 border-emerald-500/30'
+                  a.color === 'rojo' 
+                    ? (isDark ? 'bg-rose-500/10 border-rose-500/30' : 'bg-rose-50 border-rose-200/80') :
+                  a.color === 'amarillo' 
+                    ? (isDark ? 'bg-amber-500/10 border-amber-500/30' : 'bg-amber-50 border-amber-200/80') :
+                  (isDark ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200/80')
                 }`}>
                   <div className="flex items-center gap-3">
                     <div className={`w-3.5 h-3.5 rounded-full animate-pulse ${
@@ -139,7 +145,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
                       'bg-emerald-500'
                     }`} />
                     <div>
-                      <p className="text-base font-black tracking-tight uppercase">Arete: {a.arete}</p>
+                      <p className={`text-base font-black tracking-tight uppercase ${isDark ? 'text-white' : 'text-slate-800'}`}>Arete: {a.arete}</p>
                       <p className={`text-xs font-bold uppercase ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{a.meses} meses • {(a.peso || 0).toFixed(1)} KG</p>
                     </div>
                   </div>
@@ -153,7 +159,9 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
                 </div>
               ))
             ) : (
-              <div className="md:col-span-2 py-16 text-center border-2 border-dashed border-slate-800 rounded-[32px]">
+              <div className={`md:col-span-2 py-16 text-center border-2 border-dashed rounded-[32px] ${
+                isDark ? 'border-slate-800' : 'border-slate-200 bg-slate-50/55'
+              }`}>
                 <p className="text-slate-400 font-bold uppercase text-xs tracking-wider italic">No hay animales próximos a venta</p>
               </div>
             )}
@@ -163,8 +171,8 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
         {/* AGENDA Y TAREAS */}
         <div className={`p-8 rounded-[40px] border flex flex-col ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
           <div className="flex items-center gap-3 mb-6">
-             <Bell size={22} className="text-emerald-400" />
-             <h3 className="text-2xl font-black font-display tracking-tight">Agenda Sanitaria</h3>
+             <Bell size={22} className="text-emerald-500 dark:text-emerald-400" />
+             <h3 className={`text-2xl font-black font-display tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Agenda Sanitaria</h3>
           </div>
           <div className="space-y-3 flex-1 overflow-y-auto pr-1 custom-scrollbar">
             {(tareas || []).filter((t: any) => t.estatus === 'Pendiente').length === 0 ? (
@@ -177,13 +185,15 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
                 const isReminder = t.titulo?.startsWith('REMINDER');
                 return (
                   <div key={t.id} className={`p-4 rounded-2xl border flex items-center justify-between transition-all ${
-                    isReminder ? 'bg-rose-950/60 border-rose-800/60' : 'bg-slate-950/60 border-slate-800'
+                    isReminder 
+                      ? (isDark ? 'bg-rose-955/40 bg-rose-950/60 border-rose-800/60' : 'bg-rose-50 border-rose-200 text-rose-900') 
+                      : (isDark ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200 text-slate-800')
                   }`}>
                     <div className="flex items-center gap-3 truncate">
-                      {isReminder ? <Syringe size={18} className="text-rose-400 shrink-0" /> : <ClipboardList size={18} className="text-emerald-400 shrink-0" />}
+                      {isReminder ? <Syringe size={18} className="text-rose-555 text-rose-455 text-rose-500 dark:text-rose-400 shrink-0" /> : <ClipboardList size={18} className="text-emerald-500 dark:text-emerald-400 shrink-0" />}
                       <div className="truncate">
-                        <p className="text-xs font-black truncate text-white">{t.titulo}</p>
-                        <p className="text-[10px] mt-0.5 uppercase font-bold tracking-wider text-slate-400">Prioridad: {t.prioridad}</p>
+                        <p className={`text-xs font-black truncate ${isDark ? 'text-white' : 'text-slate-800'}`}>{t.titulo}</p>
+                        <p className={`text-[10px] mt-0.5 uppercase font-bold tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Prioridad: {t.prioridad}</p>
                       </div>
                     </div>
                     <button 
@@ -205,15 +215,24 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-8">
         <div className={`p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md'}`}>
             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-              <Syringe size={16} className="text-rose-400" /> Incidencia de Enfermedades por Temporada
+              <Syringe size={16} className="text-rose-500 dark:text-rose-400" /> Incidencia de Enfermedades por Temporada
             </h4>
             <div className="h-[320px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} />
                         <XAxis dataKey="season" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 'bold', fill: '#94a3b8'}} />
                         <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} />
-                        <Tooltip contentStyle={{borderRadius: '16px', border: 'none', backgroundColor: '#0f172a', color: '#fff', fontSize: '12px'}} />
+                        <Tooltip 
+                          contentStyle={{
+                            borderRadius: '16px', 
+                            border: 'none', 
+                            backgroundColor: isDark ? '#0f172a' : '#ffffff', 
+                            color: isDark ? '#ffffff' : '#0f172a', 
+                            fontSize: '12px',
+                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                          }} 
+                        />
                         <Legend iconType="circle" />
                         {diseaseNames.map((name, i) => (
                           <Bar key={name} dataKey={name} fill={colors[i % colors.length]} radius={[6, 6, 0, 0]} barSize={18} />
@@ -225,15 +244,24 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
 
         <div className={`p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md'}`}>
             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-              <LayoutGrid size={16} className="text-emerald-400" /> Ocupación de Corrales
+              <LayoutGrid size={16} className="text-emerald-500 dark:text-emerald-400" /> Ocupación de Corrales
             </h4>
             <div className="h-[320px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={stats.corrales || []}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} />
                         <XAxis dataKey="nombre" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} />
                         <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} />
-                        <Tooltip cursor={{fill: 'rgba(255,255,255,0.03)'}} contentStyle={{borderRadius: '16px', border: 'none', backgroundColor: '#0f172a', color: '#fff'}} />
+                        <Tooltip 
+                          cursor={{fill: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'}} 
+                          contentStyle={{
+                            borderRadius: '16px', 
+                            border: 'none', 
+                            backgroundColor: isDark ? '#0f172a' : '#ffffff', 
+                            color: isDark ? '#ffffff' : '#0f172a',
+                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                          }} 
+                        />
                         <Bar dataKey="cantidad" fill="#06b6d4" radius={[6, 6, 0, 0]} barSize={36} />
                     </BarChart>
                 </ResponsiveContainer>
