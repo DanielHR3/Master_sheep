@@ -22,7 +22,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLogout }) => {
   const isDark = theme === 'dark';
   return (
-    <aside className={`fixed left-0 top-0 h-full w-80 z-40 hidden lg:block border-r transition-all ${
+    <aside className={`fixed left-0 top-0 h-full w-80 z-40 hidden md:block border-r transition-all ${
       isDark ? 'bg-slate-900/90 border-slate-800 backdrop-blur-3xl' : 'bg-white border-slate-200 shadow-lg'
     }`}>
       <div className="p-8">
