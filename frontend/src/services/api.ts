@@ -186,6 +186,11 @@ export const AddUser = async (user: any) => {
   return callApi('/users', 'POST', user);
 };
 
+export const UpdateUser = async (user: any) => {
+  if (IS_WAILS) return WailsApp.UpdateUser(user);
+  return callApi('/users', 'PUT', user);
+};
+
 export const DeleteUser = async (id: string) => {
   if (IS_WAILS) return WailsApp.DeleteUser(id);
   const baseUrl = getApiBaseUrl();
