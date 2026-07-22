@@ -79,6 +79,7 @@ function App() {
         />;
       case 'inventory':
         return <Inventory 
+          user={store.currentUser}
           animals={store.animals} 
           insumos={store.insumos} 
           theme={store.theme} 
@@ -109,7 +110,7 @@ function App() {
           onImportExcel={actions.handleImportExcel}
         />;
       case 'corrales':
-        return <Corrales animals={store.animals} corrales={store.corrales} theme={store.theme} onAddCorral={() => state.modals.setShowAddCorral(true)} />;
+        return <Corrales animals={store.animals} corrales={store.corrales} theme={store.theme} onAddCorral={() => state.modals.setShowAddCorral(true)} user={store.currentUser} />;
       case 'breeding':
         return <Breeding animals={store.animals} form={state.breedingForm} setForm={state.setBreedingForm} onRegister={actions.handleRegisterBreeding} theme={store.theme} onRegisterParto={() => actions.handleOpenPartoModal()} />;
       case 'clinical':
@@ -153,7 +154,7 @@ function App() {
         </div>
       )}
       
-      <Sidebar activeTab={store.activeTab} setActiveTab={store.setActiveTab} theme={store.theme} onLogout={actions.handleLogout} />
+      <Sidebar activeTab={store.activeTab} setActiveTab={store.setActiveTab} theme={store.theme} onLogout={actions.handleLogout} user={store.currentUser} />
 
       <main className="md:ml-80 flex-1 p-6 md:p-12 pb-32 md:pb-12 max-w-7xl mx-auto w-full">
         {renderContent()}

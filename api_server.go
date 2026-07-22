@@ -23,7 +23,7 @@ func (a *App) StartAPIServer(port int) {
 				return
 			}
 			// Bloqueo de mutaciones en Modo Demo
-			if a.IsDemoMode && (r.Method == "POST" || r.Method == "PUT" || r.Method == "DELETE") {
+			if a.IsDemoMode && r.URL.Path != "/api/demo-mode" && (r.Method == "POST" || r.Method == "PUT" || r.Method == "DELETE") {
 				w.WriteHeader(http.StatusForbidden)
 				json.NewEncoder(w).Encode(map[string]string{"error": "Modo Lectura Activo: No se permiten cambios en la base de datos."})
 				return
@@ -439,6 +439,23 @@ func (a *App) handleChangePasswordAPI(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) handleDemoMode(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
+		json.NewEncoder(w).Encode(map[string]bool{"enabled": a.IsDemoMode})
+		return
+	}
+	if r.Method == http.MethodPost {
+		var data struct {
+			Enabled bool `json:"enabled"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+			http.Error(w, "JSON inválido", http.StatusBadRequest)
+			return
+		}
+		err := a.ToggleDemoMode(data.Enabled)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]bool{"enabled": a.IsDemoMode})
 		return
 	}

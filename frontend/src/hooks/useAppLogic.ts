@@ -393,8 +393,8 @@ export const useAppLogic = () => {
       await AddUser(u);
       setUsuarioForm({ name: '', email: '', password: '', role: 'Trabajador' });
       refreshData();
-    } catch (err) {
-      alert("Error al registrar usuario");
+    } catch (err: any) {
+      alert("Error al registrar usuario: " + (err?.message || err));
     }
   };
 
@@ -403,8 +403,8 @@ export const useAppLogic = () => {
       try {
         await DeleteUser(id);
         refreshData();
-      } catch (err) {
-        alert("Error al eliminar");
+      } catch (err: any) {
+        alert("Error al eliminar: " + (err?.message || err));
       }
     }
   };

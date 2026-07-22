@@ -43,8 +43,17 @@ async function callApi(endpoint: string, method: string = 'GET', body?: any) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Error en la petición API');
+    let errorMsg = 'Error en la petición API';
+    try {
+      const text = await response.text();
+      try {
+        const parsed = JSON.parse(text);
+        errorMsg = parsed.error || parsed.message || errorMsg;
+      } catch (_) {
+        errorMsg = text || errorMsg;
+      }
+    } catch (_) {}
+    throw new Error(errorMsg.trim());
   }
 
   return response.json();
@@ -213,7 +222,10 @@ export const GetSeguimientosPeso = async (animalID: string) => {
   return callApi(`/weights?animal_id=${animalID}`);
 };
 
-export const ToggleDemoMode = WailsApp.ToggleDemoMode;
+export const ToggleDemoMode = async (enabled: boolean) => {
+  if (IS_WAILS) return WailsApp.ToggleDemoMode(enabled);
+  return callApi('/demo-mode', 'POST', { enabled });
+};
 
 export const SyncToJarvis = async () => {
   if (IS_WAILS) return WailsApp.SyncToJarvis();

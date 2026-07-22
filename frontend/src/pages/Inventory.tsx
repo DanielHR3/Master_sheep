@@ -23,6 +23,7 @@ interface InventoryProps {
   onAddWeight: (animal: main.Animal) => void;
   onViewWeights: (animal: main.Animal) => void;
   onImportExcel: () => void;
+  user: any;
 }
 
 const Inventory: React.FC<InventoryProps> = ({ 
@@ -40,7 +41,8 @@ const Inventory: React.FC<InventoryProps> = ({
   onDeleteAnimal, 
   onAddWeight, 
   onViewWeights, 
-  onImportExcel 
+  onImportExcel,
+  user
 }) => {
   const [filterDestino, setFilterDestino] = useState<'all' | 'Engorda' | 'Pie de Cría'>('all');
   const isDark = theme === 'dark';
@@ -98,7 +100,7 @@ const Inventory: React.FC<InventoryProps> = ({
                </button>
              </>
            )}
-           {subTab === 'supplies' && (
+           {subTab === 'supplies' && user?.role === 'Admin' && (
              <button 
                onClick={onAddInsumo} 
                className="bg-emerald-600 hover:bg-emerald-500 text-white px-7 py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-950 flex items-center gap-2 transition-all cursor-pointer active:scale-95"
@@ -123,6 +125,7 @@ const Inventory: React.FC<InventoryProps> = ({
               onDelete={() => onDeleteAnimal(a.id)} 
               onAddWeight={() => onAddWeight(a)} 
               onViewWeights={() => onViewWeights(a)} 
+              isAdmin={user?.role === 'Admin'}
             />
           ))}
         </div>
