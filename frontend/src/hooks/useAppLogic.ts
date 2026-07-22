@@ -26,6 +26,7 @@ import {
   GetUsers,
   AddUser,
   DeleteUser,
+  UpdateUser,
   UpdateAnimal,
   DeleteAnimal,
   GetCurrentUser,
@@ -60,7 +61,7 @@ export const useAppLogic = () => {
   
   const [corralForm, setCorralForm] = useState({ nombre: '', tipo: 'General', capacidad: 50 });
   const [treatmentForm, setTreatmentForm] = useState({ insumo_id: '', dosis: 1, via: 'Intramuscular', duracion: 1, observaciones: '' });
-  const [usuarioForm, setUsuarioForm] = useState({ name: '', email: '', password: '', role: 'Trabajador' });
+  const [usuarioForm, setUsuarioForm] = useState({ id: '', name: '', email: '', password: '', role: 'Trabajador' });
   const [insumoForm, setInsumoForm] = useState({
     nombre: '',
     tipo: 'Medicamente',
@@ -409,6 +410,22 @@ export const useAppLogic = () => {
     }
   };
 
+  const handleUpdateUser = async () => {
+    try {
+      const u = main.User.createFrom({
+        id: usuarioForm.id,
+        name: usuarioForm.name,
+        email: usuarioForm.email,
+        role: usuarioForm.role
+      });
+      await UpdateUser(u);
+      setUsuarioForm({ id: '', name: '', email: '', password: '', role: 'Trabajador' });
+      refreshData();
+    } catch (err: any) {
+      alert("Error al actualizar usuario: " + (err?.message || err));
+    }
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -473,6 +490,7 @@ export const useAppLogic = () => {
       handleAddWeight,
       handleViewWeights,
       handleAddUser,
+      handleUpdateUser,
       handleDeleteUser,
       handleFileChange,
       toggleTheme: () => store.setTheme(store.theme === 'dark' ? 'light' : 'dark'),

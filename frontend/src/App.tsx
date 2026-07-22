@@ -118,7 +118,7 @@ function App() {
       case 'reports':
         return <Reports theme={store.theme} />;
       case 'staff':
-        return <Staff users={store.users} form={state.usuarioForm} setForm={state.setUsuarioForm} onAdd={actions.handleAddUser} onDelete={actions.handleDeleteUser} theme={store.theme} />;
+        return <Staff users={store.users} form={state.usuarioForm} setForm={state.setUsuarioForm} onAdd={actions.handleAddUser} onUpdate={actions.handleUpdateUser} onDelete={actions.handleDeleteUser} theme={store.theme} />;
       case 'profile':
         return <Profile 
           theme={store.theme} 

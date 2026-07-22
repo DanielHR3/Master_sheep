@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { UserPlus, CircleUser, Trash2, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, CircleUser, Trash2, Eye, EyeOff, Edit3 } from 'lucide-react';
 
 interface StaffProps {
   users: any[];
   form: any;
   setForm: (form: any) => void;
   onAdd: () => void;
+  onUpdate: () => void;
   onDelete: (id: string) => void;
   theme: string;
 }
@@ -15,6 +16,7 @@ const Staff: React.FC<StaffProps> = ({
   form, 
   setForm, 
   onAdd, 
+  onUpdate,
   onDelete, 
   theme 
 }) => {
@@ -35,7 +37,7 @@ const Staff: React.FC<StaffProps> = ({
           }`}>
              <h4 className={`text-xl font-black font-display mb-8 border-b pb-4 tracking-tight ${
                isDark ? 'text-white border-white/5' : 'text-slate-800 border-slate-100'
-             }`}>Alta de Personal</h4>
+             }`}>{form.id ? 'Editar Personal' : 'Alta de Personal'}</h4>
              <div className="space-y-6">
                 <input 
                   type="text" 
@@ -55,33 +57,60 @@ const Staff: React.FC<StaffProps> = ({
                   value={form.email} 
                   onChange={e => setForm({...form, email: e.target.value})} 
                 />
-                 <div className="relative">
-                   <input 
-                     type={showPassword ? "text" : "password"} 
-                     placeholder="Contraseña Temporal" 
-                     className={`w-full border rounded-xl pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold text-sm ${
+                 {!form.id && (
+                   <div className="relative">
+                     <input 
+                       type={showPassword ? "text" : "password"} 
+                       placeholder="Contraseña Temporal" 
+                       className={`w-full border rounded-xl pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold text-sm ${
+                         isDark ? 'bg-slate-950 border-white/10 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                       }`} 
+                       value={form.password} 
+                       onChange={e => setForm({...form, password: e.target.value})} 
+                     />
+                     <button
+                       type="button"
+                       onClick={() => setShowPassword(!showPassword)}
+                       className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 transition-colors"
+                       style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                     >
+                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                     </button>
+                   </div>
+                 )}
+                 <div className="space-y-2">
+                   <label className="text-[10px] font-black text-slate-500 uppercase ml-2">Rol / Acceso</label>
+                   <select
+                     className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold text-sm ${
                        isDark ? 'bg-slate-950 border-white/10 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                     }`} 
-                     value={form.password} 
-                     onChange={e => setForm({...form, password: e.target.value})} 
-                   />
-                   <button
-                     type="button"
-                     onClick={() => setShowPassword(!showPassword)}
-                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 transition-colors"
-                     style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                     }`}
+                     value={form.role || 'Trabajador'}
+                     onChange={e => setForm({...form, role: e.target.value})}
                    >
-                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                     <option value="Trabajador">Trabajador (Solo Lectura/Escritura Hato)</option>
+                     <option value="Admin">Administrador (Acceso Total)</option>
+                   </select>
+                 </div>
+                 <div className="flex gap-3">
+                   {form.id && (
+                     <button 
+                       onClick={() => setForm({ id: '', name: '', email: '', password: '', role: 'Trabajador' })} 
+                       className="flex-1 py-4 bg-slate-700 text-white font-black rounded-xl hover:bg-slate-600 transition-all active:scale-95 cursor-pointer uppercase text-xs"
+                     >
+                       Cancelar
+                     </button>
+                   )}
+                   <button 
+                     onClick={form.id ? onUpdate : onAdd} 
+                     className={`py-4 bg-antique-brass text-white font-black rounded-xl hover:bg-saddle-tan transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer shadow-lg uppercase text-xs ${
+                       form.id ? 'flex-1' : 'w-full'
+                     } ${
+                       isDark ? 'shadow-cyan-950/40' : 'shadow-cyan-500/20'
+                     }`}
+                   >
+                     {form.id ? 'Guardar' : 'Registrar'}
                    </button>
                  </div>
-                <button 
-                  onClick={onAdd} 
-                  className={`w-full py-4 bg-antique-brass text-white font-black rounded-xl hover:bg-saddle-tan transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer shadow-lg ${
-                    isDark ? 'shadow-cyan-950/40' : 'shadow-cyan-500/20'
-                  }`}
-                >
-                  <UserPlus size={18} /> REGISTRAR
-                </button>
              </div>
           </div>
 
@@ -101,12 +130,22 @@ const Staff: React.FC<StaffProps> = ({
                          <p className="text-[10px] text-slate-400 uppercase font-black">{u.role} • {u.email}</p>
                       </div>
                    </div>
-                   <button 
-                     onClick={() => onDelete(u.id)} 
-                     className="p-3 bg-rose-500/10 text-rose-500 hover:bg-rose-600 hover:text-white rounded-xl lg:opacity-0 lg:group-hover:opacity-100 transition-all cursor-pointer"
-                   >
-                     <Trash2 size={16} />
-                   </button>
+                    <div className="flex gap-2 lg:opacity-0 lg:group-hover:opacity-100 transition-all">
+                       <button 
+                         onClick={() => {
+                           setForm({ id: u.id, name: u.name, email: u.email, password: '', role: u.role });
+                         }} 
+                         className="p-3 bg-cyan-500/10 text-cyan-500 hover:bg-cyan-600 hover:text-white rounded-xl transition-all cursor-pointer"
+                       >
+                         <Edit3 size={16} />
+                       </button>
+                       <button 
+                         onClick={() => onDelete(u.id)} 
+                         className="p-3 bg-rose-500/10 text-rose-500 hover:bg-rose-600 hover:text-white rounded-xl transition-all cursor-pointer"
+                       >
+                         <Trash2 size={16} />
+                       </button>
+                    </div>
                 </div>
              ))}
           </div>
