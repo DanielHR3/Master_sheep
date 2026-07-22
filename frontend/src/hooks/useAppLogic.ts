@@ -61,7 +61,7 @@ export const useAppLogic = () => {
   
   const [corralForm, setCorralForm] = useState({ nombre: '', tipo: 'General', capacidad: 50 });
   const [treatmentForm, setTreatmentForm] = useState({ insumo_id: '', dosis: 1, via: 'Intramuscular', duracion: 1, observaciones: '' });
-  const [usuarioForm, setUsuarioForm] = useState({ id: '', name: '', email: '', password: '', role: 'Trabajador' });
+  const [usuarioForm, setUsuarioForm] = useState({ id: '', name: '', email: '', password: '', confirmPassword: '', role: 'Trabajador' });
   const [insumoForm, setInsumoForm] = useState({
     nombre: '',
     tipo: 'Medicamente',
@@ -384,6 +384,10 @@ export const useAppLogic = () => {
   };
 
   const handleAddUser = async () => {
+    if (usuarioForm.password !== usuarioForm.confirmPassword) {
+      alert("Error al registrar usuario: Las contraseñas no coinciden.");
+      return;
+    }
     try {
       const u = main.User.createFrom({
         name: usuarioForm.name,
@@ -392,7 +396,7 @@ export const useAppLogic = () => {
         role: usuarioForm.role
       });
       await AddUser(u);
-      setUsuarioForm({ name: '', email: '', password: '', role: 'Trabajador' });
+      setUsuarioForm({ id: '', name: '', email: '', password: '', confirmPassword: '', role: 'Trabajador' });
       refreshData();
     } catch (err: any) {
       alert("Error al registrar usuario: " + (err?.message || err));
@@ -419,7 +423,7 @@ export const useAppLogic = () => {
         role: usuarioForm.role
       });
       await UpdateUser(u);
-      setUsuarioForm({ id: '', name: '', email: '', password: '', role: 'Trabajador' });
+      setUsuarioForm({ id: '', name: '', email: '', password: '', confirmPassword: '', role: 'Trabajador' });
       refreshData();
     } catch (err: any) {
       alert("Error al actualizar usuario: " + (err?.message || err));
