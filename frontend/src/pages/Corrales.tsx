@@ -7,9 +7,10 @@ interface CorralesProps {
   animals: main.Animal[];
   theme: string;
   onAddCorral: () => void;
+  user: any;
 }
 
-const Corrales: React.FC<CorralesProps> = ({ corrales, animals, theme, onAddCorral }) => {
+const Corrales: React.FC<CorralesProps> = ({ corrales, animals, theme, onAddCorral, user }) => {
   return (
     <div className="space-y-10 pt-10 animate-in slide-in-from-right-8 duration-700">
       <div className="flex justify-between items-center">
@@ -21,12 +22,14 @@ const Corrales: React.FC<CorralesProps> = ({ corrales, animals, theme, onAddCorr
             Infraestructura y Capacidad
           </p>
         </div>
-        <button 
-          onClick={onAddCorral} 
-          className="bg-6666-maroon hover:bg-6666-sand hover:text-6666-maroon text-white px-8 py-4 rounded-[24px] font-black text-xs uppercase shadow-lg shadow-6666-maroon/20 flex items-center gap-3 transition-all active:scale-95"
-        >
-          <Plus size={18} /> Nuevo Corral
-        </button>
+        {user?.role === 'Admin' && (
+          <button 
+            onClick={onAddCorral} 
+            className="bg-6666-maroon hover:bg-6666-sand hover:text-6666-maroon text-white px-8 py-4 rounded-[24px] font-black text-xs uppercase shadow-lg shadow-6666-maroon/20 flex items-center gap-3 transition-all active:scale-95"
+          >
+            <Plus size={18} /> Nuevo Corral
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

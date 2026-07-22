@@ -101,21 +101,23 @@ const Profile: React.FC<ProfileProps> = ({
           </p>
         </div>
 
-        {/* Atajo de Reportes */}
-        <div 
-          onClick={onReports} 
-          className={`p-5 md:p-8 border rounded-[24px] md:rounded-[30px] cursor-pointer transition-all group hover:scale-[1.02] flex flex-col items-center md:items-start text-center md:text-left ${
-            isDark ? 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/80 text-white' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-900 shadow-sm'
-          }`}
-        >
-          <FileSpreadsheet size={22} className="text-emerald-500 mb-3 group-hover:scale-110 transition-transform" />
-          <h4 className={`font-black uppercase text-[10px] md:text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>
-            Reportes
-          </h4>
-          <p className="text-[9px] md:text-[10px] text-slate-400 mt-1 uppercase font-bold">
-            Descargas
-          </p>
-        </div>
+        {/* Atajo de Reportes (Solo Admin) */}
+        {user?.role === 'Admin' && (
+          <div 
+            onClick={onReports} 
+            className={`p-5 md:p-8 border rounded-[24px] md:rounded-[30px] cursor-pointer transition-all group hover:scale-[1.02] flex flex-col items-center md:items-start text-center md:text-left ${
+              isDark ? 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/80 text-white' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-900 shadow-sm'
+            }`}
+          >
+            <FileSpreadsheet size={22} className="text-emerald-500 mb-3 group-hover:scale-110 transition-transform" />
+            <h4 className={`font-black uppercase text-[10px] md:text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>
+              Reportes
+            </h4>
+            <p className="text-[9px] md:text-[10px] text-slate-400 mt-1 uppercase font-bold">
+              Descargas
+            </p>
+          </div>
+        )}
 
         {/* Atajo de Personal (Solo Admin) */}
         {user?.role === 'Admin' && (

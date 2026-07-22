@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Lock, ShieldCheck, Key, Save } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Lock, ShieldCheck, Key, Save, Eye, EyeOff } from 'lucide-react';
 
 interface ChangePasswordModalProps {
   show: boolean;
@@ -10,6 +10,10 @@ interface ChangePasswordModalProps {
 }
 
 const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ show, onClose, form, setForm, onUpdate }) => {
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   if (!show) return null;
 
   return (
@@ -35,39 +39,69 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ show, onClose
             <label className="text-[10px] font-black text-slate-500 uppercase ml-2 flex items-center gap-2">
               <Key size={12} /> Contraseña Actual
             </label>
-            <input
-              type="password"
-              className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-white focus:outline-none focus:border-white/20 transition-all font-bold"
-              placeholder="••••••••"
-              value={form.old}
-              onChange={e => setForm({ ...form, old: e.target.value })}
-            />
+            <div className="relative">
+              <input
+                type={showOld ? "text" : "password"}
+                className="w-full bg-slate-950 border border-white/5 rounded-2xl pl-4 pr-12 py-4 text-white focus:outline-none focus:border-white/20 transition-all font-bold"
+                placeholder="••••••••"
+                value={form.old}
+                onChange={e => setForm({ ...form, old: e.target.value })}
+              />
+              <button
+                type="button"
+                onClick={() => setShowOld(!showOld)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                {showOld ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-500 uppercase ml-2 flex items-center gap-2">
               <Key size={12} /> Nueva Contraseña
             </label>
-            <input
-              type="password"
-              className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-white focus:outline-none focus:border-white/20 transition-all font-bold"
-              placeholder="••••••••"
-              value={form.new}
-              onChange={e => setForm({ ...form, new: e.target.value })}
-            />
+            <div className="relative">
+              <input
+                type={showNew ? "text" : "password"}
+                className="w-full bg-slate-950 border border-white/5 rounded-2xl pl-4 pr-12 py-4 text-white focus:outline-none focus:border-white/20 transition-all font-bold"
+                placeholder="••••••••"
+                value={form.new}
+                onChange={e => setForm({ ...form, new: e.target.value })}
+              />
+              <button
+                type="button"
+                onClick={() => setShowNew(!showNew)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-500 uppercase ml-2 flex items-center gap-2">
               <ShieldCheck size={12} /> Confirmar Nueva Contraseña
             </label>
-            <input
-              type="password"
-              className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-white focus:outline-none focus:border-white/20 transition-all font-bold"
-              placeholder="••••••••"
-              value={form.confirm}
-              onChange={e => setForm({ ...form, confirm: e.target.value })}
-            />
+            <div className="relative">
+              <input
+                type={showConfirm ? "text" : "password"}
+                className="w-full bg-slate-950 border border-white/5 rounded-2xl pl-4 pr-12 py-4 text-white focus:outline-none focus:border-white/20 transition-all font-bold"
+                placeholder="••••••••"
+                value={form.confirm}
+                onChange={e => setForm({ ...form, confirm: e.target.value })}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm(!showConfirm)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
         </div>
 

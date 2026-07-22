@@ -20,6 +20,7 @@ interface AnimalCardProps {
   onDelete: () => void;
   onAddWeight: () => void;
   onViewWeights: () => void;
+  isAdmin: boolean;
 }
 
 const AnimalCard: React.FC<AnimalCardProps> = ({ 
@@ -31,7 +32,8 @@ const AnimalCard: React.FC<AnimalCardProps> = ({
   onEdit, 
   onDelete, 
   onAddWeight, 
-  onViewWeights 
+  onViewWeights,
+  isAdmin
 }) => {
   const isDark = theme === 'dark';
 
@@ -64,13 +66,15 @@ const AnimalCard: React.FC<AnimalCardProps> = ({
             >
               <Edit3 size={16} />
             </button>
-            <button 
-              title="Eliminar Animal" 
-              onClick={(e) => { e.stopPropagation(); onDelete(); }} 
-              className={`p-2.5 rounded-xl transition-all ${isDark ? 'bg-rose-950/60 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-800/40' : 'bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200'}`}
-            >
-              <Trash2 size={16} />
-            </button>
+            {isAdmin && (
+              <button 
+                title="Eliminar Animal" 
+                onClick={(e) => { e.stopPropagation(); onDelete(); }} 
+                className={`p-2.5 rounded-xl transition-all ${isDark ? 'bg-rose-950/60 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-800/40' : 'bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200'}`}
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
           </div>
         </div>
 
