@@ -22,6 +22,7 @@ const Staff: React.FC<StaffProps> = ({
 }) => {
   const isDark = theme === 'dark';
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   return (
     <div className="space-y-10 pt-10 animate-in slide-in-from-right-8 duration-700">
        <div className="flex justify-between items-center">
@@ -57,27 +58,49 @@ const Staff: React.FC<StaffProps> = ({
                   value={form.email} 
                   onChange={e => setForm({...form, email: e.target.value})} 
                 />
-                 {!form.id && (
-                   <div className="relative">
-                     <input 
-                       type={showPassword ? "text" : "password"} 
-                       placeholder="Contraseña Temporal" 
-                       className={`w-full border rounded-xl pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold text-sm ${
-                         isDark ? 'bg-slate-950 border-white/10 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                       }`} 
-                       value={form.password} 
-                       onChange={e => setForm({...form, password: e.target.value})} 
-                     />
-                     <button
-                       type="button"
-                       onClick={() => setShowPassword(!showPassword)}
-                       className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 transition-colors"
-                       style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                     >
-                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                     </button>
-                   </div>
-                 )}
+                  {!form.id && (
+                    <>
+                      <div className="relative">
+                        <input 
+                          type={showPassword ? "text" : "password"} 
+                          placeholder="Contraseña Temporal" 
+                          className={`w-full border rounded-xl pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold text-sm ${
+                            isDark ? 'bg-slate-950 border-white/10 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                          }`} 
+                          value={form.password} 
+                          onChange={e => setForm({...form, password: e.target.value})} 
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-655 transition-colors"
+                          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                        >
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
+
+                      <div className="relative">
+                        <input 
+                          type={showConfirmPassword ? "text" : "password"} 
+                          placeholder="Confirmar Contraseña" 
+                          className={`w-full border rounded-xl pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold text-sm ${
+                            isDark ? 'bg-slate-950 border-white/10 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                          }`} 
+                          value={form.confirmPassword} 
+                          onChange={e => setForm({...form, confirmPassword: e.target.value})} 
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-655 transition-colors"
+                          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                        >
+                          {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
+                    </>
+                  )}
                  <div className="space-y-2">
                    <label className="text-[10px] font-black text-slate-500 uppercase ml-2">Rol / Acceso</label>
                    <select
