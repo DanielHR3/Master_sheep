@@ -606,6 +606,33 @@ func (a *App) AddCorral(corral Corral) error {
 	return err
 }
 
+// DeleteCorral elimina un corral y quita su referencia de los animales
+func (a *App) DeleteCorral(id string) error {
+	if a.user == nil {
+		return fmt.Errorf("no autenticado")
+	}
+
+	tx, err := a.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// 1. Remove corral_id from animals in this corral
+	_, err = tx.Exec(a.q("UPDATE animales SET corral_id = '' WHERE corral_id = (SELECT nombre FROM corrales WHERE id = ?) AND user_id = ?"), id, a.tenantID())
+	if err != nil {
+		return err
+	}
+
+	// 2. Delete the corral
+	_, err = tx.Exec(a.q("DELETE FROM corrales WHERE id = ? AND user_id = ?"), id, a.tenantID())
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 // RegistrarEventoReproductivo gestiona montas e IAs
 func (a *App) RegistrarEventoReproductivo(event EventoReproductivo) error {
 	if a.user == nil {

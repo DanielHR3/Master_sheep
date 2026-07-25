@@ -114,7 +114,7 @@ function App() {
           onImportExcel={actions.handleImportExcel}
         />;
       case 'corrales':
-        return <Corrales animals={store.animals} corrales={store.corrales} theme={store.theme} onAddCorral={() => state.modals.setShowAddCorral(true)} user={store.currentUser} />;
+        return <Corrales animals={store.animals} corrales={store.corrales} theme={store.theme} onAddCorral={() => state.modals.setShowAddCorral(true)} onDeleteCorral={actions.handleDeleteCorral} user={store.currentUser} />;
       case 'breeding':
         return <Breeding animals={store.animals} form={state.breedingForm} setForm={state.setBreedingForm} onRegister={actions.handleRegisterBreeding} theme={store.theme} onRegisterParto={() => actions.handleOpenPartoModal()} />;
       case 'clinical':

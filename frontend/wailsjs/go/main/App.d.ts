@@ -24,6 +24,8 @@ export function CrearRecetaVeterinaria(arg1:main.RecetaVeterinaria):Promise<void
 
 export function DeleteAnimal(arg1:string):Promise<void>;
 
+export function DeleteCorral(arg1:string):Promise<void>;
+
 export function DeleteUser(arg1:string):Promise<void>;
 
 export function GetAnimales():Promise<Array<main.Animal>>;

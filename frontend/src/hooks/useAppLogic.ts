@@ -272,6 +272,17 @@ export const useAppLogic = () => {
     }
   };
 
+  const handleDeleteCorral = async (id: string) => {
+    try {
+      // @ts-ignore
+      const { DeleteCorral } = await import('../services/api');
+      await DeleteCorral(id);
+      refreshData();
+    } catch (err) {
+      alert("Error al eliminar corral");
+    }
+  };
+
   const handleRegisterTreatment = async () => {
     if (!selectedAnimal) return;
     try {
@@ -516,6 +527,7 @@ export const useAppLogic = () => {
       handleUpdateAnimal,
       handleAddInsumo,
       handleAddCorral,
+      handleDeleteCorral,
       handleRegisterTreatment,
       handleRegisterProlapso,
       handleRegisterParto,
