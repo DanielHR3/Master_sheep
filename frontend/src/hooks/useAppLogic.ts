@@ -10,6 +10,7 @@ import {
   GetCorrales, 
   ConfirmarUltrasonido, 
   AddCorral,
+  DeleteCorral,
   GetInsumos,
   AddInsumo,
   RegistrarTratamiento,
@@ -274,8 +275,6 @@ export const useAppLogic = () => {
 
   const handleDeleteCorral = async (id: string) => {
     try {
-      // @ts-ignore
-      const { DeleteCorral } = await import('../services/api');
       await DeleteCorral(id);
       refreshData();
     } catch (err) {
