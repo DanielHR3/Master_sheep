@@ -1,5 +1,7 @@
 import React from 'react';
 import Modal from '../shared/Modal';
+import { main } from "../../../wailsjs/go/models";
+import ImageUpload from '../ImageUpload';
 
 interface AddAnimalModalProps {
   show: boolean;
@@ -156,13 +158,10 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-slate-500">Foto (URL o Nombre de archivo)</label>
-              <input 
-                type="text" 
-                className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white" 
-                placeholder="https://... o foto.jpg"
+              <label className="text-[10px] font-black uppercase text-slate-500">Foto del Animal</label>
+              <ImageUpload 
                 value={form.foto || ''} 
-                onChange={e => setForm({...form, foto: e.target.value})} 
+                onChange={(val) => setForm({...form, foto: val})} 
               />
             </div>
 

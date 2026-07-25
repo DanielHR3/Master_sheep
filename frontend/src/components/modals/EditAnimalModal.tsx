@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Save, Edit3, Tag, Map, Calendar, Scale, Users, Target, Activity } from 'lucide-react';
 import { main } from "../../../wailsjs/go/models";
+import ImageUpload from '../ImageUpload';
 
 interface EditAnimalModalProps {
   show: boolean;
@@ -43,6 +44,16 @@ const EditAnimalModal: React.FC<EditAnimalModalProps> = ({ show, onClose, form, 
                 className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-white focus:outline-none focus:border-antique-brass/50 transition-all font-bold"
                 value={form.arete}
                 onChange={e => setForm({ ...form, arete: e.target.value } as main.Animal)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-slate-500 mb-2 flex items-center gap-2">
+                Foto del Animal
+              </label>
+              <ImageUpload 
+                value={form.foto || ''} 
+                onChange={(val) => setForm({ ...form, foto: val } as main.Animal)} 
               />
             </div>
 
@@ -181,18 +192,7 @@ const EditAnimalModal: React.FC<EditAnimalModalProps> = ({ show, onClose, form, 
               />
             </div>
             
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase ml-2 flex items-center gap-2">
-                Foto (URL o Archivo)
-              </label>
-              <input
-                type="text"
-                placeholder="https://... o foto.jpg"
-                className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-white focus:outline-none focus:border-antique-brass/50 transition-all font-bold"
-                value={form.foto || ''}
-                onChange={e => setForm({ ...form, foto: e.target.value } as main.Animal)}
-              />
-            </div>
+
           </div>
         </div>
 
