@@ -11,7 +11,7 @@ interface AddAnimalModalProps {
 }
 
 const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, setForm, onAdd, corrales }) => {
-  const isPieDeCria = import.meta.env.VITE_APP_CLIENT_TYPE === 'BUGAMBILIAS' || import.meta.env.VITE_APP_CLIENT_TYPE === 'PIE_DE_CRIA';
+  const isPieDeCria = true;
 
   return (
     <Modal show={show} onClose={onClose} title="Agregar Nuevo Animal">
@@ -62,7 +62,7 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
           </div>
         </div>
 
-        {import.meta.env.VITE_APP_CLIENT_TYPE === 'BUGAMBILIAS' && (
+        {true && (
           <div className="grid grid-cols-1 gap-4 mb-4">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-500">Especie</label>
