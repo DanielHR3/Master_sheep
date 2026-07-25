@@ -47,9 +47,14 @@ const Clinical: React.FC<ClinicalProps> = ({ animals, insumos, onTreatment, them
                    <h3 className="text-xl font-bold dark:text-white text-slate-800 mb-1">{a.nombre || a.raza}</h3>
                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-6">{a.sexo}</p>
                    
-                   <button className="w-full py-3 bg-slate-50 dark:bg-black/20 font-bold text-antique-brass rounded-2xl border border-slate-100 dark:border-white/5 group-hover:bg-antique-brass group-hover:text-white transition-colors">
-                       Aplicar Tratamiento
-                   </button>
+                   <div className="space-y-2">
+                     <button onClick={(e) => { e.stopPropagation(); onTreatment(a); }} className="w-full py-3 bg-slate-50 dark:bg-black/20 font-bold text-antique-brass rounded-2xl border border-slate-100 dark:border-white/5 hover:bg-antique-brass hover:text-white transition-colors">
+                         Aplicar Tratamiento
+                     </button>
+                     <button onClick={(e) => { e.stopPropagation(); onTreatment({ ...a, isProlapso: true }); }} className="w-full py-2 bg-slate-50 dark:bg-black/20 font-bold text-rose-500 text-xs rounded-xl border border-rose-100 dark:border-rose-900/30 hover:bg-rose-500 hover:text-white transition-colors">
+                         Registrar Prolapso / Hernia
+                     </button>
+                   </div>
                </div>
             ))}
          </div>

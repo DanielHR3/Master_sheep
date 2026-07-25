@@ -103,6 +103,12 @@ func (a *App) initDB() error {
 		peso_destete REAL DEFAULT 0,
 		padre_id TEXT,
 		madre_id TEXT,
+		abuelo_paterno_id TEXT,
+		abuela_paterna_id TEXT,
+		abuelo_materno_id TEXT,
+		abuela_materna_id TEXT,
+		tipo_parto TEXT,
+		metodo_concepcion TEXT,
 		destino TEXT,
 		fecha_defuncion TEXT,
 		motivo_defuncion TEXT,
@@ -263,21 +269,43 @@ func (a *App) initDB() error {
 	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_destete REAL DEFAULT 0")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN padre_id TEXT")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN madre_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN abuelo_paterno_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN abuela_paterna_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN abuelo_materno_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN especie TEXT DEFAULT 'Ovino'")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN abuela_materna_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN tipo_parto TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN metodo_concepcion TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN destino TEXT")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN destino TEXT")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_defuncion TEXT")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN motivo_defuncion TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_150_dias REAL DEFAULT 0")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_destete TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN foto TEXT")
 	a.db.Exec("ALTER TABLE tratamientos ADD COLUMN via_administracion TEXT")
+	a.db.Exec("ALTER TABLE users ADD COLUMN rancho_id TEXT")
 
-	// Insertar usuario administrador por defecto si no existe
-	adminID := uuid.New().String()
+	// Insertar usuario Super Administrador y los Admins de cada rancho
+	superAdminID := uuid.New().String()
+	donPablitoID := uuid.New().String()
+	bugambiliasID := uuid.New().String()
 	hashedPwd, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
 	
 	if a.driverName == "postgres" {
-		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role) VALUES (?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
-			adminID, "admin@sheepmaster.com", string(hashedPwd), "Admin SheepMaster", "Admin")
+		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
+			superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
+		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
+			donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
+		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
+			bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
 	} else {
-		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role) VALUES (?, ?, ?, ?, ?)",
-			adminID, "admin@sheepmaster.com", string(hashedPwd), "Admin SheepMaster", "Admin")
+		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
+			superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
+		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
+			donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
+		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
+			bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
 	}
 
 	// Cargar configuración de Modo Demo
@@ -361,8 +389,21 @@ func (a *App) Login(email, password string) error {
 	}
 
 	fmt.Printf("Login exitoso para %s\n", user.Email)
+	if user.RanchoID == "" {
+		user.RanchoID = user.ID
+	}
 	a.user = &user
 	return nil
+}
+
+func (a *App) tenantID() string {
+	if a.user == nil {
+		return ""
+	}
+	if a.user.RanchoID != "" {
+		return a.user.RanchoID
+	}
+	return a.user.ID
 }
 
 // GetAnimales obtiene la lista de animales para el usuario actual
@@ -371,11 +412,14 @@ func (a *App) GetAnimales() ([]Animal, error) {
 		return nil, fmt.Errorf("no autenticado")
 	}
 
-	rows, err := a.db.Query(a.q(`SELECT id, COALESCE(arete, ''), COALESCE(raza, ''), COALESCE(sexo, ''), COALESCE(fecha_nacimiento, ''), 
+	rows, err := a.db.Query(a.q(`SELECT id, COALESCE(especie, 'Ovino'), COALESCE(arete, ''), COALESCE(raza, ''), COALESCE(sexo, ''), COALESCE(fecha_nacimiento, ''), 
 		COALESCE(estatus, ''), COALESCE(estado_reproductivo, ''), conteo_fetos, COALESCE(corral_id, ''),
 		peso_nacer, peso_destete, COALESCE(padre_id, ''), COALESCE(madre_id, ''), COALESCE(destino, ''),
-		COALESCE(fecha_defuncion, ''), COALESCE(motivo_defuncion, '')
-		FROM animales WHERE user_id = ?`), a.user.ID)
+		COALESCE(fecha_defuncion, ''), COALESCE(motivo_defuncion, ''),
+		COALESCE(abuelo_paterno_id, ''), COALESCE(abuela_paterna_id, ''), COALESCE(abuelo_materno_id, ''), COALESCE(abuela_materna_id, ''),
+		COALESCE(tipo_parto, ''), COALESCE(metodo_concepcion, ''),
+		COALESCE(peso_150_dias, 0), COALESCE(fecha_destete, ''), COALESCE(foto, '')
+		FROM animales WHERE user_id = ?`), a.tenantID())
 	if err != nil {
 		return nil, err
 	}
@@ -384,12 +428,15 @@ func (a *App) GetAnimales() ([]Animal, error) {
 	var animals []Animal
 	for rows.Next() {
 		var animal Animal
-		var arete, raza, sexo, fecha, estatus, repro, corral, padre, madre, destino, fDef, mDef sql.NullString
-		err := rows.Scan(&animal.ID, &arete, &raza, &sexo, &fecha, &estatus, &repro, &animal.ConteoFetos, &corral,
-			&animal.PesoNacer, &animal.PesoDestete, &padre, &madre, &destino, &fDef, &mDef)
+		var especie, arete, raza, sexo, fecha, estatus, repro, corral, padre, madre, destino, fDef, mDef sql.NullString
+		var abPat, abMat, abuelaPat, abuelaMat, tParto, mConcepcion, fDestete, foto sql.NullString
+		err := rows.Scan(&animal.ID, &especie, &arete, &raza, &sexo, &fecha, &estatus, &repro, &animal.ConteoFetos, &corral,
+			&animal.PesoNacer, &animal.PesoDestete, &padre, &madre, &destino, &fDef, &mDef,
+			&abPat, &abuelaPat, &abMat, &abuelaMat, &tParto, &mConcepcion, &animal.Peso150Dias, &fDestete, &foto)
 		if err != nil {
 			return nil, err
 		}
+		animal.Especie = especie.String
 		animal.Arete = arete.String
 		animal.Raza = raza.String
 		animal.Sexo = sexo.String
@@ -402,6 +449,14 @@ func (a *App) GetAnimales() ([]Animal, error) {
 		animal.Destino = destino.String
 		animal.FechaDefuncion = fDef.String
 		animal.MotivoDefuncion = mDef.String
+		animal.AbueloPaternoID = abPat.String
+		animal.AbuelaPaternaID = abuelaPat.String
+		animal.AbueloMaternoID = abMat.String
+		animal.AbuelaMaternaID = abuelaMat.String
+		animal.TipoParto = tParto.String
+		animal.MetodoConcepcion = mConcepcion.String
+		animal.FechaDestete = fDestete.String
+		animal.Foto = foto.String
 		animals = append(animals, animal)
 	}
 	return animals, nil
@@ -415,35 +470,49 @@ func (a *App) AddAnimal(animal Animal) error {
 	if animal.ID == "" {
 		animal.ID = uuid.New().String()
 	}
+	if animal.Especie == "" {
+		animal.Especie = "Ovino"
+	}
 
 	_, err := a.db.Exec(a.q(`INSERT INTO animales 
-		(id, user_id, arete, raza, sexo, fecha_nacimiento, estatus, estado_reproductivo, conteo_fetos, corral_id, 
-		 peso_nacer, peso_destete, padre_id, madre_id, destino, fecha_defuncion, motivo_defuncion) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
-		animal.ID, a.user.ID, animal.Arete, animal.Raza, animal.Sexo, 
+		(id, user_id, especie, arete, raza, sexo, fecha_nacimiento, estatus, estado_reproductivo, conteo_fetos, corral_id, 
+		 peso_nacer, peso_destete, padre_id, madre_id, destino, fecha_defuncion, motivo_defuncion,
+		 abuelo_paterno_id, abuela_paterna_id, abuelo_materno_id, abuela_materna_id, tipo_parto, metodo_concepcion,
+		 peso_150_dias, fecha_destete, foto) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		animal.ID, a.tenantID(), animal.Especie, animal.Especie, animal.Arete, animal.Raza, animal.Sexo, 
 		animal.FechaNacimiento, animal.Estatus, animal.EstadoRepro, 
 		animal.ConteoFetos, animal.CorralID, animal.PesoNacer, animal.PesoDestete,
-		animal.PadreID, animal.MadreID, animal.Destino, animal.FechaDefuncion, animal.MotivoDefuncion)
+		animal.PadreID, animal.MadreID, animal.Destino, animal.FechaDefuncion, animal.MotivoDefuncion,
+		animal.AbueloPaternoID, animal.AbuelaPaternaID, animal.AbueloMaternoID, animal.AbuelaMaternaID, animal.TipoParto, animal.MetodoConcepcion,
+		animal.Peso150Dias, animal.FechaDestete, animal.Foto)
 	return err
 }
 
-// UpdateAnimal actualiza los datos de un animal existente
+// UpdateAnimal actualiza los datos de un animal
 func (a *App) UpdateAnimal(animal Animal) error {
 	if a.user == nil {
 		return fmt.Errorf("no autenticado")
 	}
-	_, err := a.db.Exec(`UPDATE animales SET 
-		arete = ?, raza = ?, sexo = ?, fecha_nacimiento = ?, estatus = ?, 
-		estado_reproductivo = ?, conteo_fetos = ?, corral_id = ?,
+	if animal.Especie == "" {
+		animal.Especie = "Ovino"
+	}
+
+	_, err := a.db.Exec(a.q(`UPDATE animales 
+		SET especie = ?, arete = ?, raza = ?, sexo = ?, fecha_nacimiento = ?, estatus = ?, estado_reproductivo = ?, conteo_fetos = ?, corral_id = ?, 
 		peso_nacer = ?, peso_destete = ?, padre_id = ?, madre_id = ?, 
-		destino = ?, fecha_defuncion = ?, motivo_defuncion = ?
-		WHERE id = ? AND user_id = ?`,
-		animal.Arete, animal.Raza, animal.Sexo, 
+		destino = ?, fecha_defuncion = ?, motivo_defuncion = ?,
+		abuelo_paterno_id = ?, abuela_paterna_id = ?, abuelo_materno_id = ?, abuela_materna_id = ?,
+		tipo_parto = ?, metodo_concepcion = ?, peso_150_dias = ?, fecha_destete = ?, foto = ?
+		WHERE id = ? AND user_id = ?`),
+		animal.Especie, animal.Arete, animal.Raza, animal.Sexo, 
 		animal.FechaNacimiento, animal.Estatus, 
 		animal.EstadoRepro, animal.ConteoFetos, animal.CorralID, 
 		animal.PesoNacer, animal.PesoDestete, animal.PadreID, animal.MadreID,
 		animal.Destino, animal.FechaDefuncion, animal.MotivoDefuncion,
-		animal.ID, a.user.ID)
+		animal.AbueloPaternoID, animal.AbuelaPaternaID, animal.AbueloMaternoID, animal.AbuelaMaternaID,
+		animal.TipoParto, animal.MetodoConcepcion, animal.Peso150Dias, animal.FechaDestete, animal.Foto,
+		animal.ID, a.tenantID())
 	return err
 }
 
@@ -464,7 +533,7 @@ func (a *App) DeleteAnimal(id string) error {
 		_, _ = tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE animal_id = ?", table), id)
 	}
 
-	_, err = tx.Exec(a.q("DELETE FROM animales WHERE id = ? AND user_id = ?"), id, a.user.ID)
+	_, err = tx.Exec(a.q("DELETE FROM animales WHERE id = ? AND user_id = ?"), id, a.tenantID())
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -479,7 +548,7 @@ func (a *App) GetCorrales() ([]Corral, error) {
 		return nil, fmt.Errorf("no autenticado")
 	}
 
-	rows, err := a.db.Query(a.q("SELECT id, nombre, tipo, capacidad FROM corrales WHERE user_id = ? ORDER BY nombre ASC"), a.user.ID)
+	rows, err := a.db.Query(a.q("SELECT id, nombre, tipo, capacidad FROM corrales WHERE user_id = ? ORDER BY nombre ASC"), a.tenantID())
 	if err != nil {
 		return nil, err
 	}
@@ -523,8 +592,8 @@ func (a *App) AddCorral(corral Corral) error {
 		corral.ID = uuid.New().String()
 	}
 
-	_, err := a.db.Exec(a.q("INSERT INTO corrales (id, user_id, nombre, tipo, capacidad) VALUES (?, ?, ?, ?, ?)"),
-		corral.ID, a.user.ID, corral.Nombre, corral.Tipo, corral.Capacidad)
+	_, err := a.db.Exec(a.q("INSERT INTO corrales (id, user_id, nombre, tipo, capacidad) VALUES (?, ?, ?, ?, ?, ?)"),
+		corral.ID, a.tenantID(), corral.Nombre, corral.Tipo, corral.Capacidad)
 	return err
 }
 
@@ -544,8 +613,8 @@ func (a *App) RegistrarEventoReproductivo(event EventoReproductivo) error {
 
 	_, err := a.db.Exec(a.q(`INSERT INTO eventos_reproductivos 
 		(id, user_id, animal_id, tipo, fecha_evento, id_macho, lote_semen, tecnico, protocolo, fecha_probable_parto, resultado)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
-		event.ID, a.user.ID, event.AnimalID, event.Tipo, 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		event.ID, a.tenantID(), event.AnimalID, event.Tipo, 
 		event.FechaEvento, event.IDMacho, event.LoteSemen, 
 		event.Tecnico, event.Protocolo, event.FechaProbableParto, event.Resultado)
 	
@@ -565,16 +634,16 @@ func (a *App) GetStats() (map[string]interface{}, error) {
 	}
 
 	var total int
-	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND estatus = 'Activo'"), a.user.ID).Scan(&total)
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND estatus = 'Activo'"), a.tenantID()).Scan(&total)
 
 	var engorda int
-	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND destino = 'Engorda' AND estatus = 'Activo'"), a.user.ID).Scan(&engorda)
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND destino = 'Engorda' AND estatus = 'Activo'"), a.tenantID()).Scan(&engorda)
 
 	var cria int
-	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND destino = 'Pie de Cría' AND estatus = 'Activo'"), a.user.ID).Scan(&cria)
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND destino = 'Pie de Cría' AND estatus = 'Activo'"), a.tenantID()).Scan(&cria)
 
 	var bajas int
-	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND estatus = 'Baja'"), a.user.ID).Scan(&bajas)
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND estatus = 'Baja'"), a.tenantID()).Scan(&bajas)
 
 	// Corrales con ocupación
 	rows, err := a.db.Query(a.q(`
@@ -583,7 +652,7 @@ func (a *App) GetStats() (map[string]interface{}, error) {
 		LEFT JOIN animales a ON c.id = a.corral_id AND a.estatus = 'Activo'
 		WHERE c.user_id = ? 
 		GROUP BY c.id, c.nombre, c.capacidad
-		ORDER BY c.nombre ASC`), a.user.ID)
+		ORDER BY c.nombre ASC`), a.tenantID())
 	
 	corralesData := []map[string]interface{}{}
 	if err == nil {
@@ -615,7 +684,7 @@ func (a *App) GetStats() (map[string]interface{}, error) {
 		SELECT arete, fecha_nacimiento, 
 		(SELECT IFNULL(MAX(peso), 0) FROM seguimientos_peso WHERE animal_id = a.id) as peso_actual 
 		FROM animales a 
-		WHERE user_id = ? AND destino = 'Engorda' AND estatus = 'Activo'`), a.user.ID)
+		WHERE user_id = ? AND destino = 'Engorda' AND estatus = 'Activo'`), a.tenantID())
 	
 	if err == nil {
 		now := time.Now()
@@ -664,7 +733,7 @@ func (a *App) GetStats() (map[string]interface{}, error) {
 	rowsE, err := a.db.Query(a.q(`
 		SELECT r.diagnostico, r.fecha 
 		FROM recetas_veterinarias r 
-		WHERE r.user_id = ?`), a.user.ID)
+		WHERE r.user_id = ?`), a.tenantID())
 	
 	if err == nil {
 		for rowsE.Next() {
@@ -684,6 +753,22 @@ func (a *App) GetStats() (map[string]interface{}, error) {
 		rowsE.Close()
 	}
 
+	var totalDiag int
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM diagnostico_gestacion WHERE user_id = ?"), a.tenantID()).Scan(&totalDiag)
+	var positivas int
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM diagnostico_gestacion WHERE user_id = ? AND resultado = 1"), a.tenantID()).Scan(&positivas)
+	porcentajeGestacion := float64(0)
+	if totalDiag > 0 {
+		porcentajeGestacion = float64(positivas) / float64(totalDiag) * 100
+	}
+	
+	var partos int
+	a.db.QueryRow(a.q("SELECT COUNT(DISTINCT animal_id) FROM partos WHERE user_id = ?"), a.tenantID()).Scan(&partos)
+	porcentajeParicion := float64(0)
+	if positivas > 0 {
+		porcentajeParicion = float64(partos) / float64(positivas) * 100
+	}
+
 	stats := map[string]interface{}{
 		"total_cabezas": total,
 		"en_engorda":    engorda,
@@ -692,6 +777,8 @@ func (a *App) GetStats() (map[string]interface{}, error) {
 		"corrales":      corralesData,
 		"alertas_venta": alertasVenta,
 		"enfermedades":  enfermedades,
+		"porcentaje_gestacion": porcentajeGestacion,
+		"porcentaje_paricion": porcentajeParicion,
 	}
 	return stats, nil
 }
@@ -715,8 +802,8 @@ func (a *App) ConfirmarUltrasonido(animalID string, preñada bool, fetos int) er
 		taskID := uuid.New().String()
 		vencimiento := time.Now().AddDate(0, 0, 45).Format("2006-01-02")
 		a.db.Exec(a.q(`INSERT INTO tareas (id, user_id, titulo, descripcion, fecha_vencimiento, estatus, prioridad) 
-			VALUES (?, ?, ?, ?, ?, ?, ?)`),
-			taskID, a.user.ID, "REVISIÓN: Segundo Ultrasonido", "Verificar viabilidad fetal del animal "+animalID, vencimiento, "Pendiente", "Media")
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
+			taskID, a.tenantID(), "REVISIÓN: Segundo Ultrasonido", "Verificar viabilidad fetal del animal "+animalID, vencimiento, "Pendiente", "Media")
 	}
 	
 	return err
@@ -736,8 +823,8 @@ func (a *App) MoverAnimal(animalID string, toCorralID string, motivo string) err
 	movID := uuid.New().String()
 	_, err := a.db.Exec(a.q(`INSERT INTO movimientos 
 		(id, user_id, animal_id, corral_previo, corral_nuevo, fecha_movimiento, motivo) 
-		VALUES (?, ?, ?, ?, ?, ?, ?)`),
-		movID, a.user.ID, animalID, fromCorralID, toCorralID, time.Now().Format("2006-01-02"), motivo)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
+		movID, a.tenantID(), animalID, fromCorralID, toCorralID, time.Now().Format("2006-01-02"), motivo)
 	
 	if err != nil {
 		return err
@@ -755,7 +842,7 @@ func (a *App) GetInsumos() ([]Insumo, error) {
 	}
 
 	rows, err := a.db.Query(a.q(`SELECT id, COALESCE(nombre, ''), COALESCE(tipo, ''), COALESCE(unidad, ''), stock_actual, stock_minimo, costo_unitario, dias_retiro, COALESCE(lote, ''), COALESCE(fecha_vencimiento, ''), COALESCE(proveedor, '') 
-		FROM insumos WHERE user_id = ?`), a.user.ID)
+		FROM insumos WHERE user_id = ?`), a.tenantID())
 	if err != nil {
 		return nil, err
 	}
@@ -783,8 +870,8 @@ func (a *App) AddInsumo(i Insumo) error {
 
 	_, err := a.db.Exec(a.q(`INSERT INTO insumos 
 		(id, user_id, nombre, tipo, unidad, stock_actual, stock_minimo, costo_unitario, dias_retiro, lote, fecha_vencimiento, proveedor) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
-		i.ID, a.user.ID, i.Nombre, i.Tipo, i.Unidad, i.StockActual, i.StockMinimo, i.CostoUnitario, i.DiasRetiro, i.Lote, i.FechaVencimiento, i.Proveedor)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		i.ID, a.tenantID(), i.Nombre, i.Tipo, i.Unidad, i.StockActual, i.StockMinimo, i.CostoUnitario, i.DiasRetiro, i.Lote, i.FechaVencimiento, i.Proveedor)
 	return err
 }
 
@@ -817,8 +904,8 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 	// 1. Insertar tratamiento inicial
 	_, err = tx.Exec(a.q(`INSERT INTO tratamientos 
 		(id, user_id, animal_id, insumo_id, dosis, via_administracion, fecha, fecha_fin_retiro, tecnico, observaciones) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
-		t.ID, a.user.ID, t.AnimalID, t.InsumoID, t.Dosis, t.ViaAdministracion,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		t.ID, a.tenantID(), t.AnimalID, t.InsumoID, t.Dosis, t.ViaAdministracion,
 		t.Fecha, t.FechaFinRetiro, t.Tecnico, t.Observaciones)
 	
 	if err != nil {
@@ -837,8 +924,8 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 	movID := uuid.New().String()
 	_, err = tx.Exec(a.q(`INSERT INTO movimientos_insumo 
 		(id, user_id, insumo_id, tipo, cantidad, fecha, motivo, animal_id) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
-		movID, a.user.ID, t.InsumoID, "Salida", t.Dosis, t.Fecha, "Tratamiento Animal", t.AnimalID)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		movID, a.tenantID(), t.InsumoID, "Salida", t.Dosis, t.Fecha, "Tratamiento Animal", t.AnimalID)
 	
 	if err != nil {
 		tx.Rollback()
@@ -855,8 +942,8 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 			
 			_, err = tx.Exec(a.q(`INSERT INTO tareas 
 				(id, user_id, asignado_a, creado_por, titulo, descripcion, estatus, fecha_vencimiento, animal_id, insumo_id, prioridad) 
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
-				taskID, a.user.ID, "", a.user.ID, titulo, desc, "Pendiente", 
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+				taskID, a.tenantID(), "", a.tenantID(), titulo, desc, "Pendiente", 
 				fechaVenc, t.AnimalID, t.InsumoID, "Alta")
 			
 			if err != nil {
@@ -884,8 +971,8 @@ func (a *App) RegistrarParto(p Parto) error {
 	}
 
 	// 1. Insertar en tabla partos
-	_, err = tx.Exec(a.q(`INSERT INTO partos (id, user_id, animal_id, fecha, cantidad_crias, tipo_parto, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)`),
-		p.ID, a.user.ID, p.AnimalID, p.Fecha, p.CantidadCrias, p.TipoParto, p.Observaciones)
+	_, err = tx.Exec(a.q(`INSERT INTO partos (id, user_id, animal_id, fecha, cantidad_crias, tipo_parto, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
+		p.ID, a.tenantID(), p.AnimalID, p.Fecha, p.CantidadCrias, p.TipoParto, p.Observaciones)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -935,8 +1022,8 @@ func (a *App) RegistrarDiagnosticoGestacion(dg DiagnosticoGestacion) error {
 	if dg.ID == "" {
 		dg.ID = uuid.New().String()
 	}
-	_, err := a.db.Exec(a.q(`INSERT INTO diagnostico_gestacion (id, user_id, animal_id, fecha, condicion_corporal, resultado, conteo_fetos, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
-		dg.ID, a.user.ID, dg.AnimalID, dg.Fecha, dg.CondicionCorporal, dg.Resultado, dg.ConteoFetos, dg.Observaciones)
+	_, err := a.db.Exec(a.q(`INSERT INTO diagnostico_gestacion (id, user_id, animal_id, fecha, condicion_corporal, resultado, conteo_fetos, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		dg.ID, a.tenantID(), dg.AnimalID, dg.Fecha, dg.CondicionCorporal, dg.Resultado, dg.ConteoFetos, dg.Observaciones)
 	return err
 }
 
@@ -964,8 +1051,8 @@ func (a *App) CrearRecetaVeterinaria(rv RecetaVeterinaria) error {
 	if rv.ID == "" {
 		rv.ID = uuid.New().String()
 	}
-	_, err := a.db.Exec(a.q(`INSERT INTO recetas_veterinarias (id, user_id, animal_id, mvz, productor, fecha, peso, diagnostico, tratamiento) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`),
-		rv.ID, a.user.ID, rv.AnimalID, rv.MVZ, rv.Productor, time.Now().Format("2006-01-02"), rv.Peso, rv.Diagnostico, rv.Tratamiento)
+	_, err := a.db.Exec(a.q(`INSERT INTO recetas_veterinarias (id, user_id, animal_id, mvz, productor, fecha, peso, diagnostico, tratamiento) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		rv.ID, a.tenantID(), rv.AnimalID, rv.MVZ, rv.Productor, time.Now().Format("2006-01-02"), rv.Peso, rv.Diagnostico, rv.Tratamiento)
 	return err
 }
 
@@ -993,7 +1080,7 @@ func (a *App) GetTareas() ([]Tarea, error) {
 	}
 
 	rows, err := a.db.Query(a.q(`SELECT id, COALESCE(asignado_a, ''), COALESCE(creado_por, ''), COALESCE(titulo, ''), COALESCE(descripcion, ''), COALESCE(estatus, ''), COALESCE(fecha_vencimiento, ''), COALESCE(animal_id, ''), COALESCE(insumo_id, ''), COALESCE(prioridad, '') 
-		FROM tareas WHERE user_id = ? OR asignado_a = ? ORDER BY fecha_vencimiento ASC`), a.user.ID, a.user.ID)
+		FROM tareas WHERE user_id = ? OR asignado_a = ? ORDER BY fecha_vencimiento ASC`), a.tenantID(), a.user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -1025,8 +1112,8 @@ func (a *App) AddTarea(t Tarea) error {
 
 	_, err := a.db.Exec(a.q(`INSERT INTO tareas 
 		(id, user_id, asignado_a, creado_por, titulo, descripcion, estatus, fecha_vencimiento, animal_id, insumo_id, prioridad) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
-		t.ID, a.user.ID, t.AsignadoA, t.CreadoPor, t.Titulo, t.Descripcion, t.Estatus, 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		t.ID, a.tenantID(), t.AsignadoA, t.CreadoPor, t.Titulo, t.Descripcion, t.Estatus, 
 		t.FechaVenc, t.AnimalID, t.InsumoID, t.Prioridad)
 	return err
 }
@@ -1098,11 +1185,18 @@ func parseDate(s string) time.Time {
 
 // GetUsers obtiene todos los usuarios del sistema
 func (a *App) GetUsers() ([]User, error) {
-	if a.user == nil || a.user.Role != "Admin" {
+	if a.user == nil || (a.user.Role != "Admin" && a.user.Role != "SuperAdmin") {
 		return nil, fmt.Errorf("no autorizado")
 	}
 
-	rows, err := a.db.Query(a.q("SELECT id, email, name, role, created_at FROM users"))
+	var rows *sql.Rows
+	var err error
+	if a.user.Role == "SuperAdmin" {
+		rows, err = a.db.Query(a.q("SELECT id, email, name, role, created_at FROM users"))
+	} else {
+		rows, err = a.db.Query(a.q("SELECT id, email, name, role, created_at FROM users WHERE rancho_id = ? OR id = ?"), a.tenantID(), a.tenantID())
+	}
+	
 	if err != nil {
 		return nil, err
 	}
@@ -1123,7 +1217,7 @@ func (a *App) GetUsers() ([]User, error) {
 
 // AddUser registra un nuevo trabajador
 func (a *App) AddUser(u User) error {
-	if a.user == nil || a.user.Role != "Admin" {
+	if a.user == nil || (a.user.Role != "Admin" && a.user.Role != "SuperAdmin") {
 		return fmt.Errorf("no autorizado")
 	}
 
@@ -1136,14 +1230,14 @@ func (a *App) AddUser(u User) error {
 		return err
 	}
 
-	_, err = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role) VALUES (?, ?, ?, ?, ?)"),
-		u.ID, u.Email, string(hashedPwd), u.Name, u.Role)
+	_, err = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?, ?)"),
+		u.ID, u.Email, string(hashedPwd), u.Name, u.Role, a.tenantID())
 	return err
 }
 
 // UpdateUser actualiza datos de un usuario
 func (a *App) UpdateUser(u User) error {
-	if a.user == nil || a.user.Role != "Admin" {
+	if a.user == nil || (a.user.Role != "Admin" && a.user.Role != "SuperAdmin") {
 		return fmt.Errorf("no autorizado")
 	}
 
@@ -1154,7 +1248,7 @@ func (a *App) UpdateUser(u User) error {
 
 // DeleteUser elimina un usuario
 func (a *App) DeleteUser(id string) error {
-	if a.user == nil || a.user.Role != "Admin" {
+	if a.user == nil || (a.user.Role != "Admin" && a.user.Role != "SuperAdmin") {
 		return fmt.Errorf("no autorizado")
 	}
 
@@ -1212,8 +1306,8 @@ func (a *App) AddSeguimientoPeso(sp SeguimientoPeso) error {
 		sp.Fecha = time.Now().Format("2006-01-02")
 	}
 
-	_, err := a.db.Exec(a.q(`INSERT INTO seguimientos_peso (id, user_id, animal_id, fecha, peso, notas) VALUES (?, ?, ?, ?, ?, ?)`),
-		sp.ID, a.user.ID, sp.AnimalID, sp.Fecha, sp.Peso, sp.Notas)
+	_, err := a.db.Exec(a.q(`INSERT INTO seguimientos_peso (id, user_id, animal_id, fecha, peso, notas) VALUES (?, ?, ?, ?, ?, ?, ?)`),
+		sp.ID, a.tenantID(), sp.AnimalID, sp.Fecha, sp.Peso, sp.Notas)
 	return err
 }
 
@@ -1263,7 +1357,7 @@ func (a *App) ImportAnimalsExcelData(data []byte) (int, error) {
 	}
 	defer f.Close()
 
-	return a.processExcel(f, a.user.ID)
+	return a.processExcel(f, a.tenantID())
 }
 
 // processExcel contiene la lógica común para procesar el archivo excelizado
@@ -1331,8 +1425,8 @@ func (a *App) processExcel(f *excelize.File, userID string) (int, error) {
 		destino := "Engorda"
 		if len(row) > 8 { destino = row[8] }
 
-		_, err = tx.Exec(a.q(`INSERT INTO animales (id, user_id, arete, raza, sexo, corral_id, fecha_nacimiento, peso_nacer, padre_id, madre_id, destino, estatus, estado_reproductivo) 
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		_, err = tx.Exec(a.q(`INSERT INTO animales (id, user_id, especie, arete, raza, sexo, corral_id, fecha_nacimiento, peso_nacer, padre_id, madre_id, destino, estatus, estado_reproductivo) 
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 			id, userID, arete, raza, sexo, corral, fechaNac, pesoNacer, padreId, madreId, destino, "Activo", "Crecimiento")
 		
 		if err != nil {
@@ -1360,7 +1454,7 @@ func (a *App) ImportAnimalsExcel(path string) (int, error) {
 	}
 	defer f.Close()
 
-	return a.processExcel(f, a.user.ID)
+	return a.processExcel(f, a.tenantID())
 }
 
 // SyncToJarvis sincroniza los animales locales con el backend central en la nube de JARVIS.

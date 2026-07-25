@@ -34,6 +34,8 @@ export function GetCurrentUser():Promise<main.User>;
 
 export function GetDiagnosticosGestacion(arg1:string):Promise<Array<main.DiagnosticoGestacion>>;
 
+export function GetEventosReproductivos():Promise<Array<main.EventoReproductivo>>;
+
 export function GetHistorialClinico(arg1:string):Promise<Array<Record<string, any>>>;
 
 export function GetInsumos():Promise<Array<main.Insumo>>;

@@ -66,7 +66,48 @@ const Breeding: React.FC<BreedingProps> = ({
                >
                  <option value="Monta Natural">Monta Natural</option>
                  <option value="Inseminación Artificial">I.A (Inseminación Artificial)</option>
+                 <option value="Inducción">Inducción (Tratamiento Hormonal)</option>
+                 <option value="Transferencia de Embriones">Transferencia de Embriones</option>
                </select>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <div className="space-y-2">
+               <label className={`text-xs font-black uppercase tracking-wider px-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                 Fecha del Evento
+               </label>
+               <input 
+                 type="date"
+                 className={`w-full border rounded-2xl px-5 py-4 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                   isDark ? 'bg-slate-950 border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                 }`} 
+                 value={form.fecha_evento} 
+                 onChange={e => {
+                    const newDate = e.target.value;
+                    let probableParto = '';
+                    if (newDate) {
+                        const d = new Date(newDate);
+                        d.setDate(d.getDate() + 150); // Gestación 150 días
+                        probableParto = d.toISOString().split('T')[0];
+                    }
+                    setForm({...form, fecha_evento: newDate, fecha_probable_parto: probableParto});
+                 }}
+               />
+             </div>
+
+             <div className="space-y-2">
+               <label className={`text-xs font-black uppercase tracking-wider px-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                 Fecha Probable de Parto (+150 días)
+               </label>
+               <input 
+                 type="date"
+                 readOnly
+                 className={`w-full border rounded-2xl px-5 py-4 font-bold text-sm focus:outline-none opacity-80 ${
+                   isDark ? 'bg-slate-900 border-slate-700 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-500'
+                 }`} 
+                 value={form.fecha_probable_parto || ''} 
+               />
              </div>
           </div>
 

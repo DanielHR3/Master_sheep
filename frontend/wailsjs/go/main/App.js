@@ -66,6 +66,10 @@ export function GetDiagnosticosGestacion(arg1) {
   return window['go']['main']['App']['GetDiagnosticosGestacion'](arg1);
 }
 
+export function GetEventosReproductivos() {
+  return window['go']['main']['App']['GetEventosReproductivos']();
+}
+
 export function GetHistorialClinico(arg1) {
   return window['go']['main']['App']['GetHistorialClinico'](arg1);
 }
