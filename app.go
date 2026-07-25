@@ -537,6 +537,11 @@ func (a *App) DeleteAnimal(id string) error {
 		_, _ = tx.Exec(a.q(fmt.Sprintf("DELETE FROM %s WHERE animal_id = ?", table)), id)
 	}
 
+	// Limpiar referencias donde este animal sea padre, madre o semental
+	_, _ = tx.Exec(a.q("UPDATE animales SET padre_id = '' WHERE padre_id = ?"), id)
+	_, _ = tx.Exec(a.q("UPDATE animales SET madre_id = '' WHERE madre_id = ?"), id)
+	_, _ = tx.Exec(a.q("UPDATE eventos_reproductivos SET id_macho = '' WHERE id_macho = ?"), id)
+
 	_, err = tx.Exec(a.q("DELETE FROM animales WHERE id = ? AND user_id = ?"), id, a.tenantID())
 	if err != nil {
 		tx.Rollback()
