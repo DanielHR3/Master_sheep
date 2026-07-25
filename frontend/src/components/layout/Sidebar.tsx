@@ -26,9 +26,8 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLogout, user, isCollapsed, toggleCollapse }) => {
   const isDark = theme === 'dark';
-  const isBugambilias = import.meta.env.VITE_APP_CLIENT_TYPE === 'BUGAMBILIAS';
-  const logoSrc = isBugambilias ? '/logo_bugambilias.jpg' : '/logo.png';
-  const ranchoName = isBugambilias ? 'RANCHO LAS BUGAMBILIAS' : 'RANCHO DON PABLITO';
+  const logoSrc = '/logo_bugambilias.jpg';
+  const ranchoName = 'RANCHO LAS BUGAMBILIAS';
 
   return (
     <aside className={`fixed left-0 top-0 h-full z-40 hidden md:block border-r transition-all duration-500 ease-in-out ${
