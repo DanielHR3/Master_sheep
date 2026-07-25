@@ -46,6 +46,10 @@ export function DeleteAnimal(arg1) {
   return window['go']['main']['App']['DeleteAnimal'](arg1);
 }
 
+export function DeleteCorral(arg1) {
+  return window['go']['main']['App']['DeleteCorral'](arg1);
+}
+
 export function DeleteUser(arg1) {
   return window['go']['main']['App']['DeleteUser'](arg1);
 }

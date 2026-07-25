@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Warehouse } from 'lucide-react';
+import { Plus, Warehouse, Trash2 } from 'lucide-react';
 import { main } from "../../wailsjs/go/models";
 
 interface CorralesProps {
@@ -7,10 +7,11 @@ interface CorralesProps {
   animals: main.Animal[];
   theme: string;
   onAddCorral: () => void;
+  onDeleteCorral: (id: string) => void;
   user: any;
 }
 
-const Corrales: React.FC<CorralesProps> = ({ corrales, animals, theme, onAddCorral, user }) => {
+const Corrales: React.FC<CorralesProps> = ({ corrales, animals, theme, onAddCorral, onDeleteCorral, user }) => {
   return (
     <div className="space-y-10 pt-10 animate-in slide-in-from-right-8 duration-700">
       <div className="flex justify-between items-center">
@@ -42,9 +43,21 @@ const Corrales: React.FC<CorralesProps> = ({ corrales, animals, theme, onAddCorr
                 <div className="p-4 bg-slate-950 rounded-[20px]">
                   <Warehouse size={24} className="text-6666-cream" />
                 </div>
-                <span className={`px-3 py-1 rounded-lg text-[10px] font-black h-fit ${percentage > 90 ? 'bg-rose-500/20 text-rose-500' : 'bg-emerald-500/20 text-emerald-500'}`}>
-                  {percentage.toFixed(0)}%
-                </span>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => {
+                      if(confirm(`¿Estás seguro de eliminar el corral ${corral.nombre}? Los animales asignados quedarán sin corral.`)) {
+                        onDeleteCorral(corral.id);
+                      }
+                    }}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                  <span className={`px-3 py-1 rounded-lg text-[10px] font-black h-fit ${percentage > 90 ? 'bg-rose-500/20 text-rose-500' : 'bg-emerald-500/20 text-emerald-500'}`}>
+                    {percentage.toFixed(0)}%
+                  </span>
+                </div>
               </div>
               <h4 className="text-3xl font-black font-display tracking-tight text-white mb-2">{corral.nombre}</h4>
               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Capacidad: {corral.capacidad} Animales</p>
