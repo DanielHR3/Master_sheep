@@ -32,7 +32,7 @@ const Login: React.FC<LoginProps> = ({
       <div className="w-full max-w-md p-10 bg-clay/50 backdrop-blur-3xl border border-white/10 rounded-[60px] shadow-3xl relative z-10 text-center mx-4">
         
         <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-3xl mb-8 flex items-center justify-center border border-white/20 shadow-2xl p-2 transform rotate-3">
-          <img src={import.meta.env.VITE_APP_CLIENT_TYPE === 'BUGAMBILIAS' ? 'logo_bugambilias.jpg' : 'logo.png'} alt="Logo" className="w-full h-full object-contain" />
+          <img src="logo.png" alt="Logo" className="w-full h-full object-contain" />
         </div>
         
         <h2 translate="no" className="text-5xl font-black text-white font-display mb-12 tracking-tighter leading-none uppercase">
