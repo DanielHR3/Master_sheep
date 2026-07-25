@@ -56,7 +56,11 @@ async function callApi(endpoint: string, method: string = 'GET', body?: any) {
     throw new Error(errorMsg.trim());
   }
 
-  return response.json();
+  const responseText = await response.text();
+  if (!responseText || responseText.trim() === '') {
+    return { success: true };
+  }
+  return JSON.parse(responseText);
 }
 
 // --- Funciones de la API ---
