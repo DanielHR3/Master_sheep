@@ -133,6 +133,18 @@ func (a *App) handleAnimals(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
+	case http.MethodDelete:
+		id := r.URL.Query().Get("id")
+		if id == "" {
+			http.Error(w, "Falta id", http.StatusBadRequest)
+			return
+		}
+		err := a.DeleteAnimal(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 	default:
 		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
 	}
