@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Camera, Image as ImageIcon, Link as LinkIcon, UploadCloud, X } from 'lucide-react';
 
 interface ImageUploadProps {
@@ -10,8 +10,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInput, setUrlInput] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const processFile = (file: File) => {
     if (!file || !file.type.startsWith('image/')) return;
@@ -106,15 +104,28 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange }) => {
       {!showUrlInput ? (
         <div className="flex flex-col items-center gap-3">
           <div className="flex items-center justify-center gap-4 text-slate-400">
-            <button type="button" onClick={() => fileInputRef.current?.click()} className="flex flex-col items-center gap-1 hover:text-emerald-400 transition-colors p-2">
+            <label className="flex flex-col items-center gap-1 hover:text-emerald-400 transition-colors p-2 cursor-pointer">
               <UploadCloud size={24} />
               <span className="text-[10px] uppercase font-bold">Subir Archivo</span>
-            </button>
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                onChange={(e) => { if (e.target.files?.length) processFile(e.target.files[0]); }} 
+              />
+            </label>
             <div className="w-px h-8 bg-slate-700"></div>
-            <button type="button" onClick={() => cameraInputRef.current?.click()} className="flex flex-col items-center gap-1 hover:text-emerald-400 transition-colors p-2">
+            <label className="flex flex-col items-center gap-1 hover:text-emerald-400 transition-colors p-2 cursor-pointer">
               <Camera size={24} />
               <span className="text-[10px] uppercase font-bold">Tomar Foto</span>
-            </button>
+              <input 
+                type="file" 
+                accept="image/*" 
+                capture="environment" 
+                className="hidden" 
+                onChange={(e) => { if (e.target.files?.length) processFile(e.target.files[0]); }} 
+              />
+            </label>
             <div className="w-px h-8 bg-slate-700"></div>
             <button type="button" onClick={() => setShowUrlInput(true)} className="flex flex-col items-center gap-1 hover:text-emerald-400 transition-colors p-2">
               <LinkIcon size={24} />
@@ -143,23 +154,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange }) => {
           </button>
         </form>
       )}
-
-      {/* Hidden Inputs */}
-      <input 
-        type="file" 
-        accept="image/*" 
-        className="hidden" 
-        ref={fileInputRef} 
-        onChange={(e) => { if (e.target.files?.length) processFile(e.target.files[0]); }} 
-      />
-      <input 
-        type="file" 
-        accept="image/*" 
-        capture="environment" 
-        className="hidden" 
-        ref={cameraInputRef} 
-        onChange={(e) => { if (e.target.files?.length) processFile(e.target.files[0]); }} 
-      />
     </div>
   );
 };
