@@ -2,6 +2,7 @@ export namespace main {
 	
 	export class Animal {
 	    id: string;
+	    especie: string;
 	    arete: string;
 	    raza: string;
 	    sexo: string;
@@ -15,9 +16,18 @@ export namespace main {
 	    peso_destete: number;
 	    padre_id: string;
 	    madre_id: string;
+	    abuelo_paterno_id: string;
+	    abuela_paterna_id: string;
+	    abuelo_materno_id: string;
+	    abuela_materna_id: string;
+	    tipo_parto: string;
+	    metodo_concepcion: string;
 	    destino: string;
 	    fecha_defuncion: string;
 	    motivo_defuncion: string;
+	    fecha_destete: string;
+	    peso_150_dias: number;
+	    foto: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Animal(source);
@@ -26,6 +36,7 @@ export namespace main {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
+	        this.especie = source["especie"];
 	        this.arete = source["arete"];
 	        this.raza = source["raza"];
 	        this.sexo = source["sexo"];
@@ -39,9 +50,18 @@ export namespace main {
 	        this.peso_destete = source["peso_destete"];
 	        this.padre_id = source["padre_id"];
 	        this.madre_id = source["madre_id"];
+	        this.abuelo_paterno_id = source["abuelo_paterno_id"];
+	        this.abuela_paterna_id = source["abuela_paterna_id"];
+	        this.abuelo_materno_id = source["abuelo_materno_id"];
+	        this.abuela_materna_id = source["abuela_materna_id"];
+	        this.tipo_parto = source["tipo_parto"];
+	        this.metodo_concepcion = source["metodo_concepcion"];
 	        this.destino = source["destino"];
 	        this.fecha_defuncion = source["fecha_defuncion"];
 	        this.motivo_defuncion = source["motivo_defuncion"];
+	        this.fecha_destete = source["fecha_destete"];
+	        this.peso_150_dias = source["peso_150_dias"];
+	        this.foto = source["foto"];
 	    }
 	}
 	export class Corral {
@@ -288,6 +308,7 @@ export namespace main {
 	    name: string;
 	    password?: string;
 	    role: string;
+	    rancho_id: string;
 	    // Go type: time
 	    created_at: any;
 	
@@ -302,6 +323,7 @@ export namespace main {
 	        this.name = source["name"];
 	        this.password = source["password"];
 	        this.role = source["role"];
+	        this.rancho_id = source["rancho_id"];
 	        this.created_at = this.convertValues(source["created_at"], null);
 	    }
 	

@@ -22,6 +22,7 @@ interface InventoryProps {
   onDeleteAnimal: (id: string) => void;
   onAddWeight: (animal: main.Animal) => void;
   onViewWeights: (animal: main.Animal) => void;
+  onViewGenealogy: (animal: main.Animal) => void;
   onImportExcel: () => void;
   user: any;
 }
@@ -41,6 +42,7 @@ const Inventory: React.FC<InventoryProps> = ({
   onDeleteAnimal, 
   onAddWeight, 
   onViewWeights, 
+  onViewGenealogy,
   onImportExcel,
   user
 }) => {
@@ -125,6 +127,7 @@ const Inventory: React.FC<InventoryProps> = ({
               onDelete={() => onDeleteAnimal(a.id)} 
               onAddWeight={() => onAddWeight(a)} 
               onViewWeights={() => onViewWeights(a)} 
+              onViewGenealogy={() => onViewGenealogy(a)}
               isAdmin={user?.role === 'Admin'}
             />
           ))}

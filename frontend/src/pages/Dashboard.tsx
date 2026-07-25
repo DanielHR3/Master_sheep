@@ -99,19 +99,21 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
       </div>
 
       {/* KPIs SUPERIORES */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
         {[
           { label: 'Total Hato', value: stats?.total_cabezas || 0, icon: Users, color: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20' },
           { label: 'En Engorda', value: stats?.en_engorda || 0, icon: TrendingUp, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
           { label: 'Pie de Cría', value: stats?.pie_de_cria || 0, icon: Award, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
           { label: 'Bajas', value: stats?.bajas || 0, icon: AlertTriangle, color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
+          { label: '% Gestación', value: `${(stats?.porcentaje_gestacion || 0).toFixed(1)}%`, icon: Award, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
+          { label: '% Parición', value: `${(stats?.porcentaje_paricion || 0).toFixed(1)}%`, icon: Award, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
         ].map((kpi, idx) => (
-          <div key={idx} className={`p-6 rounded-[32px] border transition-all hover:scale-[1.01] ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
-            <div className={`p-3.5 rounded-2xl w-fit mb-3 border ${kpi.bg}`}>
-              <kpi.icon size={22} className={kpi.color} />
+          <div key={idx} className={`p-4 rounded-3xl border transition-all hover:scale-[1.01] ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
+            <div className={`p-2.5 rounded-xl w-fit mb-2 border ${kpi.bg}`}>
+              <kpi.icon size={18} className={kpi.color} />
             </div>
-            <p className={`font-black uppercase text-xs tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{kpi.label}</p>
-            <h3 className={`text-4xl font-black tracking-tight mt-1 font-display ${isDark ? 'text-white' : 'text-slate-900'}`}>{kpi.value || 0}</h3>
+            <p className={`font-black uppercase text-[10px] tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{kpi.label}</p>
+            <h3 className={`text-2xl font-black tracking-tight mt-1 font-display ${isDark ? 'text-white' : 'text-slate-900'}`}>{kpi.value || 0}</h3>
           </div>
         ))}
       </div>

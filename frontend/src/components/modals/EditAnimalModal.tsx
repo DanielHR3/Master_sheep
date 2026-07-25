@@ -139,6 +139,60 @@ const EditAnimalModal: React.FC<EditAnimalModalProps> = ({ show, onClose, form, 
                 <option value="Semental">Semental</option>
               </select>
             </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase ml-2 flex items-center gap-2">
+                Método de Concepción
+              </label>
+              <select
+                className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-white focus:outline-none focus:border-antique-brass/50 transition-all font-bold"
+                value={form.metodo_concepcion || ''}
+                onChange={e => setForm({ ...form, metodo_concepcion: e.target.value } as main.Animal)}
+              >
+                <option value="">Seleccionar...</option>
+                <option value="Monta Natural">Monta Natural</option>
+                <option value="Inseminación Artificial">Inseminación Artificial</option>
+                <option value="Inducción">Inducción (Hormonal)</option>
+                <option value="Transferencia de Embriones">Transferencia de Embriones</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase ml-2 flex items-center gap-2">
+                Fecha de Destete
+              </label>
+              <input
+                type="date"
+                className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-white focus:outline-none focus:border-antique-brass/50 transition-all font-bold"
+                value={form.fecha_destete || ''}
+                onChange={e => setForm({ ...form, fecha_destete: e.target.value } as main.Animal)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase ml-2 flex items-center gap-2">
+                Peso 150 días (kg)
+              </label>
+              <input
+                type="number"
+                className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-white focus:outline-none focus:border-antique-brass/50 transition-all font-bold"
+                value={form.peso_150_dias || ''}
+                onChange={e => setForm({ ...form, peso_150_dias: parseFloat(e.target.value) || 0 } as main.Animal)}
+              />
+            </div>
+            
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase ml-2 flex items-center gap-2">
+                Foto (URL o Archivo)
+              </label>
+              <input
+                type="text"
+                placeholder="https://... o foto.jpg"
+                className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-white focus:outline-none focus:border-antique-brass/50 transition-all font-bold"
+                value={form.foto || ''}
+                onChange={e => setForm({ ...form, foto: e.target.value } as main.Animal)}
+              />
+            </div>
           </div>
         </div>
 

@@ -15,12 +15,14 @@ import Snackbar from './components/ui/Snackbar';
 import AddAnimalModal from './components/modals/AddAnimalModal';
 import AddCorralModal from './components/modals/AddCorralModal';
 import TreatmentModal from './components/modals/TreatmentModal';
+import ProlapsoHerniaModal from './components/modals/ProlapsoHerniaModal';
 import WeightModal from './components/modals/WeightModal';
 import WeightHistoryModal from './components/modals/WeightHistoryModal';
 import AddInsumoModal from './components/modals/AddInsumoModal';
 import EditAnimalModal from './components/modals/EditAnimalModal';
 import ClinicalHistoryModal from './components/modals/ClinicalHistoryModal';
 import PartoModal from './components/modals/PartoModal';
+import GenealogyModal from './components/modals/GenealogyModal';
 import ConfirmModal from './components/modals/ConfirmModal';
 import ChangePasswordModal from './components/modals/ChangePasswordModal';
 
@@ -38,6 +40,7 @@ import Reports from './pages/Reports';
 function App() {
   const store = useStore();
   const { state, actions, refs } = useAppLogic();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
 
   React.useEffect(() => {
     const root = document.documentElement;
@@ -107,6 +110,7 @@ function App() {
           onDeleteAnimal={actions.handleDeleteAnimal} 
           onAddWeight={(a) => { state.setSelectedAnimal(a); state.modals.setShowWeightModal(true); }} 
           onViewWeights={actions.handleViewWeights} 
+          onViewGenealogy={(a) => { state.setSelectedAnimal(a); state.modals.setShowGenealogy(true); }}
           onImportExcel={actions.handleImportExcel}
         />;
       case 'corrales':
@@ -154,9 +158,17 @@ function App() {
         </div>
       )}
       
-      <Sidebar activeTab={store.activeTab} setActiveTab={store.setActiveTab} theme={store.theme} onLogout={actions.handleLogout} user={store.currentUser} />
+      <Sidebar 
+        activeTab={store.activeTab} 
+        setActiveTab={store.setActiveTab} 
+        theme={store.theme} 
+        onLogout={actions.handleLogout} 
+        user={store.currentUser} 
+        isCollapsed={isSidebarCollapsed}
+        toggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      />
 
-      <main className="md:ml-80 flex-1 p-6 md:p-12 pb-32 md:pb-12 max-w-7xl mx-auto w-full">
+      <main className={`transition-all duration-500 ease-in-out ${isSidebarCollapsed ? 'md:ml-24' : 'md:ml-80'} flex-1 p-6 md:p-12 pb-32 md:pb-12 max-w-7xl mx-auto w-full`}>
         {renderContent()}
       </main>
 
@@ -190,6 +202,15 @@ function App() {
         setForm={state.setTreatmentForm} 
         onRegister={actions.handleRegisterTreatment} 
         insumos={store.insumos} 
+      />
+
+      <ProlapsoHerniaModal 
+        show={state.modals.showProlapsoModal} 
+        onClose={() => state.modals.setShowProlapsoModal(false)} 
+        selectedAnimal={state.selectedAnimal} 
+        form={state.prolapsoForm} 
+        setForm={state.setProlapsoForm} 
+        onRegister={actions.handleRegisterProlapso} 
       />
 
       <WeightModal 
@@ -255,6 +276,14 @@ function App() {
         form={state.changePasswordForm} 
         setForm={state.setChangePasswordForm} 
         onUpdate={actions.handleChangePassword} 
+      />
+
+      <GenealogyModal 
+        show={state.modals.showGenealogy} 
+        onClose={() => state.modals.setShowGenealogy(false)} 
+        animal={state.selectedAnimal} 
+        animals={store.animals}
+        theme={store.theme} 
       />
     </div>
   );

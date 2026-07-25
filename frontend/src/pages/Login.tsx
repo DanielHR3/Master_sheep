@@ -31,8 +31,8 @@ const Login: React.FC<LoginProps> = ({
       
       <div className="w-full max-w-md p-10 bg-clay/50 backdrop-blur-3xl border border-white/10 rounded-[60px] shadow-3xl relative z-10 text-center mx-4">
         
-        <div className="w-20 h-20 bg-6666-maroon rounded-[32px] rotate-12 flex items-center justify-center mx-auto mb-10 shadow-3xl shadow-6666-maroon/30 border border-white/10 overflow-hidden p-3 mt-4">
-          <img src="logo.png" alt="SheepMaster Logo" className="w-full h-full object-contain -rotate-12" />
+        <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-3xl mb-8 flex items-center justify-center border border-white/20 shadow-2xl p-2 transform rotate-3">
+          <img src="logo_bugambilias.jpg" alt="Bugambilias Logo" className="w-full h-full object-contain" />
         </div>
         
         <h2 translate="no" className="text-5xl font-black text-white font-display mb-12 tracking-tighter leading-none uppercase">
@@ -46,7 +46,7 @@ const Login: React.FC<LoginProps> = ({
               placeholder="Correo Corporativo" 
               className="w-full bg-slate-950 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold focus:outline-none focus:ring-2 focus:ring-6666-maroon/50" 
               value={email} 
-              onChange={e => setEmail(e.target.value)} 
+              onChange={e => setEmail(e.target.value.trim())} 
             />
              <div className="relative group">
                <input 
@@ -54,7 +54,7 @@ const Login: React.FC<LoginProps> = ({
                 placeholder="Contraseña" 
                 className="w-full bg-slate-950 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold pr-14 focus:outline-none focus:ring-2 focus:ring-6666-maroon/50" 
                 value={password} 
-                onChange={e => setPassword(e.target.value)} 
+                onChange={e => setPassword(e.target.value.trim())} 
               />
               <button
                 type="button"

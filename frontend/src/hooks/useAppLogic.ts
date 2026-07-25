@@ -85,7 +85,8 @@ export const useAppLogic = () => {
     tecnico: '',
     protocolo: '',
     fecha_evento: new Date().toISOString().split('T')[0],
-    fecha_fin_monta: ''
+    fecha_fin_monta: '',
+    fecha_probable_parto: ''
   });
   const [partoForm, setPartoForm] = useState({
     animal_id: '',
@@ -93,6 +94,7 @@ export const useAppLogic = () => {
     observaciones: ''
   });
   const [weightForm, setWeightForm] = useState({ peso: 0, fecha: new Date().toISOString().split('T')[0], notas: '' });
+  const [prolapsoForm, setProlapsoForm] = useState({ diagnostico: '', mvz: '', fecha: new Date().toISOString().split('T')[0], tratamiento: '' });
 
   // Modal Control (moved to store for global access, but kept here for logical grouping)
   const [showAddAnimal, setShowAddAnimal] = useState(false);
@@ -108,6 +110,8 @@ export const useAppLogic = () => {
   const [weightHistory, setWeightHistory] = useState<main.SeguimientoPeso[]>([]);
   const [showEditAnimal, setShowEditAnimal] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showGenealogy, setShowGenealogy] = useState(false);
+  const [showProlapsoModal, setShowProlapsoModal] = useState(false);
 
   useEffect(() => {
     if (store.isLoggedIn) {
@@ -309,6 +313,29 @@ export const useAppLogic = () => {
     }
   };
 
+  const handleRegisterProlapso = async () => {
+    if (!selectedAnimal) return;
+    if (!prolapsoForm.diagnostico) return alert("Seleccione el tipo de incidencia");
+    try {
+      const p = main.RecetaVeterinaria.createFrom({
+        animal_id: selectedAnimal.id,
+        mvz: prolapsoForm.mvz,
+        fecha: prolapsoForm.fecha,
+        peso: 0,
+        diagnostico: prolapsoForm.diagnostico,
+        tratamiento: prolapsoForm.tratamiento,
+        productor: store.currentUser?.name || ''
+      });
+      await CrearRecetaVeterinaria(p);
+      setShowProlapsoModal(false);
+      setProlapsoForm({ diagnostico: '', mvz: '', fecha: new Date().toISOString().split('T')[0], tratamiento: '' });
+      store.setNotification({ message: "¡Registro guardado exitosamente!", type: 'success' });
+      refreshData();
+    } catch (err) {
+      alert("Error al registrar incidencia: " + err);
+    }
+  };
+
   const handleRegisterBreeding = async () => {
     if (!breedingForm.animal_id) return alert("Seleccione un animal");
     try {
@@ -461,6 +488,7 @@ export const useAppLogic = () => {
       breedingForm, setBreedingForm,
       partoForm, setPartoForm,
       weightForm, setWeightForm,
+      prolapsoForm, setProlapsoForm,
       selectedAnimal, setSelectedAnimal,
       weightHistory, setWeightHistory,
       modals: {
@@ -475,6 +503,8 @@ export const useAppLogic = () => {
         showWeightHistory, setShowWeightHistory,
         showEditAnimal, setShowEditAnimal,
         showChangePassword, setShowChangePassword,
+        showGenealogy, setShowGenealogy,
+        showProlapsoModal, setShowProlapsoModal,
       }
     },
     actions: {
@@ -487,6 +517,7 @@ export const useAppLogic = () => {
       handleAddInsumo,
       handleAddCorral,
       handleRegisterTreatment,
+      handleRegisterProlapso,
       handleRegisterParto,
       handleOpenPartoModal,
       handleRegisterBreeding,

@@ -11,6 +11,7 @@ type Corral struct {
 
 type Animal struct {
         ID                string    `json:"id"`
+        Especie           string    `json:"especie"`
         Arete             string    `json:"arete"`
         Raza              string    `json:"raza"`
         Sexo              string    `json:"sexo"`
@@ -24,9 +25,18 @@ type Animal struct {
         PesoDestete       float64   `json:"peso_destete"`
         PadreID           string    `json:"padre_id"`
         MadreID           string    `json:"madre_id"`
+        AbueloPaternoID   string    `json:"abuelo_paterno_id"`
+        AbuelaPaternaID   string    `json:"abuela_paterna_id"`
+        AbueloMaternoID   string    `json:"abuelo_materno_id"`
+        AbuelaMaternaID   string    `json:"abuela_materna_id"`
+        TipoParto         string    `json:"tipo_parto"`
+        MetodoConcepcion  string    `json:"metodo_concepcion"`
         Destino           string    `json:"destino"` // 'Cria', 'Engorda'
         FechaDefuncion    string    `json:"fecha_defuncion"`
         MotivoDefuncion   string    `json:"motivo_defuncion"`
+        FechaDestete      string    `json:"fecha_destete"`
+        Peso150Dias       float64   `json:"peso_150_dias"`
+        Foto              string    `json:"foto"`
 }
 
 type SeguimientoPeso struct {
@@ -104,12 +114,13 @@ type Tarea struct {
 }
 
 type User struct {
-        ID        string    `json:"id"`
-        Email     string    `json:"email"`
-        Name      string    `json:"name"`
-        Password  string    `json:"password,omitempty"`
-        Role      string    `json:"role"`
-        CreatedAt time.Time `json:"created_at"`
+	ID        string    `json:"id"`
+	Email     string    `json:"email"`
+	Name      string    `json:"name"`
+	Password  string    `json:"password,omitempty"`
+	Role      string    `json:"role"`
+	RanchoID  string    `json:"rancho_id"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type DiagnosticoGestacion struct {
