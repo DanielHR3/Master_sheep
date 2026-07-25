@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { main } from "../../wailsjs/go/models";
 
 interface AppState {
@@ -39,37 +40,50 @@ interface AppState {
   setHistorialClinico: (history: any[]) => void;
 }
 
-export const useStore = create<AppState>((set) => ({
-  activeTab: 'dashboard',
-  subTab: 'animals',
-  theme: 'light',
-  loading: false,
-  isLoggedIn: false,
-  isDemo: false,
-  notification: null,
-  
-  stats: { total_cabezas: 0, fertilidad: 0, corrales: [] },
-  animals: [],
-  corrales: [],
-  insumos: [],
-  tareas: [],
-  users: [],
-  currentUser: null,
-  historialClinico: [],
+export const useStore = create<AppState>()(
+  persist(
+    (set) => ({
+      activeTab: 'dashboard',
+      subTab: 'animals',
+      theme: 'light',
+      loading: false,
+      isLoggedIn: false,
+      isDemo: false,
+      notification: null,
+      
+      stats: { total_cabezas: 0, fertilidad: 0, corrales: [] },
+      animals: [],
+      corrales: [],
+      insumos: [],
+      tareas: [],
+      users: [],
+      currentUser: null,
+      historialClinico: [],
 
-  setActiveTab: (activeTab) => set({ activeTab }),
-  setSubTab: (subTab) => set({ subTab }),
-  setTheme: (theme) => set({ theme }),
-  setLoading: (loading) => set({ loading }),
-  setIsLoggedIn: (isLoggedIn) => set({ isLoggedIn }),
-  setIsDemo: (isDemo) => set({ isDemo }),
-  setNotification: (notification) => set({ notification }),
-  setStats: (stats) => set({ stats }),
-  setAnimals: (animals) => set({ animals }),
-  setCorrales: (corrales) => set({ corrales }),
-  setInsumos: (insumos) => set({ insumos }),
-  setTareas: (tareas) => set({ tareas }),
-  setUsers: (users) => set({ users }),
-  setCurrentUser: (currentUser) => set({ currentUser }),
-  setHistorialClinico: (historialClinico) => set({ historialClinico }),
-}));
+      setActiveTab: (activeTab) => set({ activeTab }),
+      setSubTab: (subTab) => set({ subTab }),
+      setTheme: (theme) => set({ theme }),
+      setLoading: (loading) => set({ loading }),
+      setIsLoggedIn: (isLoggedIn) => set({ isLoggedIn }),
+      setIsDemo: (isDemo) => set({ isDemo }),
+      setNotification: (notification) => set({ notification }),
+      setStats: (stats) => set({ stats }),
+      setAnimals: (animals) => set({ animals }),
+      setCorrales: (corrales) => set({ corrales }),
+      setInsumos: (insumos) => set({ insumos }),
+      setTareas: (tareas) => set({ tareas }),
+      setUsers: (users) => set({ users }),
+      setCurrentUser: (currentUser) => set({ currentUser }),
+      setHistorialClinico: (historialClinico) => set({ historialClinico }),
+    }),
+    {
+      name: 'sheepmaster-storage',
+      partialize: (state) => ({ 
+        isLoggedIn: state.isLoggedIn, 
+        currentUser: state.currentUser, 
+        theme: state.theme,
+        activeTab: state.activeTab 
+      }),
+    }
+  )
+);
