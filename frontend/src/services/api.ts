@@ -204,7 +204,7 @@ export const UpdateAnimal = async (animal: any) => {
 
 export const DeleteAnimal = async (id: string) => {
   if (IS_WAILS) return WailsApp.DeleteAnimal(id);
-  return;
+  return callApi(`/animals?id=${id}`, 'DELETE');
 };
 
 export const GetCurrentUser = async () => {
