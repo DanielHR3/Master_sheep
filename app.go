@@ -528,9 +528,13 @@ func (a *App) DeleteAnimal(id string) error {
 	}
 
 	// Eliminar de todas las tablas relacionadas para evitar huérfanos
-	tables := []string{"tratamientos", "eventos_reproductivos", "tareas", "movimientos", "diagnostico_gestacion", "partos", "recetas_veterinarias"}
+	tables := []string{
+		"tratamientos", "eventos_reproductivos", "tareas", "movimientos", 
+		"diagnostico_gestacion", "partos", "recetas_veterinarias", 
+		"seguimientos_peso", "movimientos_insumo",
+	}
 	for _, table := range tables {
-		_, _ = tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE animal_id = ?", table), id)
+		_, _ = tx.Exec(a.q(fmt.Sprintf("DELETE FROM %s WHERE animal_id = ?", table)), id)
 	}
 
 	_, err = tx.Exec(a.q("DELETE FROM animales WHERE id = ? AND user_id = ?"), id, a.tenantID())
