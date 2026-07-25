@@ -26,7 +26,10 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLogout, user, isCollapsed, toggleCollapse }) => {
   const isDark = theme === 'dark';
-  const isBugambilias = user?.email?.toLowerCase().includes('bugambilias') || import.meta.env.VITE_APP_CLIENT_TYPE === 'BUGAMBILIAS';
+  const isBugambilias = (user?.email?.toLowerCase() || '').includes('bugambilias') 
+    || (user?.name?.toLowerCase() || '').includes('bugambilias') 
+    || (user?.rancho_id?.toLowerCase() || '').includes('bugambilias')
+    || import.meta.env.VITE_APP_CLIENT_TYPE === 'BUGAMBILIAS';
   const logoSrc = isBugambilias ? '/logo_bugambilias.jpg' : '/logo.png';
   const ranchoName = isBugambilias ? 'RANCHO LAS BUGAMBILIAS' : 'RANCHO DON PABLITO';
 
