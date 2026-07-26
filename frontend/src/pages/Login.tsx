@@ -46,7 +46,7 @@ const Login: React.FC<LoginProps> = ({
               placeholder="Correo Corporativo" 
               className="w-full bg-slate-950 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold focus:outline-none focus:ring-2 focus:ring-6666-maroon/50" 
               value={email} 
-              onChange={e => setEmail(e.target.value.trim())} 
+              onChange={e => setEmail(e.target.value.replace(/\s/g, ''))} 
             />
              <div className="relative group">
                <input 
@@ -75,12 +75,12 @@ const Login: React.FC<LoginProps> = ({
                </button>
              </div>
 
-             <button 
+            <button 
               onClick={onLogin} 
               disabled={loading} 
-              className="w-full py-5 bg-6666-maroon text-white rounded-[24px] font-black text-lg hover:bg-6666-sand hover:text-6666-maroon shadow-2xl shadow-6666-maroon/20 active:scale-95 transition-all mt-4"
+              className="w-full h-[68px] bg-6666-maroon text-white rounded-[24px] font-black text-lg hover:bg-6666-sand hover:text-6666-maroon shadow-2xl shadow-6666-maroon/20 active:scale-95 transition-all mt-4 flex items-center justify-center"
             >
-              {loading ? 'Cargando...' : 'ENTRAR AL SISTEMA'}
+              {loading ? <RefreshCw className="animate-spin" /> : 'ENTRAR AL SISTEMA'}
             </button>
             <button 
               onClick={() => {
