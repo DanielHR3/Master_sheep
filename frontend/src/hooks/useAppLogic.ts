@@ -277,8 +277,8 @@ export const useAppLogic = () => {
     try {
       await DeleteCorral(id);
       refreshData();
-    } catch (err) {
-      alert("Error al eliminar corral");
+    } catch (err: any) {
+      alert("Error al eliminar corral: " + (err.message || err));
     }
   };
 

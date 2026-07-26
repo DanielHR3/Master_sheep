@@ -127,7 +127,7 @@ export const AddCorral = async (corral: any) => {
 
 export const DeleteCorral = async (id: string) => {
   if (IS_WAILS) return WailsApp.DeleteCorral(id);
-  return callApi(`/corrales?id=${id}`, 'DELETE');
+  return callApi(`/corrales?id=${encodeURIComponent(id)}`, 'DELETE');
 };
 
 export const GetInsumos = async () => {
