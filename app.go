@@ -573,21 +573,6 @@ func (a *App) GetCorrales() ([]Corral, error) {
 		corrales = append(corrales, c)
 	}
 
-	// Si está vacío, agregar los 12 corrales de piso elevado para MASTER SHEEP PRO
-	if len(corrales) == 0 {
-		var initialCorrales []Corral
-		for i := 1; i <= 12; i++ {
-			c := Corral{
-				ID:        uuid.New().String(),
-				Nombre:    fmt.Sprintf("Corral %d (Elevado)", i),
-				Tipo:      "Engorda - Piso Elevado",
-				Capacidad: 10,
-			}
-			_ = a.AddCorral(c)
-			initialCorrales = append(initialCorrales, c)
-		}
-		return initialCorrales, nil
-	}
 
 	return corrales, nil
 }
