@@ -21,7 +21,7 @@ const WeightModal: React.FC<WeightModalProps> = ({
   return (
     <Modal show={show} onClose={onClose} title={`Registrar Peso - ${selectedAnimal?.arete}`}>
       <div className="space-y-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase text-slate-500">Peso (kg)</label>
             <input 

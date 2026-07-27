@@ -18,7 +18,7 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
   return (
     <Modal show={show} onClose={onClose} title="Agregar Nuevo Animal">
       <div className="space-y-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase text-slate-500">Número de Arete</label>
             <input 
@@ -39,7 +39,7 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
             />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase text-slate-500">Sexo</label>
             <select 
@@ -80,7 +80,7 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase text-slate-500">Fecha Nacimiento</label>
             <input 
@@ -106,7 +106,7 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
           <div className="p-4 border border-rose-900/50 bg-rose-950/20 rounded-2xl space-y-4">
             <h4 className="text-xs font-black uppercase tracking-widest text-rose-400">Datos Genéticos y de Concepción</h4>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-slate-500">Tipo de Parto</label>
                 <select 
@@ -136,7 +136,7 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-slate-500">Fecha de Destete</label>
                 <input 
@@ -165,7 +165,7 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-slate-500">Arete Padre</label>
                 <input 
@@ -182,7 +182,7 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-slate-500">Abuelo Paterno</label>
                 <input 
@@ -199,7 +199,7 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-slate-500">Abuelo Materno</label>
                 <input 

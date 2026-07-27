@@ -23,7 +23,7 @@ const AddCorralModal: React.FC<AddCorralModalProps> = ({ show, onClose, form, se
             placeholder="Ej. Corral de Engorda 1" 
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase text-slate-500">Tipo / Propósito</label>
             <select 
