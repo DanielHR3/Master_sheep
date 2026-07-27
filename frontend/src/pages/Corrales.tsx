@@ -46,9 +46,7 @@ const Corrales: React.FC<CorralesProps> = ({ corrales, animals, theme, onAddCorr
                 <div className="flex gap-2">
                   <button 
                     onClick={() => {
-                      if(confirm(`¿Estás seguro de eliminar el corral ${corral.nombre}? Los animales asignados quedarán sin corral.`)) {
-                        onDeleteCorral(corral.id);
-                      }
+                      onDeleteCorral(corral.id);
                     }}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
                   >
