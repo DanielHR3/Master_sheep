@@ -123,7 +123,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({
       </div>
 
       {/* Footer Actions */}
-      <div className="p-6 pt-4 flex gap-3">
+      <div className="p-6 pt-4 flex flex-wrap gap-2">
           <button 
             onClick={(e) => { e.stopPropagation(); if (onViewGenealogy) onViewGenealogy(); }}
             className={`group/btn flex-1 flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all border ${

@@ -34,7 +34,7 @@ const TreatmentModal: React.FC<TreatmentModalProps> = ({
             {insumos.map(i => <option key={i.id} value={i.id}>{i.nombre} ({i.stock_actual} en stock)</option>)}
           </select>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase text-slate-500">Dosis</label>
             <input 
