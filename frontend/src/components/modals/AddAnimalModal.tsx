@@ -10,10 +10,11 @@ interface AddAnimalModalProps {
   setForm: (form: any) => void;
   onAdd: () => void;
   corrales: any[];
+  user?: any;
 }
 
-const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, setForm, onAdd, corrales }) => {
-  const isPieDeCria = true;
+const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, setForm, onAdd, corrales, user }) => {
+  const isPieDeCria = (user?.rancho_id || user?.email || '').toUpperCase().includes('BUGAMBILIAS');
 
   return (
     <Modal show={show} onClose={onClose} title="Agregar Nuevo Animal">

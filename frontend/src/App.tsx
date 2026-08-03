@@ -186,6 +186,7 @@ function App() {
         setForm={state.setAnimalForm} 
         onAdd={actions.handleAddAnimal} 
         corrales={store.corrales} 
+        user={store.currentUser}
       />
 
       <AddCorralModal 
@@ -246,6 +247,7 @@ function App() {
         setForm={state.setEditAnimalForm} 
         onUpdate={actions.handleUpdateAnimal} 
         corrales={store.corrales} 
+        user={store.currentUser}
       />
 
       <ClinicalHistoryModal 
