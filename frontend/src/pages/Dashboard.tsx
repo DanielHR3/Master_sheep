@@ -42,10 +42,15 @@ interface DashboardProps {
   onGlobalAdd: () => void;
   onCompleteTask: (id: string) => void;
   onSync?: () => void;
+  user?: any;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd, onCompleteTask, onSync }) => {
+const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd, onCompleteTask, onSync, user }) => {
   const isDark = theme === 'dark';
+  
+  const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
+  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
+  const ranchoName = isBugambilias ? 'RANCHO LAS BUGAMBILIAS' : (user?.rancho_id ? user.rancho_id.toUpperCase() : 'RANCHO DON PABLITO • VALLE DEL MEZQUITAL');
   
   // Transformar datos de enfermedades para Recharts
   const transformEnfermedades = () => {
@@ -72,7 +77,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
             Resumen de Operación
           </h2>
           <p className={`${isDark ? 'text-slate-400' : 'text-slate-600'} font-bold uppercase tracking-widest text-xs mt-1.5 flex items-center gap-2`}>
-            <Calendar size={14} className="text-emerald-500" /> RANCHO DON PABLITO • VALLE DEL MEZQUITAL
+            <Calendar size={14} className="text-emerald-500" /> {ranchoName}
           </p>
         </div>
         <div className="flex items-center gap-3">

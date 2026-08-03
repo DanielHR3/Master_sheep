@@ -37,7 +37,7 @@ func main() {
 
 	// Modo Desktop (Wails)
 	err := wails.Run(&options.App{
-		Title:  "SheepMaster - Rancho Don Pablito",
+		Title:  "SheepMaster",
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{

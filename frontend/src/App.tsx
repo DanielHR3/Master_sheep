@@ -76,6 +76,7 @@ function App() {
           stats={store.stats} 
           tareas={store.tareas} 
           theme={store.theme} 
+          user={store.currentUser}
           onGlobalAdd={() => state.modals.setShowAddAnimal(true)} 
           onCompleteTask={async (id) => { await CompletarTarea(id); actions.refreshData(); }} 
           onSync={actions.handleSyncToJarvis}
@@ -141,6 +142,7 @@ function App() {
           stats={store.stats} 
           tareas={store.tareas} 
           theme={store.theme} 
+          user={store.currentUser}
           onGlobalAdd={() => state.modals.setShowAddAnimal(true)} 
           onCompleteTask={async (id) => { await CompletarTarea(id); actions.refreshData(); }} 
           onSync={actions.handleSyncToJarvis}
