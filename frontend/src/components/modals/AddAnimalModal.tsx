@@ -14,7 +14,8 @@ interface AddAnimalModalProps {
 }
 
 const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, setForm, onAdd, corrales, user }) => {
-  const isPieDeCria = (user?.rancho_id || user?.email || '').toUpperCase().includes('BUGAMBILIAS');
+  const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
+  const isPieDeCria = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
 
   return (
     <Modal show={show} onClose={onClose} title="Agregar Nuevo Animal">
