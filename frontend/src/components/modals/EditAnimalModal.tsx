@@ -15,7 +15,8 @@ interface EditAnimalModalProps {
 
 const EditAnimalModal: React.FC<EditAnimalModalProps> = ({ show, onClose, form, setForm, onUpdate, corrales, user }) => {
   if (!show || !form) return null;
-  const isPieDeCria = (user?.rancho_id || user?.email || '').toUpperCase().includes('BUGAMBILIAS');
+  const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
+  const isPieDeCria = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
