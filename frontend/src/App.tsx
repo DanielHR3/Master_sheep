@@ -90,7 +90,7 @@ function App() {
           subTab={store.subTab} 
           setSubTab={store.setSubTab} 
           onAddAnimal={() => { 
-            state.setAnimalForm({ arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino: 'Engorda' }); 
+            state.setAnimalForm({ arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino: 'Engorda', especie: 'Ovino' }); 
             state.modals.setShowAddAnimal(true); 
           }} 
           onAddInsumo={() => { 

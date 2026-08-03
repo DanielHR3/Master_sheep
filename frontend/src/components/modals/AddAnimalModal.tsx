@@ -65,7 +65,7 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
           </div>
         </div>
 
-        {true && (
+        {isPieDeCria && (
           <div className="grid grid-cols-1 gap-4 mb-4">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-500">Especie</label>
