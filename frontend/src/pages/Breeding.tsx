@@ -46,9 +46,9 @@ const Breeding: React.FC<BreedingProps> = ({
                  value={form.animal_id} 
                  onChange={e => setForm({...form, animal_id: e.target.value})}
                >
-                 <option value="">-- Seleccionar Borrega --</option>
-                 {animals.filter((a: any) => a.sexo === 'Hembra').map((a: any) => (
-                   <option key={a.id} value={a.id}>Arete: {a.arete} ({a.raza || 'Sin raza'})</option>
+                 <option value="">Seleccione una borrega...</option>
+                 {(Array.isArray(animals) ? animals : []).filter((a: any) => a.sexo === 'Hembra').map((a: any) => (
+                   <option key={a.id} value={a.id}>{a.arete} - {a.raza}</option>
                  ))}
                </select>
              </div>

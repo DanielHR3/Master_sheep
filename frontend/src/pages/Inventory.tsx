@@ -115,7 +115,7 @@ const Inventory: React.FC<InventoryProps> = ({
 
       {subTab === 'animals' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {animals.filter(a => filterDestino === 'all' || a.destino === filterDestino).map((a: main.Animal) => (
+          {(Array.isArray(animals) ? animals : []).filter(a => filterDestino === 'all' || a.destino === filterDestino).map((a: main.Animal) => (
             <AnimalCard 
               key={a.id} 
               animal={a} 
