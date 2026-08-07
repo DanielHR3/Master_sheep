@@ -23,19 +23,19 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
-            src: 'appicon.png',
+            src: 'appicon_v2.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: 'appicon.png',
+            src: 'appicon_v2.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: 'appicon.png',
+            src: 'appicon_v2.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'
