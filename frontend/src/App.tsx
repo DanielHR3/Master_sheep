@@ -154,7 +154,8 @@ function App() {
           user={store.currentUser} 
           isDemo={store.isDemo} 
           setIsDemo={store.setIsDemo} 
-          toggleDemoMode={ToggleDemoMode} 
+          toggleDemoMode={ToggleDemoMode}
+          onLogout={actions.handleLogout}
         />;
       default:
         return <Dashboard 

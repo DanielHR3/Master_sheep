@@ -7,7 +7,8 @@ import {
   ShieldCheck, 
   Shield,
   Warehouse,
-  FileSpreadsheet
+  FileSpreadsheet,
+  LogOut
 } from 'lucide-react';
 
 interface ProfileProps {
@@ -21,6 +22,7 @@ interface ProfileProps {
   isDemo: boolean;
   setIsDemo: (isDemo: boolean) => void;
   toggleDemoMode: (next: boolean) => Promise<void>;
+  onLogout: () => void;
 }
 
 const Profile: React.FC<ProfileProps> = ({ 
@@ -33,37 +35,65 @@ const Profile: React.FC<ProfileProps> = ({
   onCorrales,
   isDemo, 
   setIsDemo, 
-  toggleDemoMode 
+  toggleDemoMode,
+  onLogout
 }) => {
   const isDark = theme === 'dark';
+
+  const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
+  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
+  const isDonPablito = rawRancho.includes('PABLITO') || (user?.email?.toLowerCase() || '').includes('pablito') || rawRancho.includes('25CF359E-E5A7-4403-A1F1-3A4375F21EF3');
+  
+  const ranchoName = isBugambilias ? 'RANCHO LAS BUGAMBILIAS' : isDonPablito ? 'RANCHO DON PABLITO' : 'SHEEPMASTER AGROTECH';
+
   return (
     <div className="space-y-6 md:space-y-10 pt-4 md:pt-10 animate-in fade-in duration-700">
       
-      {/* Tarjeta de Perfil de Usuario */}
-      <div className={`p-6 md:p-10 border rounded-[24px] md:rounded-[40px] flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8 transition-all ${
-        isDark ? 'bg-slate-900/90 border-slate-800 text-white shadow-xl' : 'bg-white border-slate-200 text-slate-900 shadow-md'
-      }`}>
-        <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 md:gap-10 w-full sm:w-auto">
-          <div className="w-20 h-20 md:w-32 md:h-32 bg-saddle-tan rounded-[20px] md:rounded-[30px] flex items-center justify-center text-2xl md:text-4xl text-white font-black font-display border-4 border-white/10 shadow-2xl shrink-0">
-            {user?.name?.charAt(0) || 'U'}
-          </div>
-          <div>
-            <h3 className={`text-2xl md:text-4xl font-black font-display tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              {user?.name || 'Usuario'}
-            </h3>
-            <p className="text-antique-brass font-black uppercase text-[10px] md:text-xs tracking-widest mt-1">
-              {user?.role || 'Personal'} • {user?.email}
-            </p>
-          </div>
+      {/* Tarjeta de Perfil de Usuario con Cover Photo */}
+      <div className="relative rounded-[40px] shadow-2xl border border-emerald-500/20 overflow-hidden group">
+        <div className="absolute inset-0 bg-slate-900">
+          <img 
+            src="/agrotech_banner.jpg" 
+            alt="Agrotech Cover" 
+            className="w-full h-full object-cover object-center opacity-40 group-hover:opacity-50 transition-all duration-1000"
+          />
+          <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? 'from-slate-900 via-slate-900/60 to-transparent' : 'from-emerald-950 via-emerald-900/80 to-transparent'}`}></div>
         </div>
-        <button 
-          onClick={() => setTheme(isDark ? 'light' : 'dark')} 
-          className={`w-full md:w-auto px-6 py-3.5 md:px-8 md:py-4 rounded-2xl md:rounded-3xl font-black flex items-center justify-center gap-4 transition-all active:scale-95 cursor-pointer text-xs md:text-sm ${
-            isDark ? 'bg-white/5 text-white hover:bg-white/10' : 'bg-slate-100 text-slate-800 hover:bg-slate-200'
-          }`}
-        >
-          {isDark ? <Sun size={20} /> : <Moon size={20} />} <span>TEMA</span>
-        </button>
+
+        {/* Contenido Perfil */}
+        <div className="relative pt-24 pb-12 px-6 flex flex-col items-center text-center">
+           {/* Avatar flotante */}
+           <div className={`w-32 h-32 md:w-40 md:h-40 rounded-[40px] flex items-center justify-center text-5xl md:text-6xl font-black font-display border-4 shadow-2xl mb-6 relative z-10 ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-white text-emerald-700'}`}>
+              {user?.name?.charAt(0) || 'U'}
+              <div className="absolute -bottom-2 -right-2 bg-emerald-500 w-10 h-10 rounded-full border-4 border-white dark:border-slate-800" title="Activo"></div>
+           </div>
+
+           <h3 className="text-4xl md:text-5xl font-black font-display tracking-tight text-white mb-2">
+              {user?.name || 'Usuario'}
+           </h3>
+           <p className="text-emerald-300 font-bold uppercase tracking-widest text-xs md:text-sm mb-2">
+              {user?.role || 'Personal'} • {user?.email}
+           </p>
+           <p className="text-white/70 font-medium uppercase tracking-widest text-[10px] md:text-xs bg-black/20 px-4 py-1.5 rounded-full backdrop-blur-sm border border-white/5">
+              Asignado a: <strong className="text-white ml-1">{ranchoName}</strong>
+           </p>
+
+           {/* Botones de acción (Tema y Salir) */}
+           <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full justify-center max-w-sm sm:max-w-md">
+             <button 
+               onClick={() => setTheme(isDark ? 'light' : 'dark')} 
+               className="flex-1 px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-3 transition-all active:scale-95 text-xs bg-white/10 text-white hover:bg-white/20 backdrop-blur-md border border-white/10 shadow-xl"
+             >
+               {isDark ? <Sun size={18} /> : <Moon size={18} />} CAMBIAR TEMA
+             </button>
+             <button 
+               onClick={onLogout} 
+               className="flex-1 px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-3 transition-all active:scale-95 text-xs bg-rose-600 text-white hover:bg-rose-500 shadow-xl shadow-rose-900/40"
+             >
+               <LogOut size={18} /> CERRAR SESIÓN
+             </button>
+           </div>
+        </div>
       </div>
 
       {/* Grid de Atajos de Navegación */}
