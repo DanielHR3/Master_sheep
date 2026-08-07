@@ -174,8 +174,9 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* SEMÁFORO DE VENTAS */}
-        <div className={`lg:col-span-2 p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
+        {/* SEMÁFORO DE VENTAS (Oculto en Bugambilias porque es pie de cría) */}
+        {!isBugambilias && (
+          <div className={`lg:col-span-2 p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
           <div className="flex justify-between items-center mb-8">
             <div>
               <h3 className={`text-2xl font-black font-display tracking-tight flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
@@ -231,9 +232,10 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
             )}
           </div>
         </div>
+        )}
 
         {/* AGENDA Y TAREAS */}
-        <div className={`p-8 rounded-[40px] border flex flex-col ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
+        <div className={`${isBugambilias ? 'lg:col-span-3' : ''} p-8 rounded-[40px] border flex flex-col ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
           <div className="flex items-center gap-3 mb-6">
              <Bell size={22} className="text-emerald-500 dark:text-emerald-400" />
              <h3 className={`text-2xl font-black font-display tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Agenda Sanitaria</h3>
