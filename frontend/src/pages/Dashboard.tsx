@@ -57,6 +57,48 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
   
   const ranchoName = isBugambilias ? 'RANCHO LAS BUGAMBILIAS' : isDonPablito ? 'RANCHO DON PABLITO' : 'SHEEPMASTER AGROTECH';
   
+  // Calcular alertas de Pie de Cría
+  const animals = store.animals || [];
+  const pieDeCriaAlerts = React.useMemo(() => {
+    const alerts: any[] = [];
+    if (!isBugambilias) return alerts;
+    const today = new Date();
+    
+    animals.forEach(a => {
+      if (a.destino !== 'Pie de Cría') return;
+      if (!a.fecha_nacimiento) return;
+      
+      const birthDate = new Date(a.fecha_nacimiento);
+      const diffTime = today.getTime() - birthDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      // Alerta Destete (60-90 días)
+      if (diffDays >= 60 && diffDays <= 100) {
+        alerts.push({
+          arete: a.arete,
+          tipo: 'DESTETE PENDIENTE',
+          color: 'amarillo',
+          detalle: `${diffDays} días de nacido`,
+          sexo: a.sexo
+        });
+      }
+      
+      // Alerta Pesaje 150 días
+      const peso150 = (a as any).peso_150_dias;
+      if (diffDays >= 140 && diffDays <= 180 && (!peso150 || peso150 === 0)) {
+        alerts.push({
+          arete: a.arete,
+          tipo: 'PESAJE 150 DÍAS',
+          color: 'rojo',
+          detalle: `Falta registro - ${diffDays} días`,
+          sexo: a.sexo
+        });
+      }
+    });
+    
+    return alerts;
+  }, [animals, isBugambilias]);
+  
   // Transformar datos de enfermedades para Recharts
   const transformEnfermedades = () => {
     if (!stats || !stats.enfermedades) return [];
@@ -174,8 +216,8 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* SEMÁFORO DE VENTAS (Oculto en Bugambilias porque es pie de cría) */}
-        {!isBugambilias && (
+        {/* SEMÁFORO DE VENTAS (Engorda) o PIE DE CRÍA */}
+        {!isBugambilias ? (
           <div className={`lg:col-span-2 p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
           <div className="flex justify-between items-center mb-8">
             <div>
@@ -232,10 +274,54 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
             )}
           </div>
         </div>
+        ) : (
+          <div className={`lg:col-span-2 p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h3 className={`text-2xl font-black font-display tracking-tight flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  <Award size={22} className="text-emerald-500 dark:text-emerald-400" /> Tareas de Genética (Pie de Cría)
+                </h3>
+                <p className={`text-xs font-bold uppercase tracking-wider mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Destetes y Pesajes Programados</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
+              {pieDeCriaAlerts.length > 0 ? (
+                pieDeCriaAlerts.map((a: any, i: number) => (
+                  <div key={i} className={`p-5 rounded-[28px] border flex items-center justify-between transition-all ${
+                    a.color === 'rojo' 
+                      ? (isDark ? 'bg-rose-500/10 border-rose-500/30' : 'bg-rose-50 border-rose-200/80') :
+                    (isDark ? 'bg-amber-500/10 border-amber-500/30' : 'bg-amber-50 border-amber-200/80')
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-3.5 h-3.5 rounded-full animate-pulse ${
+                        a.color === 'rojo' ? 'bg-rose-500' : 'bg-amber-500'
+                      }`} />
+                      <div>
+                        <p className={`text-base font-black tracking-tight uppercase ${isDark ? 'text-white' : 'text-slate-800'}`}>Arete: {a.arete}</p>
+                        <p className={`text-xs font-bold uppercase ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{a.sexo} • {a.detalle}</p>
+                      </div>
+                    </div>
+                    <div className={`px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                       a.color === 'rojo' ? 'bg-rose-600 text-white' : 'bg-amber-600 text-white'
+                    }`}>
+                      {a.tipo}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className={`md:col-span-2 py-16 text-center border-2 border-dashed rounded-[32px] ${
+                  isDark ? 'border-slate-800' : 'border-slate-200 bg-slate-50/55'
+                }`}>
+                  <p className="text-slate-400 font-bold uppercase text-xs tracking-wider italic">No hay tareas genéticas pendientes</p>
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
-        {/* AGENDA Y TAREAS */}
-        <div className={`${isBugambilias ? 'lg:col-span-3' : ''} p-8 rounded-[40px] border flex flex-col ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
+        {/* AGENDA Y TAREAS GENERALES */}
+        <div className={`p-8 rounded-[40px] border flex flex-col ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
           <div className="flex items-center gap-3 mb-6">
              <Bell size={22} className="text-emerald-500 dark:text-emerald-400" />
              <h3 className={`text-2xl font-black font-display tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Agenda Sanitaria</h3>
