@@ -25,8 +25,13 @@ const Login: React.FC<LoginProps> = ({
   };
 
   const isBugambilias = email.toLowerCase().includes('bugambilias');
+  const isPablito = email.toLowerCase().includes('pablito');
   const logoSrc = isBugambilias ? 'logo_bugambilias.jpg' : 'logo.png';
-  const ranchoName = isBugambilias ? 'Rancho Las Bugambilias' : 'Rancho Don Pablito';
+  const ranchoName = isBugambilias 
+    ? 'Rancho Las Bugambilias' 
+    : isPablito 
+      ? 'Rancho Don Pablito' 
+      : 'Acceso Centralizado';
 
   return (
     <div className="h-screen w-full flex items-center justify-center font-sans relative overflow-hidden">
