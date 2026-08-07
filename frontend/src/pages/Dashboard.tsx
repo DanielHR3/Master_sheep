@@ -51,8 +51,8 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
   const store = useStore();
   const isLoading = store.loading;
   
-  const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
-  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
+  const rawRancho = (store.selectedRanchOverride || user?.rancho_id || user?.name || '').toUpperCase();
+  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (store.selectedRanchOverride ? false : (user?.email?.toLowerCase() || '').includes('bugambilias'));
   const isDonPablito = rawRancho.includes('PABLITO') || (user?.email?.toLowerCase() || '').includes('pablito') || rawRancho.includes('25CF359E-E5A7-4403-A1F1-3A4375F21EF3');
   
   const ranchoName = isBugambilias ? 'RANCHO LAS BUGAMBILIAS' : isDonPablito ? 'RANCHO DON PABLITO' : 'SHEEPMASTER AGROTECH';
@@ -154,14 +154,14 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
             </div>
           ))
         ) : (
-          [
-            { label: 'Total Hato', value: stats?.total_cabezas || 0, icon: Users, color: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20' },
-            { label: 'En Engorda', value: stats?.en_engorda || 0, icon: TrendingUp, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
-            { label: 'Pie de Cría', value: stats?.pie_de_cria || 0, icon: Award, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-            { label: 'Bajas', value: stats?.bajas || 0, icon: AlertTriangle, color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
-            { label: '% Gestación', value: `${(stats?.porcentaje_gestacion || 0).toFixed(1)}%`, icon: Award, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
-            { label: '% Parición', value: `${(stats?.porcentaje_paricion || 0).toFixed(1)}%`, icon: Award, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
-          ].map((kpi, idx) => (
+            [
+              { label: 'Total Hato', value: stats?.total_cabezas || 0, icon: Users, color: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20' },
+              ...(isBugambilias ? [] : [{ label: 'En Engorda', value: stats?.en_engorda || 0, icon: TrendingUp, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' }]),
+              { label: 'Pie de Cría', value: stats?.pie_de_cria || 0, icon: Award, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+              { label: 'Bajas', value: stats?.bajas || 0, icon: AlertTriangle, color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
+              { label: '% Gestación', value: `${(stats?.porcentaje_gestacion || 0).toFixed(1)}%`, icon: Award, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
+              { label: '% Parición', value: `${(stats?.porcentaje_paricion || 0).toFixed(1)}%`, icon: Award, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
+            ].map((kpi, idx) => (
             <div key={idx} className={`p-4 rounded-3xl border transition-all hover:scale-[1.01] ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
               <div className={`p-2.5 rounded-xl w-fit mb-2 border ${kpi.bg}`}>
                 <kpi.icon size={18} className={kpi.color} />

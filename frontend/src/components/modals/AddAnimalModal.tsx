@@ -2,6 +2,7 @@ import React from 'react';
 import Modal from '../shared/Modal';
 import { main } from "../../../wailsjs/go/models";
 import ImageUpload from '../ImageUpload';
+import { useStore } from '../../context/useStore';
 
 interface AddAnimalModalProps {
   show: boolean;
@@ -14,8 +15,9 @@ interface AddAnimalModalProps {
 }
 
 const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, setForm, onAdd, corrales, user }) => {
-  const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
-  const isPieDeCria = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
+  const store = useStore();
+  const rawRancho = (store.selectedRanchOverride || user?.rancho_id || user?.name || '').toUpperCase();
+  const isPieDeCria = rawRancho.includes('BUGAMBILIAS') || (store.selectedRanchOverride ? false : (user?.email?.toLowerCase() || '').includes('bugambilias'));
 
   return (
     <Modal show={show} onClose={onClose} title="Agregar Nuevo Animal">

@@ -11,6 +11,7 @@ interface AppState {
   isLoggedIn: boolean;
   isDemo: boolean;
   notification: { message: string, type: 'success' | 'error' } | null;
+  selectedRanchOverride: string | null;
   
   // Data State
   stats: any;
@@ -30,6 +31,7 @@ interface AppState {
   setIsLoggedIn: (isLoggedIn: boolean) => void;
   setIsDemo: (isDemo: boolean) => void;
   setNotification: (notification: { message: string, type: 'success' | 'error' } | null) => void;
+  setSelectedRanchOverride: (ranch: string | null) => void;
   setStats: (stats: any) => void;
   setAnimals: (animals: main.Animal[]) => void;
   setCorrales: (corrales: main.Corral[]) => void;
@@ -50,6 +52,7 @@ export const useStore = create<AppState>()(
       isLoggedIn: false,
       isDemo: false,
       notification: null,
+      selectedRanchOverride: null,
       
       stats: { total_cabezas: 0, fertilidad: 0, corrales: [] },
       animals: [],
@@ -67,6 +70,7 @@ export const useStore = create<AppState>()(
       setIsLoggedIn: (isLoggedIn) => set({ isLoggedIn }),
       setIsDemo: (isDemo) => set({ isDemo }),
       setNotification: (notification) => set({ notification }),
+      setSelectedRanchOverride: (selectedRanchOverride) => set({ selectedRanchOverride }),
       setStats: (stats) => set({ stats }),
       setAnimals: (animals) => set({ animals }),
       setCorrales: (corrales) => set({ corrales }),
@@ -82,7 +86,8 @@ export const useStore = create<AppState>()(
         isLoggedIn: state.isLoggedIn, 
         currentUser: state.currentUser, 
         theme: state.theme,
-        activeTab: state.activeTab 
+        activeTab: state.activeTab,
+        selectedRanchOverride: state.selectedRanchOverride
       }),
     }
   )

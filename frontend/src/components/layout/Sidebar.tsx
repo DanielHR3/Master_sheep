@@ -10,7 +10,8 @@ import {
   CircleUser, 
   LogOut,
   ChevronLeft,
-  Menu
+  Menu,
+  MapPin
 } from 'lucide-react';
 import SidebarItem from '../SidebarItem';
 
@@ -22,13 +23,15 @@ interface SidebarProps {
   user: any;
   isCollapsed: boolean;
   toggleCollapse: () => void;
+  selectedRanchOverride?: string | null;
+  setSelectedRanchOverride?: (ranch: string | null) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLogout, user, isCollapsed, toggleCollapse }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLogout, user, isCollapsed, toggleCollapse, selectedRanchOverride, setSelectedRanchOverride }) => {
   const isDark = theme === 'dark';
-  const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
-  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
-  const isDonPablito = rawRancho.includes('PABLITO') || (user?.email?.toLowerCase() || '').includes('pablito') || rawRancho.includes('25CF359E-E5A7-4403-A1F1-3A4375F21EF3');
+  const rawRancho = (selectedRanchOverride || user?.rancho_id || user?.name || '').toUpperCase();
+  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (selectedRanchOverride ? false : (user?.email?.toLowerCase() || '').includes('bugambilias'));
+  const isDonPablito = rawRancho.includes('PABLITO') || (selectedRanchOverride ? false : (user?.email?.toLowerCase() || '').includes('pablito')) || rawRancho.includes('25CF359E-E5A7-4403-A1F1-3A4375F21EF3');
   
   const logoSrc = isBugambilias ? '/logo_bugambilias.jpg' : isDonPablito ? '/logodonpablito.jpg' : '/logo.png';
   const ranchoName = isBugambilias ? 'LAS BUGAMBILIAS' : isDonPablito ? 'DON PABLITO' : 'AGROTECH';
@@ -72,6 +75,24 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
             <>
               <SidebarItem icon={<FileSpreadsheet size={22} />} label="Reportes y Descargas" active={activeTab === 'reports'} onClick={() => setActiveTab('reports')} isCollapsed={isCollapsed} />
               <SidebarItem icon={<ShieldCheck size={22} />} label="Personal" active={activeTab === 'staff'} onClick={() => setActiveTab('staff')} isCollapsed={isCollapsed} />
+              
+              {!isCollapsed && (
+                <div className="pt-4 mt-2 px-2">
+                  <label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 mb-2">
+                    <MapPin size={12} className="text-emerald-500" />
+                    Cambiar Rancho
+                  </label>
+                  <select 
+                    className={`w-full text-xs p-2 rounded-xl border font-bold ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-100 border-slate-200 text-slate-800'} focus:outline-none focus:border-emerald-500`}
+                    value={selectedRanchOverride || ''}
+                    onChange={(e) => setSelectedRanchOverride?.(e.target.value === '' ? null : e.target.value)}
+                  >
+                    <option value="">Vista Global / Default</option>
+                    <option value="BUGAMBILIAS">Las Bugambilias (Pie de Cría)</option>
+                    <option value="PABLITO">Don Pablito (Engorda)</option>
+                  </select>
+                </div>
+              )}
             </>
           )}
           
