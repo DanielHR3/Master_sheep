@@ -27,8 +27,8 @@ const Staff: React.FC<StaffProps> = ({
     <div className="space-y-10 pt-10 animate-in slide-in-from-right-8 duration-700">
        <div className="flex justify-between items-center">
           <div>
-            <h2 className={`text-4xl font-black font-display ${isDark ? 'text-white' : 'text-slate-900'}`}>Equipo de Trabajo</h2>
-            <p className="text-[10px] text-antique-brass uppercase font-black tracking-widest mt-1">Control de Accesos y Roles</p>
+            <h2 className={`text-5xl font-black font-display tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Equipo de Trabajo</h2>
+            <p className="text-emerald-500 font-bold uppercase tracking-widest text-xs mt-1.5 flex items-center gap-2">Control de Accesos y Roles</p>
           </div>
        </div>
 
@@ -125,10 +125,10 @@ const Staff: React.FC<StaffProps> = ({
                    )}
                    <button 
                      onClick={form.id ? onUpdate : onAdd} 
-                     className={`py-4 bg-antique-brass text-white font-black rounded-xl hover:bg-saddle-tan transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer shadow-lg uppercase text-xs ${
+                     className={`py-4 font-black rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer shadow-lg uppercase text-xs ${
                        form.id ? 'flex-1' : 'w-full'
                      } ${
-                       isDark ? 'shadow-cyan-950/40' : 'shadow-cyan-500/20'
+                       isDark ? 'bg-emerald-600 text-white shadow-emerald-950/40 hover:bg-emerald-500' : 'bg-emerald-600 text-white shadow-emerald-500/20 hover:bg-emerald-500'
                      }`}
                    >
                      {form.id ? 'Guardar' : 'Registrar'}

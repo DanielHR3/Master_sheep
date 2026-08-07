@@ -13,8 +13,8 @@ const Clinical: React.FC<ClinicalProps> = ({ animals, insumos, onTreatment, them
     <div className="max-w-7xl mx-auto pt-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
        <div className="flex justify-between items-center mb-8">
            <div>
-             <h2 className="text-4xl font-black italic font-serif flex items-center gap-4 dark:text-white text-slate-800">
-                <Stethoscope className="text-antique-brass" size={40} /> Salud Animal
+             <h2 className={`text-5xl font-black font-display tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                <Stethoscope className="text-rose-500 inline-block mr-2" size={40} /> Salud Animal
              </h2>
              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-2">
                 Seleccione un animal para aplicar medicamentos o tratamientos
@@ -34,13 +34,17 @@ const Clinical: React.FC<ClinicalProps> = ({ animals, insumos, onTreatment, them
                <div 
                  key={a.id} 
                  onClick={() => onTreatment(a)}
-                 className="bg-white dark:bg-clay/30 border border-slate-200 dark:border-white/5 rounded-3xl p-6 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all cursor-pointer group"
+                 className={`border rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all cursor-pointer group ${
+                   theme === 'dark' ? 'bg-slate-900/80 border-slate-700/50 backdrop-blur-md' : 'bg-white border-slate-200'
+                 }`}
                >
                    <div className="flex justify-between items-start mb-4">
-                       <span className="bg-slate-100 dark:bg-black/30 text-slate-900 dark:text-white text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full border border-slate-200 dark:border-white/10">
+                       <span className={`text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full border ${
+                         theme === 'dark' ? 'bg-slate-800 text-white border-slate-700' : 'bg-slate-100 text-slate-900 border-slate-200'
+                       }`}>
                          {a.arete}
                        </span>
-                       <div className="bg-antique-brass/10 p-2 rounded-full text-antique-brass group-hover:scale-110 transition-transform">
+                       <div className="bg-rose-500/10 p-2 rounded-full text-rose-500 group-hover:scale-110 transition-transform">
                           <Syringe size={18} />
                        </div>
                    </div>
@@ -48,10 +52,14 @@ const Clinical: React.FC<ClinicalProps> = ({ animals, insumos, onTreatment, them
                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-6">{a.sexo}</p>
                    
                    <div className="space-y-2">
-                     <button onClick={(e) => { e.stopPropagation(); onTreatment(a); }} className="w-full py-3 bg-slate-50 dark:bg-black/20 font-bold text-antique-brass rounded-2xl border border-slate-100 dark:border-white/5 hover:bg-antique-brass hover:text-white transition-colors">
+                     <button onClick={(e) => { e.stopPropagation(); onTreatment(a); }} className={`w-full py-3 font-black rounded-2xl border transition-colors ${
+                       theme === 'dark' ? 'bg-slate-800 border-slate-700 text-emerald-400 hover:bg-emerald-600 hover:text-white hover:border-emerald-500' : 'bg-slate-50 border-slate-200 text-emerald-600 hover:bg-emerald-500 hover:text-white hover:border-emerald-400'
+                     }`}>
                          Aplicar Tratamiento
                      </button>
-                     <button onClick={(e) => { e.stopPropagation(); onTreatment({ ...a, isProlapso: true }); }} className="w-full py-2 bg-slate-50 dark:bg-black/20 font-bold text-rose-500 text-xs rounded-xl border border-rose-100 dark:border-rose-900/30 hover:bg-rose-500 hover:text-white transition-colors">
+                     <button onClick={(e) => { e.stopPropagation(); onTreatment({ ...a, isProlapso: true }); }} className={`w-full py-2 font-bold text-xs rounded-xl border transition-colors ${
+                       theme === 'dark' ? 'bg-rose-950/20 text-rose-400 border-rose-900/30 hover:bg-rose-600 hover:text-white hover:border-rose-500' : 'bg-rose-50 text-rose-500 border-rose-100 hover:bg-rose-500 hover:text-white hover:border-rose-400'
+                     }`}>
                          Registrar Prolapso / Hernia
                      </button>
                    </div>
