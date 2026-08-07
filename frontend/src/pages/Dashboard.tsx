@@ -50,7 +50,9 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
   
   const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
   const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
-  const ranchoName = isBugambilias ? 'RANCHO LAS BUGAMBILIAS' : (user?.rancho_id ? user.rancho_id.toUpperCase() : 'RANCHO DON PABLITO • VALLE DEL MEZQUITAL');
+  const isDonPablito = rawRancho.includes('PABLITO') || (user?.email?.toLowerCase() || '').includes('pablito') || rawRancho.includes('25CF359E-E5A7-4403-A1F1-3A4375F21EF3');
+  
+  const ranchoName = isBugambilias ? 'RANCHO LAS BUGAMBILIAS' : isDonPablito ? 'RANCHO DON PABLITO' : 'SHEEPMASTER AGROTECH';
   
   // Transformar datos de enfermedades para Recharts
   const transformEnfermedades = () => {
