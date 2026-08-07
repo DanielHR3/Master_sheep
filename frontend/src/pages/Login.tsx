@@ -29,76 +29,97 @@ const Login: React.FC<LoginProps> = ({
   const ranchoName = isBugambilias ? 'Rancho Las Bugambilias' : 'Rancho Don Pablito';
 
   return (
-    <div className="h-screen w-full flex items-center justify-center bg-slate-950 font-sans relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-6666-maroon/5 rounded-full blur-[120px] translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-6666-cream/5 rounded-full blur-[120px] -translate-x-1/2 translate-y-1/2" />
+  return (
+    <div className="h-screen w-full flex items-center justify-center font-sans relative overflow-hidden">
+      {/* Background Image & Overlay */}
+      <div className="absolute inset-0 bg-slate-900">
+        <img 
+          src="/login_bg_sheep.jpg" 
+          alt="Agrotech Farm" 
+          className="w-full h-full object-cover object-center opacity-80"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/90 via-emerald-950/60 to-slate-900/80 backdrop-blur-[2px]"></div>
+      </div>
       
-      <div className="w-full max-w-md p-10 bg-clay/50 backdrop-blur-3xl border border-white/10 rounded-[60px] shadow-3xl relative z-10 text-center mx-4">
+      {/* Login Card */}
+      <div className="w-full max-w-md p-10 bg-slate-900/40 backdrop-blur-3xl border border-white/10 rounded-[40px] shadow-2xl shadow-emerald-950/50 relative z-10 text-center mx-4 animate-in fade-in zoom-in-95 duration-700">
         
-        <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-3xl mb-8 flex items-center justify-center border border-white/20 shadow-2xl p-2 transform rotate-3 overflow-hidden">
-          <img src={logoSrc} alt="Logo" className="w-full h-full object-contain" />
+        {/* Logo and Branding */}
+        <div className="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-[28px] mb-8 mx-auto flex items-center justify-center border border-white/20 shadow-2xl p-3 transform -rotate-2 overflow-hidden hover:rotate-0 transition-transform">
+          <img src={logoSrc} alt="Logo" className="w-full h-full object-contain drop-shadow-xl" />
         </div>
         
-        <h2 translate="no" className="text-5xl font-black text-white font-display mb-12 tracking-tighter leading-none uppercase">
+        <h2 translate="no" className="text-4xl font-black text-white font-display mb-10 tracking-tight leading-none uppercase">
           Sheep<br />
-          <span className="bg-gradient-to-r from-6666-cream to-6666-sand bg-clip-text text-transparent">Master</span>
+          <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Master</span>
         </h2>
         
-          <div className="space-y-6 text-left animate-in fade-in duration-500">
+        <div className="space-y-5 text-left">
+           {/* Correo */}
+           <div className="relative group">
              <input 
               type="email" 
               placeholder="Correo Corporativo" 
-              className="w-full bg-slate-950 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold focus:outline-none focus:ring-2 focus:ring-6666-maroon/50" 
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white font-bold placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:bg-white/10 transition-all shadow-inner" 
               value={email} 
               onChange={e => setEmail(e.target.value.replace(/\s/g, ''))} 
             />
-             <div className="relative group">
-               <input 
-                type={showPassword ? "text" : "password"} 
-                placeholder="Contraseña" 
-                className="w-full bg-slate-950 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold pr-14 focus:outline-none focus:ring-2 focus:ring-6666-maroon/50" 
-                value={password} 
-                onChange={e => setPassword(e.target.value.trim())} 
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-slate-500 hover:text-white transition-colors"
-                title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-             </div>
-             
-             <div className="flex justify-end mt-2">
-               <button 
-                 onClick={handleForgotPassword}
-                 className="text-[11px] font-bold text-slate-400 hover:text-white transition-colors mb-2"
-               >
-                 ¿Olvidaste tu contraseña?
-               </button>
-             </div>
+           </div>
 
-            <button 
-              onClick={onLogin} 
-              disabled={loading} 
-              className="w-full h-[68px] bg-6666-maroon text-white rounded-[24px] font-black text-lg hover:bg-6666-sand hover:text-6666-maroon shadow-2xl shadow-6666-maroon/20 active:scale-95 transition-all mt-4 flex items-center justify-center"
+           {/* Contraseña */}
+           <div className="relative group">
+             <input 
+              type={showPassword ? "text" : "password"} 
+              placeholder="Contraseña" 
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white font-bold placeholder:text-slate-400 pr-14 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:bg-white/10 transition-all shadow-inner" 
+              value={password} 
+              onChange={e => setPassword(e.target.value.trim())} 
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-emerald-400 transition-colors"
+              title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
             >
-              {loading ? <RefreshCw className="animate-spin" /> : 'ENTRAR AL SISTEMA'}
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
-            <button 
-              onClick={() => {
-                localStorage.clear();
-                window.location.reload();
-              }}
-              className="w-full mt-4 flex items-center justify-center gap-2 py-3 border border-red-500/30 text-red-500 rounded-xl hover:bg-red-500/10 transition-all font-black uppercase text-[10px]"
-            >
-              <RefreshCw size={14} />
-              Limpiar Caché y Reiniciar
-            </button>
-          </div>
+           </div>
+           
+           <div className="flex justify-end mt-1">
+             <button 
+               onClick={handleForgotPassword}
+               className="text-[11px] font-bold text-slate-400 hover:text-white transition-colors mb-2"
+             >
+               ¿Olvidaste tu contraseña?
+             </button>
+           </div>
+
+          {/* Botón Principal */}
+          <button 
+            onClick={onLogin} 
+            disabled={loading} 
+            className="w-full h-[64px] bg-emerald-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-emerald-500 shadow-xl shadow-emerald-900/40 active:scale-95 transition-all mt-2 flex items-center justify-center border border-emerald-500/50"
+          >
+            {loading ? <RefreshCw className="animate-spin" /> : 'Entrar al Sistema'}
+          </button>
+
+          {/* Limpiar Cache */}
+          <button 
+            onClick={() => {
+              localStorage.clear();
+              window.location.reload();
+            }}
+            className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-white/5 border border-white/10 text-slate-300 rounded-xl hover:bg-white/10 hover:text-white transition-all font-black uppercase text-[10px]"
+          >
+            <RefreshCw size={14} />
+            Solucionar Problemas (Limpiar Caché)
+          </button>
+        </div>
         
-        <p className="mt-10 text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-40">Acceso exclusivo - {ranchoName}</p>
+        <div className="mt-10 pt-6 border-t border-white/10">
+           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Plataforma Agrotech</p>
+           <p className="text-xs font-bold text-emerald-400 mt-1">{ranchoName}</p>
+        </div>
       </div>
     </div>
   );
