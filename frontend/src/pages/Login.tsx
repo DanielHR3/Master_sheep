@@ -31,7 +31,7 @@ const Login: React.FC<LoginProps> = ({
     ? 'Rancho Las Bugambilias' 
     : isPablito 
       ? 'Rancho Don Pablito' 
-      : 'Acceso Centralizado';
+      : 'Agrotech';
 
   return (
     <div className="h-screen w-full flex items-center justify-center font-sans relative overflow-hidden">
