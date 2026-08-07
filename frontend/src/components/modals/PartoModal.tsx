@@ -22,7 +22,7 @@ const PartoModal: React.FC<PartoModalProps> = ({
 }) => {
   if (!show) return null;
 
-  const femaleAnimals = animals.filter(a => a.sexo === 'Hembra');
+  const femaleAnimals = (Array.isArray(animals) ? animals : []).filter(a => a.sexo === 'Hembra');
   const mother = selectedAnimal || femaleAnimals.find(a => a.id === form.animal_id);
 
   return (

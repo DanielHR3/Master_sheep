@@ -35,7 +35,7 @@ const Corrales: React.FC<CorralesProps> = ({ corrales, animals, theme, onAddCorr
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {corrales.length > 0 ? corrales.map((corral) => {
-          const occupancy = animals.filter(a => a.corral_id === corral.nombre || a.corral_id === corral.id).length;
+          const occupancy = (Array.isArray(animals) ? animals : []).filter(a => a.corral_id === corral.nombre || a.corral_id === corral.id).length;
           const percentage = (occupancy / (corral.capacidad || 1)) * 100;
           return (
             <div key={corral.id} className={`p-8 rounded-[40px] border transition-all ${theme === 'dark' ? 'bg-clay/30 border-white/5' : 'bg-white border-6666-cream/20'}`}>

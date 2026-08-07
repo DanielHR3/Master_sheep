@@ -219,13 +219,13 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
              <h3 className={`text-2xl font-black font-display tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Agenda Sanitaria</h3>
           </div>
           <div className="space-y-3 flex-1 overflow-y-auto pr-1 custom-scrollbar">
-            {(tareas || []).filter((t: any) => t.estatus === 'Pendiente').length === 0 ? (
+            {(Array.isArray(tareas) ? tareas : []).filter((t: any) => t.estatus === 'Pendiente').length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center py-12">
                 <CheckCircle2 size={44} className="text-emerald-500/40 mb-3" />
                 <p className="text-xs text-slate-400 uppercase font-black tracking-wider">Todas las tareas al día</p>
               </div>
             ) : (
-              (tareas || []).filter((t: any) => t.estatus === 'Pendiente').map((t: any) => {
+              (Array.isArray(tareas) ? tareas : []).filter((t: any) => t.estatus === 'Pendiente').map((t: any) => {
                 const isReminder = t.titulo?.startsWith('REMINDER');
                 return (
                   <div key={t.id} className={`p-4 rounded-2xl border flex items-center justify-between transition-all ${

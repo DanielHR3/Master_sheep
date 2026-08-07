@@ -417,10 +417,10 @@ const Reports: React.FC<ReportsProps> = ({ theme }) => {
                       <PieChart>
                         <Pie 
                           data={[
-                            { name: 'Dorper', value: ((data as any)?.animals || []).filter((a: any) => a.raza === 'Dorper').length || 10 },
-                            { name: 'Pelibuey', value: ((data as any)?.animals || []).filter((a: any) => a.raza === 'Pelibuey').length || 5 },
-                            { name: 'Katahdin', value: ((data as any)?.animals || []).filter((a: any) => a.raza === 'Katahdin').length || 15 },
-                            { name: 'Cruza', value: ((data as any)?.animals || []).filter((a: any) => a.raza === 'Cruza').length || 8 },
+                            { name: 'Dorper', value: (Array.isArray((data as any)?.animals) ? (data as any).animals : []).filter((a: any) => a.raza === 'Dorper').length || 10 },
+                            { name: 'Pelibuey', value: (Array.isArray((data as any)?.animals) ? (data as any).animals : []).filter((a: any) => a.raza === 'Pelibuey').length || 5 },
+                            { name: 'Katahdin', value: (Array.isArray((data as any)?.animals) ? (data as any).animals : []).filter((a: any) => a.raza === 'Katahdin').length || 15 },
+                            { name: 'Cruza', value: (Array.isArray((data as any)?.animals) ? (data as any).animals : []).filter((a: any) => a.raza === 'Cruza').length || 8 },
                           ]}
                           cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value"
                         >
