@@ -28,8 +28,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
   const isDark = theme === 'dark';
   const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
   const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
+  const isDonPablito = rawRancho.includes('PABLITO') || (user?.email?.toLowerCase() || '').includes('pablito');
   
-  const logoSrc = isBugambilias ? '/logo_bugambilias.jpg' : '/logo.png';
+  const logoSrc = isBugambilias ? '/logo_bugambilias.jpg' : isDonPablito ? '/logodonpablito.jpg' : '/logo.png';
   const ranchoName = user?.rancho_id ? user.rancho_id.toUpperCase() : 'SHEEP MASTER';
 
   return (

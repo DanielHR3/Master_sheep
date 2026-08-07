@@ -69,6 +69,25 @@ function App() {
     );
   }
 
+  // Spinner de carga mientras se identifica el rancho y el usuario (para evitar parpadeos del logo incorrecto)
+  if (store.isLoggedIn && !store.currentUser) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center transition-colors duration-1000 ${store.theme === 'dark' ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
+        <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-500">
+          <div className="relative flex items-center justify-center">
+            <div className="absolute w-24 h-24 border-4 border-slate-200 dark:border-slate-800 rounded-full"></div>
+            <div className="absolute w-24 h-24 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-3xl">🐑</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <h2 className="text-xl font-black tracking-tight">Preparando tu entorno</h2>
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-400 animate-pulse">Autenticando Rancho...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const renderContent = () => {
     switch (store.activeTab) {
       case 'dashboard':

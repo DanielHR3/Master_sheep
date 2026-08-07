@@ -165,6 +165,7 @@ export const useAppLogic = () => {
   const handleLogin = async () => {
     store.setNotification(null); // Limpiar notificaciones previas
     store.setLoading(true);
+    store.setCurrentUser(null); // Clear previous user to force loading state
     try {
       await Login(email, password);
       store.setIsLoggedIn(true);
@@ -186,6 +187,7 @@ export const useAppLogic = () => {
 
   const handleLogout = () => {
     store.setIsLoggedIn(false);
+    store.setCurrentUser(null);
     // Optional: Clear additional state if needed
   };
 
