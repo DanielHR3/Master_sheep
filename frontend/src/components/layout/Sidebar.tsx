@@ -28,10 +28,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
   const isDark = theme === 'dark';
   const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
   const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
-  const isDonPablito = rawRancho.includes('PABLITO') || (user?.email?.toLowerCase() || '').includes('pablito');
+  const isDonPablito = rawRancho.includes('PABLITO') || (user?.email?.toLowerCase() || '').includes('pablito') || rawRancho.includes('25CF359E-E5A7-4403-A1F1-3A4375F21EF3');
   
   const logoSrc = isBugambilias ? '/logo_bugambilias.jpg' : isDonPablito ? '/logodonpablito.jpg' : '/logo.png';
-  const ranchoName = user?.rancho_id ? user.rancho_id.toUpperCase() : 'SHEEP MASTER';
+  const ranchoName = isBugambilias ? 'LAS BUGAMBILIAS' : isDonPablito ? 'DON PABLITO' : 'AGROTECH';
 
   return (
     <aside className={`fixed left-0 top-0 h-full z-40 hidden md:block border-r transition-all duration-500 ease-in-out ${
