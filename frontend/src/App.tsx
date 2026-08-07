@@ -88,6 +88,10 @@ function App() {
     );
   }
 
+  const rawRancho = (store.currentUser?.rancho_id || store.currentUser?.name || '').toUpperCase();
+  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (store.currentUser?.email?.toLowerCase() || '').includes('bugambilias');
+  const defaultDestino = isBugambilias ? 'Pie de Cría' : 'Engorda';
+
   const renderContent = () => {
     switch (store.activeTab) {
       case 'dashboard':
@@ -96,7 +100,10 @@ function App() {
           tareas={store.tareas} 
           theme={store.theme} 
           user={store.currentUser}
-          onGlobalAdd={() => state.modals.setShowAddAnimal(true)} 
+          onGlobalAdd={() => {
+            state.setAnimalForm({ arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino: defaultDestino, especie: 'Ovino' });
+            state.modals.setShowAddAnimal(true)
+          }} 
           onCompleteTask={async (id) => { await CompletarTarea(id); actions.refreshData(); }} 
           onSync={actions.handleSyncToJarvis}
         />;
@@ -109,7 +116,7 @@ function App() {
           subTab={store.subTab} 
           setSubTab={store.setSubTab} 
           onAddAnimal={() => { 
-            state.setAnimalForm({ arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino: 'Engorda', especie: 'Ovino' }); 
+            state.setAnimalForm({ arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino: defaultDestino, especie: 'Ovino' }); 
             state.modals.setShowAddAnimal(true); 
           }} 
           onAddInsumo={() => { 
@@ -163,7 +170,10 @@ function App() {
           tareas={store.tareas} 
           theme={store.theme} 
           user={store.currentUser}
-          onGlobalAdd={() => state.modals.setShowAddAnimal(true)} 
+          onGlobalAdd={() => {
+            state.setAnimalForm({ arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino: defaultDestino, especie: 'Ovino' }); 
+            state.modals.setShowAddAnimal(true)
+          }} 
           onCompleteTask={async (id) => { await CompletarTarea(id); actions.refreshData(); }} 
           onSync={actions.handleSyncToJarvis}
         />;

@@ -48,6 +48,8 @@ const Inventory: React.FC<InventoryProps> = ({
 }) => {
   const [filterDestino, setFilterDestino] = useState<'all' | 'Engorda' | 'Pie de Cría'>('all');
   const isDark = theme === 'dark';
+  const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
+  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
 
   return (
     <div className="space-y-8 pt-6 animate-in fade-in duration-500">
@@ -75,7 +77,9 @@ const Inventory: React.FC<InventoryProps> = ({
           {subTab === 'animals' && (
             <div className={`flex p-1.5 rounded-2xl border ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
                <button onClick={() => setFilterDestino('all')} className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer ${filterDestino === 'all' ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Todos</button>
-               <button onClick={() => setFilterDestino('Engorda')} className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer ${filterDestino === 'Engorda' ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Engorda</button>
+               {!isBugambilias && (
+                 <button onClick={() => setFilterDestino('Engorda')} className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer ${filterDestino === 'Engorda' ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Engorda</button>
+               )}
                <button onClick={() => setFilterDestino('Pie de Cría')} className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer ${filterDestino === 'Pie de Cría' ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Pie de Cría</button>
             </div>
           )}

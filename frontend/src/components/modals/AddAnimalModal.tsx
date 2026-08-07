@@ -221,9 +221,9 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
         )}
         <button 
           onClick={onAdd} 
-          className="w-full py-4 bg-saddle-tan text-white font-black rounded-xl hover:bg-antique-brass transition-all"
+          className="w-full py-4 bg-emerald-600 text-white font-black rounded-xl hover:bg-emerald-500 transition-all uppercase tracking-widest shadow-lg shadow-emerald-500/20"
         >
-          GUARDAR ANIMAL
+          Guardar Animal
         </button>
       </div>
     </Modal>
