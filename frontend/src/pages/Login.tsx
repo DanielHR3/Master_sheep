@@ -29,7 +29,6 @@ const Login: React.FC<LoginProps> = ({
   const ranchoName = isBugambilias ? 'Rancho Las Bugambilias' : 'Rancho Don Pablito';
 
   return (
-  return (
     <div className="h-screen w-full flex items-center justify-center font-sans relative overflow-hidden">
       {/* Background Image & Overlay */}
       <div className="absolute inset-0 bg-slate-900">
