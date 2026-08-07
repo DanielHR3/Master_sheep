@@ -103,6 +103,41 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
         </div>
       </div>
 
+      {/* Agrotech Welcome Banner */}
+      <div className="relative overflow-hidden rounded-[40px] shadow-2xl border border-emerald-500/20 group">
+        <div className="absolute inset-0 bg-slate-900">
+          <img 
+            src="/agrotech_banner.jpg" 
+            alt="Agrotech Services" 
+            className="w-full h-full object-cover object-center opacity-40 group-hover:opacity-50 group-hover:scale-105 transition-all duration-1000"
+          />
+          <div className={`absolute inset-0 bg-gradient-to-r ${isDark ? 'from-slate-950 via-slate-900/90 to-transparent' : 'from-emerald-950 via-emerald-900/80 to-transparent'}`}></div>
+        </div>
+        
+        <div className="relative p-8 md:p-12 max-w-2xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase tracking-widest mb-4 backdrop-blur-md shadow-lg">
+            <Zap size={12} /> SISTEMA AGROTECH V3.0
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black font-display tracking-tight text-white mb-4 leading-tight">
+            Bienvenido a <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
+              {ranchoName}
+            </span>
+          </h2>
+          <p className="text-slate-300 font-semibold mb-8 max-w-lg leading-relaxed text-sm">
+            Nuestros servicios de inteligencia artificial y ciencia de datos están optimizando la gestión de tu hato en tiempo real. Monitoreo de genética, nutrición y salud impulsado por tecnología de punta.
+          </p>
+          <div className="flex gap-4">
+            <button onClick={onGlobalAdd} className="bg-white text-emerald-900 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-emerald-50 transition-all shadow-xl active:scale-95 flex items-center gap-2 cursor-pointer">
+              <PlusCircle size={16} /> Alta Animal
+            </button>
+            <button className="bg-emerald-600/30 text-white border border-emerald-500/50 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-emerald-600/50 transition-all backdrop-blur-sm active:scale-95 flex items-center gap-2 cursor-pointer">
+               Explorar Reportes
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* KPIs SUPERIORES */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
         {[
