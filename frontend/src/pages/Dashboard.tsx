@@ -1,4 +1,5 @@
 import React from 'react';
+import { useStore } from '../context/useStore';
 import { 
   Users, 
   TrendingUp, 
@@ -47,6 +48,8 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd, onCompleteTask, onSync, user }) => {
   const isDark = theme === 'dark';
+  const store = useStore();
+  const isLoading = store.loading;
   
   const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
   const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
@@ -142,22 +145,32 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
 
       {/* KPIs SUPERIORES */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-        {[
-          { label: 'Total Hato', value: stats?.total_cabezas || 0, icon: Users, color: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20' },
-          { label: 'En Engorda', value: stats?.en_engorda || 0, icon: TrendingUp, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
-          { label: 'Pie de Cría', value: stats?.pie_de_cria || 0, icon: Award, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-          { label: 'Bajas', value: stats?.bajas || 0, icon: AlertTriangle, color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
-          { label: '% Gestación', value: `${(stats?.porcentaje_gestacion || 0).toFixed(1)}%`, icon: Award, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
-          { label: '% Parición', value: `${(stats?.porcentaje_paricion || 0).toFixed(1)}%`, icon: Award, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
-        ].map((kpi, idx) => (
-          <div key={idx} className={`p-4 rounded-3xl border transition-all hover:scale-[1.01] ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
-            <div className={`p-2.5 rounded-xl w-fit mb-2 border ${kpi.bg}`}>
-              <kpi.icon size={18} className={kpi.color} />
+        {isLoading ? (
+          Array.from({ length: 6 }).map((_, idx) => (
+            <div key={idx} className={`p-4 rounded-3xl border animate-pulse ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-100 border-slate-200'}`}>
+              <div className={`w-10 h-10 rounded-xl mb-2 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
+              <div className={`w-16 h-3 rounded mb-2 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
+              <div className={`w-12 h-6 rounded ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
             </div>
-            <p className={`font-black uppercase text-[10px] tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{kpi.label}</p>
-            <h3 className={`text-2xl font-black tracking-tight mt-1 font-display ${isDark ? 'text-white' : 'text-slate-900'}`}>{kpi.value || 0}</h3>
-          </div>
-        ))}
+          ))
+        ) : (
+          [
+            { label: 'Total Hato', value: stats?.total_cabezas || 0, icon: Users, color: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20' },
+            { label: 'En Engorda', value: stats?.en_engorda || 0, icon: TrendingUp, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
+            { label: 'Pie de Cría', value: stats?.pie_de_cria || 0, icon: Award, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+            { label: 'Bajas', value: stats?.bajas || 0, icon: AlertTriangle, color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
+            { label: '% Gestación', value: `${(stats?.porcentaje_gestacion || 0).toFixed(1)}%`, icon: Award, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
+            { label: '% Parición', value: `${(stats?.porcentaje_paricion || 0).toFixed(1)}%`, icon: Award, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
+          ].map((kpi, idx) => (
+            <div key={idx} className={`p-4 rounded-3xl border transition-all hover:scale-[1.01] ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
+              <div className={`p-2.5 rounded-xl w-fit mb-2 border ${kpi.bg}`}>
+                <kpi.icon size={18} className={kpi.color} />
+              </div>
+              <p className={`font-black uppercase text-[10px] tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{kpi.label}</p>
+              <h3 className={`text-2xl font-black tracking-tight mt-1 font-display ${isDark ? 'text-white' : 'text-slate-900'}`}>{kpi.value || 0}</h3>
+            </div>
+          ))
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -173,7 +186,14 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
-            {(stats?.alertas_venta || []).length > 0 ? (
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className={`p-5 rounded-[28px] border animate-pulse ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-100 border-slate-200'}`}>
+                  <div className={`h-4 w-1/2 rounded mb-2 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
+                  <div className={`h-3 w-1/3 rounded ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
+                </div>
+              ))
+            ) : (stats?.alertas_venta || []).length > 0 ? (
               (stats?.alertas_venta || []).map((a: any, i: number) => (
                 <div key={i} className={`p-5 rounded-[28px] border flex items-center justify-between transition-all ${
                   a.color === 'rojo' 
@@ -219,7 +239,14 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
              <h3 className={`text-2xl font-black font-display tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Agenda Sanitaria</h3>
           </div>
           <div className="space-y-3 flex-1 overflow-y-auto pr-1 custom-scrollbar">
-            {(Array.isArray(tareas) ? tareas : []).filter((t: any) => t.estatus === 'Pendiente').length === 0 ? (
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className={`p-4 rounded-2xl border animate-pulse ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-100 border-slate-200'}`}>
+                  <div className={`h-4 w-3/4 rounded mb-2 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
+                  <div className={`h-3 w-1/2 rounded ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
+                </div>
+              ))
+            ) : (Array.isArray(tareas) ? tareas : []).filter((t: any) => t.estatus === 'Pendiente').length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center py-12">
                 <CheckCircle2 size={44} className="text-emerald-500/40 mb-3" />
                 <p className="text-xs text-slate-400 uppercase font-black tracking-wider">Todas las tareas al día</p>
