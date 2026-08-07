@@ -193,7 +193,7 @@ export const useAppLogic = () => {
 
   const handleAddAnimal = async () => {
     try {
-      if (!animalForm.arete) return alert("El arete es obligatorio");
+      if (!animalForm.arete) return store.setNotification({ message: "El arete es obligatorio", type: 'error' });
       const animal = main.Animal.createFrom({
         arete: animalForm.arete,
         raza: animalForm.raza,
@@ -208,9 +208,10 @@ export const useAppLogic = () => {
       await AddAnimal(animal);
       setShowAddAnimal(false);
       setAnimalForm({ arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino: 'Engorda' });
+      store.setNotification({ message: "Animal registrado exitosamente", type: 'success' });
       refreshData();
-    } catch (err) {
-      alert("Error al registrar animal: " + err);
+    } catch (err: any) {
+      store.setNotification({ message: "Error al registrar animal: " + (err.message || err), type: 'error' });
     }
   };
 
@@ -218,9 +219,10 @@ export const useAppLogic = () => {
     if (window.confirm("¿Está seguro de eliminar este animal? Se borrará TODO su historial clínico y reproductivo.")) {
       try {
         await DeleteAnimal(id);
+        store.setNotification({ message: "Animal eliminado", type: 'success' });
         refreshData();
-      } catch (err) {
-        alert("Error al eliminar animal: " + err);
+      } catch (err: any) {
+        store.setNotification({ message: "Error al eliminar animal: " + (err.message || err), type: 'error' });
       }
     }
   };
@@ -230,9 +232,10 @@ export const useAppLogic = () => {
     try {
       await UpdateAnimal(editAnimalForm);
       setShowEditAnimal(false);
+      store.setNotification({ message: "Animal actualizado correctamente", type: 'success' });
       refreshData();
-    } catch (err) {
-      alert("Error al actualizar animal: " + err);
+    } catch (err: any) {
+      store.setNotification({ message: "Error al actualizar animal: " + (err.message || err), type: 'error' });
     }
   };
 
@@ -253,9 +256,10 @@ export const useAppLogic = () => {
         fecha_vencimiento: '',
         proveedor: ''
       });
+      store.setNotification({ message: "Insumo agregado con éxito", type: 'success' });
       refreshData();
-    } catch (err) {
-      alert("Error al agregar insumo");
+    } catch (err: any) {
+      store.setNotification({ message: "Error al agregar insumo: " + (err.message || err), type: 'error' });
     }
   };
 
@@ -269,18 +273,20 @@ export const useAppLogic = () => {
       await AddCorral(c);
       setShowAddCorral(false);
       setCorralForm({ nombre: '', tipo: 'General', capacidad: 50 });
+      store.setNotification({ message: "Corral creado correctamente", type: 'success' });
       refreshData();
-    } catch (err) {
-      alert("Error al crear corral");
+    } catch (err: any) {
+      store.setNotification({ message: "Error al crear corral: " + (err.message || err), type: 'error' });
     }
   };
 
   const handleDeleteCorral = async (id: string) => {
     try {
       await DeleteCorral(id);
+      store.setNotification({ message: "Corral eliminado", type: 'success' });
       refreshData();
     } catch (err: any) {
-      alert("Error al eliminar corral: " + (err.message || err));
+      store.setNotification({ message: "Error al eliminar corral: " + (err.message || err), type: 'error' });
     }
   };
 
@@ -319,15 +325,16 @@ export const useAppLogic = () => {
       }
 
       setShowTreatment(false);
+      store.setNotification({ message: "Tratamiento registrado", type: 'success' });
       refreshData();
-    } catch (err) {
-      alert("Error al registrar tratamiento o programar recordatorios");
+    } catch (err: any) {
+      store.setNotification({ message: "Error al registrar tratamiento o programar recordatorios: " + (err.message || err), type: 'error' });
     }
   };
 
   const handleRegisterProlapso = async () => {
     if (!selectedAnimal) return;
-    if (!prolapsoForm.diagnostico) return alert("Seleccione el tipo de incidencia");
+    if (!prolapsoForm.diagnostico) return store.setNotification({ message: "Seleccione el tipo de incidencia", type: 'error' });
     try {
       const p = main.RecetaVeterinaria.createFrom({
         animal_id: selectedAnimal.id,
@@ -343,19 +350,19 @@ export const useAppLogic = () => {
       setProlapsoForm({ diagnostico: '', mvz: '', fecha: new Date().toISOString().split('T')[0], tratamiento: '' });
       store.setNotification({ message: "¡Registro guardado exitosamente!", type: 'success' });
       refreshData();
-    } catch (err) {
-      alert("Error al registrar incidencia: " + err);
+    } catch (err: any) {
+      store.setNotification({ message: "Error al registrar incidencia: " + (err.message || err), type: 'error' });
     }
   };
 
   const handleRegisterBreeding = async () => {
-    if (!breedingForm.animal_id) return alert("Seleccione un animal");
+    if (!breedingForm.animal_id) return store.setNotification({ message: "Seleccione un animal", type: 'error' });
     try {
       await RegistrarEventoReproductivo(main.EventoReproductivo.createFrom(breedingForm)); 
-      alert("Evento registrado con éxito");
+      store.setNotification({ message: "Evento registrado con éxito", type: 'success' });
       refreshData(); 
     } catch (err: any) {
-      alert("Error al guardar: " + err.message);
+      store.setNotification({ message: "Error al guardar: " + err.message, type: 'error' });
     }
   };
 
@@ -373,7 +380,7 @@ export const useAppLogic = () => {
     try {
       const animalIdToUse = partoForm.animal_id || breedingForm.animal_id || selectedAnimal?.id;
       if (!animalIdToUse || animalIdToUse.trim() === '') {
-        alert("Por favor seleccione la borrega madre (arete) antes de confirmar el parto.");
+        store.setNotification({ message: "Por favor seleccione la borrega madre (arete) antes de confirmar el parto.", type: 'error' });
         return;
       }
       const p = main.Parto.createFrom({
@@ -389,7 +396,7 @@ export const useAppLogic = () => {
       refreshData();
     } catch (err: any) {
       console.error("Error al registrar parto:", err);
-      alert("Error al registrar parto: " + (err?.message || err || 'Ocurrió un error en el servidor'));
+      store.setNotification({ message: "Error al registrar parto: " + (err?.message || err || 'Ocurrió un error en el servidor'), type: 'error' });
     }
   };
 
@@ -405,9 +412,10 @@ export const useAppLogic = () => {
       }));
       setShowWeightModal(false);
       setWeightForm({ peso: 0, fecha: new Date().toISOString().split('T')[0], notas: '' });
+      store.setNotification({ message: "Peso registrado", type: 'success' });
       refreshData();
-    } catch (err) {
-      alert("Error al registrar peso: " + err);
+    } catch (err: any) {
+      store.setNotification({ message: "Error al registrar peso: " + (err.message || err), type: 'error' });
     }
   };
 
@@ -417,14 +425,14 @@ export const useAppLogic = () => {
       const history = await GetSeguimientosPeso(animal.id);
       setWeightHistory(history || []);
       setShowWeightHistory(true);
-    } catch (err) {
-      alert("Error al obtener historial de peso");
+    } catch (err: any) {
+      store.setNotification({ message: "Error al obtener historial de peso: " + (err.message || err), type: 'error' });
     }
   };
 
   const handleAddUser = async () => {
     if (usuarioForm.password !== usuarioForm.confirmPassword) {
-      alert("Error al registrar usuario: Las contraseñas no coinciden.");
+      store.setNotification({ message: "Error al registrar usuario: Las contraseñas no coinciden.", type: 'error' });
       return;
     }
     try {
@@ -436,9 +444,10 @@ export const useAppLogic = () => {
       });
       await AddUser(u);
       setUsuarioForm({ id: '', name: '', email: '', password: '', confirmPassword: '', role: 'Trabajador' });
+      store.setNotification({ message: "Usuario creado exitosamente", type: 'success' });
       refreshData();
     } catch (err: any) {
-      alert("Error al registrar usuario: " + (err?.message || err));
+      store.setNotification({ message: "Error al registrar usuario: " + (err?.message || err), type: 'error' });
     }
   };
 
@@ -446,9 +455,10 @@ export const useAppLogic = () => {
     if (window.confirm("¿Seguro que desea eliminar este usuario?")) {
       try {
         await DeleteUser(id);
+        store.setNotification({ message: "Usuario eliminado", type: 'success' });
         refreshData();
       } catch (err: any) {
-        alert("Error al eliminar: " + (err?.message || err));
+        store.setNotification({ message: "Error al eliminar: " + (err?.message || err), type: 'error' });
       }
     }
   };
@@ -463,9 +473,10 @@ export const useAppLogic = () => {
       });
       await UpdateUser(u);
       setUsuarioForm({ id: '', name: '', email: '', password: '', confirmPassword: '', role: 'Trabajador' });
+      store.setNotification({ message: "Usuario actualizado", type: 'success' });
       refreshData();
     } catch (err: any) {
-      alert("Error al actualizar usuario: " + (err?.message || err));
+      store.setNotification({ message: "Error al actualizar usuario: " + (err?.message || err), type: 'error' });
     }
   };
 
@@ -476,10 +487,10 @@ export const useAppLogic = () => {
     try {
       store.setLoading(true);
       const result = await ImportAnimalsExcel(file);
-      alert(`Éxito: Se han importado ${result} registros correctamente.`);
+      store.setNotification({ message: `Éxito: Se han importado ${result} registros correctamente.`, type: 'success' });
       refreshData();
     } catch (err: any) {
-      alert("Error: " + err);
+      store.setNotification({ message: "Error al importar: " + (err.message || err), type: 'error' });
     } finally {
       store.setLoading(false);
       if (e.target) e.target.value = '';
@@ -563,22 +574,23 @@ export const useAppLogic = () => {
         try {
           await ConfirmarUltrasonido(selectedAnimal.id, result);
           setShowConfirmModal(false);
+          store.setNotification({ message: "Ultrasonido confirmado", type: 'success' });
           refreshData();
-        } catch (err) {
-          alert("Error al confirmar ultrasonido");
+        } catch (err: any) {
+          store.setNotification({ message: "Error al confirmar ultrasonido: " + (err.message || err), type: 'error' });
         }
       },
       handleChangePassword: async () => {
         if (changePasswordForm.new !== changePasswordForm.confirm) {
-          return alert("Las contraseñas no coinciden");
+          return store.setNotification({ message: "Las contraseñas no coinciden", type: 'error' });
         }
         try {
           await ChangePassword(changePasswordForm.old, changePasswordForm.new);
           setShowChangePassword(false);
           setChangePasswordForm({ old: '', new: '', confirm: '' });
-          alert("Contraseña actualizada con éxito");
-        } catch (err) {
-          alert("Error: " + err);
+          store.setNotification({ message: "Contraseña actualizada con éxito", type: 'success' });
+        } catch (err: any) {
+          store.setNotification({ message: "Error: " + (err.message || err), type: 'error' });
         }
       }
     },
