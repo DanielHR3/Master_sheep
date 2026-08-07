@@ -178,7 +178,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
             <button onClick={onGlobalAdd} className="bg-white text-emerald-900 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-emerald-50 transition-all shadow-xl active:scale-95 flex items-center gap-2 cursor-pointer">
               <PlusCircle size={16} /> Alta Animal
             </button>
-            <button className="bg-emerald-600/30 text-white border border-emerald-500/50 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-emerald-600/50 transition-all backdrop-blur-sm active:scale-95 flex items-center gap-2 cursor-pointer">
+            <button onClick={() => store.setActiveTab('reports')} className="bg-emerald-600/30 text-white border border-emerald-500/50 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-emerald-600/50 transition-all backdrop-blur-sm active:scale-95 flex items-center gap-2 cursor-pointer">
                Explorar Reportes
             </button>
           </div>
