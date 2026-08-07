@@ -88,8 +88,8 @@ function App() {
     );
   }
 
-  const rawRancho = (store.currentUser?.rancho_id || store.currentUser?.name || '').toUpperCase();
-  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (store.currentUser?.email?.toLowerCase() || '').includes('bugambilias');
+  const rawRancho = (store.selectedRanchOverride || store.currentUser?.rancho_id || store.currentUser?.name || '').toUpperCase();
+  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (store.selectedRanchOverride ? false : (store.currentUser?.email?.toLowerCase() || '').includes('bugambilias'));
   const defaultDestino = isBugambilias ? 'Pie de Cría' : 'Engorda';
 
   const renderContent = () => {
@@ -198,6 +198,8 @@ function App() {
         user={store.currentUser} 
         isCollapsed={isSidebarCollapsed}
         toggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        selectedRanchOverride={store.selectedRanchOverride}
+        setSelectedRanchOverride={store.setSelectedRanchOverride}
       />
 
       <main className={`transition-all duration-500 ease-in-out ${isSidebarCollapsed ? 'md:ml-24' : 'md:ml-80'} flex-1 p-6 md:p-12 pb-32 md:pb-12 max-w-7xl mx-auto w-full`}>

@@ -4,6 +4,7 @@ import {
   FileSpreadsheet, 
   FlaskConical 
 } from 'lucide-react';
+import { useStore } from '../context/useStore';
 import { main } from "../../wailsjs/go/models";
 import AnimalCard from "../components/AnimalCard";
 
@@ -48,8 +49,9 @@ const Inventory: React.FC<InventoryProps> = ({
 }) => {
   const [filterDestino, setFilterDestino] = useState<'all' | 'Engorda' | 'Pie de Cría'>('all');
   const isDark = theme === 'dark';
-  const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
-  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
+  const store = useStore();
+  const rawRancho = (store.selectedRanchOverride || user?.rancho_id || user?.name || '').toUpperCase();
+  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (store.selectedRanchOverride ? false : (user?.email?.toLowerCase() || '').includes('bugambilias'));
 
   return (
     <div className="space-y-8 pt-6 animate-in fade-in duration-500">
