@@ -145,7 +145,7 @@ const Reports: React.FC<ReportsProps> = ({ theme }) => {
   };
 
   // Filtrar datos según la barra de búsqueda
-  const filteredData = data.filter((row: any) => {
+  const filteredData = Array.isArray(data) ? data.filter((row: any) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     
@@ -153,7 +153,7 @@ const Reports: React.FC<ReportsProps> = ({ theme }) => {
     return Object.values(row).some(val => 
       ('' + (val || '')).toLowerCase().includes(query)
     );
-  });
+  }) : [];
 
   // Limitar previsualización a 12 registros para agilidad visual
   const previewData = filteredData.slice(0, 12);
