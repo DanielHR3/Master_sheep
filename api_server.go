@@ -7,16 +7,88 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
+	"strings"
 )
+
+// allowedOrigins lee la lista blanca de orígenes CORS desde la variable de
+// entorno ALLOWED_ORIGINS (separada por comas). Si no está configurada,
+// devuelve nil y se mantiene el comportamiento previo (permitir cualquier
+// origen) para no romper despliegues existentes sin esta variable.
+func allowedOrigins() []string {
+	raw := os.Getenv("ALLOWED_ORIGINS")
+	if raw == "" {
+		return nil
+	}
+	parts := strings.Split(raw, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+// authenticateRequest valida el header "Authorization: Bearer <token>" de una
+// petición y devuelve el usuario correspondiente. No toca a.user (el estado
+// compartido de la instancia): cada petición resuelve su propio usuario.
+func (a *App) authenticateRequest(r *http.Request) (*User, error) {
+	authHeader := r.Header.Get("Authorization")
+	token, ok := strings.CutPrefix(authHeader, "Bearer ")
+	if !ok || token == "" {
+		return nil, fmt.Errorf("no autenticado")
+	}
+	userID, ok := sessions.get(token)
+	if !ok {
+		return nil, fmt.Errorf("no autenticado")
+	}
+	user, err := a.loadUserByID(userID)
+	if err != nil {
+		return nil, fmt.Errorf("no autenticado")
+	}
+	return user, nil
+}
+
+// withAuth exige una sesión válida y despacha el handler sobre una copia
+// superficial de App con `user` fijado al usuario de ESTA petición — así los
+// ~44 métodos de negocio que leen a.user/a.tenantID() siguen funcionando sin
+// cambios, pero cada petición HTTP ve su propio usuario en vez de un estado
+// global compartido entre todos los clientes concurrentes.
+func (a *App) withAuth(fn func(*App, http.ResponseWriter, *http.Request)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, err := a.authenticateRequest(r)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]string{"error": "no autenticado"})
+			return
+		}
+		reqApp := *a
+		reqApp.user = user
+		fn(&reqApp, w, r)
+	}
+}
 
 // StartAPIServer inicia un servidor HTTP para peticiones móviles
 func (a *App) StartAPIServer(port int) {
 	mux := http.NewServeMux()
+	sessions.startCleanup()
 
-	// Middleware de CORS simplificado
+	origins := allowedOrigins()
+	if origins == nil {
+		fmt.Println("ADVERTENCIA: ALLOWED_ORIGINS no configurada — CORS permite cualquier origen. Configúrala en producción.")
+	}
+
+	// Middleware de CORS
 	corsWrapper := func(h http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
+			origin := r.Header.Get("Origin")
+			if origins == nil {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+			} else if origin != "" && slices.Contains(origins, origin) {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Set("Vary", "Origin")
+			}
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 			if r.Method == "OPTIONS" {
@@ -32,29 +104,33 @@ func (a *App) StartAPIServer(port int) {
 		}
 	}
 
-	// Endpoints API
+	// Endpoints públicos (sin sesión)
 	mux.HandleFunc("/api/login", corsWrapper(a.handleLogin))
-	mux.HandleFunc("/api/me", corsWrapper(a.handleMe))
-	mux.HandleFunc("/api/animals", corsWrapper(a.handleAnimals))
-	mux.HandleFunc("/api/insumos", corsWrapper(a.handleInsumos))
-	mux.HandleFunc("/api/corrales", corsWrapper(a.handleCorrales))
-	mux.HandleFunc("/api/stats", corsWrapper(a.handleStats))
-	mux.HandleFunc("/api/reproduction", corsWrapper(a.handleReproduction))
-	mux.HandleFunc("/api/reproduction-events", corsWrapper(a.handleReproductionEvents))
-	mux.HandleFunc("/api/treatments", corsWrapper(a.handleTreatments))
-	mux.HandleFunc("/api/tasks", corsWrapper(a.handleTasks))
-	mux.HandleFunc("/api/births", corsWrapper(a.handleBirths))
-	mux.HandleFunc("/api/history", corsWrapper(a.handleHistory))
-	mux.HandleFunc("/api/weights", corsWrapper(a.handleWeights))
-	mux.HandleFunc("/api/users", corsWrapper(a.handleUsers))
-	mux.HandleFunc("/api/change-password", corsWrapper(a.handleChangePasswordAPI))
-	mux.HandleFunc("/api/demo-mode", corsWrapper(a.handleDemoMode))
-	mux.HandleFunc("/api/import-excel", corsWrapper(a.handleImportExcelAPI))
-	mux.HandleFunc("/api/confirm-ultrasound", corsWrapper(a.handleConfirmUltrasound))
 	mux.HandleFunc("/api/health", corsWrapper(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	}))
+	mux.HandleFunc("/api/demo-mode", corsWrapper(a.handleDemoMode))
+
+	// Endpoints autenticados: cada uno se despacha sobre una copia de App
+	// con el usuario de la sesión de ESA petición (ver withAuth).
+	mux.HandleFunc("/api/logout", corsWrapper(a.withAuth((*App).handleLogout)))
+	mux.HandleFunc("/api/me", corsWrapper(a.withAuth((*App).handleMe)))
+	mux.HandleFunc("/api/animals", corsWrapper(a.withAuth((*App).handleAnimals)))
+	mux.HandleFunc("/api/insumos", corsWrapper(a.withAuth((*App).handleInsumos)))
+	mux.HandleFunc("/api/corrales", corsWrapper(a.withAuth((*App).handleCorrales)))
+	mux.HandleFunc("/api/stats", corsWrapper(a.withAuth((*App).handleStats)))
+	mux.HandleFunc("/api/reproduction", corsWrapper(a.withAuth((*App).handleReproduction)))
+	mux.HandleFunc("/api/reproduction-events", corsWrapper(a.withAuth((*App).handleReproductionEvents)))
+	mux.HandleFunc("/api/treatments", corsWrapper(a.withAuth((*App).handleTreatments)))
+	mux.HandleFunc("/api/tasks", corsWrapper(a.withAuth((*App).handleTasks)))
+	mux.HandleFunc("/api/births", corsWrapper(a.withAuth((*App).handleBirths)))
+	mux.HandleFunc("/api/history", corsWrapper(a.withAuth((*App).handleHistory)))
+	mux.HandleFunc("/api/weights", corsWrapper(a.withAuth((*App).handleWeights)))
+	mux.HandleFunc("/api/users", corsWrapper(a.withAuth((*App).handleUsers)))
+	mux.HandleFunc("/api/change-password", corsWrapper(a.withAuth((*App).handleChangePasswordAPI)))
+	mux.HandleFunc("/api/import-excel", corsWrapper(a.withAuth((*App).handleImportExcelAPI)))
+	mux.HandleFunc("/api/confirm-ultrasound", corsWrapper(a.withAuth((*App).handleConfirmUltrasound)))
 
 	// Servir archivos estáticos del frontend (PWA)
 	staticDir := "./frontend/dist"
@@ -99,17 +175,33 @@ func (a *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := a.Login(creds.Email, creds.Password)
+	user, err := a.authenticate(creds.Email, creds.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
 	}
 
+	token, err := sessions.create(user.ID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "no se pudo iniciar sesión"})
+		return
+	}
+
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
-		"user":    a.user,
+		"token":   token,
+		"user":    user,
 	})
+}
+
+// handleLogout revoca el token de sesión de la petición actual.
+func (a *App) handleLogout(w http.ResponseWriter, r *http.Request) {
+	if token, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer "); ok {
+		sessions.delete(token)
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (a *App) handleAnimals(w http.ResponseWriter, r *http.Request) {
@@ -469,15 +561,36 @@ func (a *App) handleChangePasswordAPI(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+
+	// Cambiar la contraseña invalida todas las sesiones de este usuario
+	// (incluida la actual) para forzar re-login en otros dispositivos;
+	// se emite un token nuevo de inmediato para no cerrar la sesión actual.
+	sessions.deleteAllForUser(a.user.ID)
+	newToken, err := sessions.create(a.user.ID)
+	if err != nil {
+		http.Error(w, "contraseña actualizada, pero no se pudo renovar la sesión", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]string{"token": newToken})
 }
 
+// handleDemoMode: la lectura del estado es pública (solo informativa), pero
+// cambiarlo requiere una sesión autenticada.
 func (a *App) handleDemoMode(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		json.NewEncoder(w).Encode(map[string]bool{"enabled": a.IsDemoMode})
 		return
 	}
 	if r.Method == http.MethodPost {
+		user, err := a.authenticateRequest(r)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]string{"error": "no autenticado"})
+			return
+		}
+		reqApp := *a
+		reqApp.user = user
+
 		var data struct {
 			Enabled bool `json:"enabled"`
 		}
@@ -485,11 +598,11 @@ func (a *App) handleDemoMode(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "JSON inválido", http.StatusBadRequest)
 			return
 		}
-		err := a.ToggleDemoMode(data.Enabled)
-		if err != nil {
+		if err := reqApp.ToggleDemoMode(data.Enabled); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		a.IsDemoMode = data.Enabled // ToggleDemoMode mutó la copia; propagar a la instancia compartida
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]bool{"enabled": a.IsDemoMode})
 		return

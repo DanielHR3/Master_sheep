@@ -4,7 +4,8 @@ import { main } from "../../wailsjs/go/models";
 import { 
   GetAnimales, 
   GetStats, 
-  Login, 
+  Login,
+  Logout,
   AddAnimal, 
   RegistrarEventoReproductivo, 
   GetCorrales, 
@@ -186,6 +187,7 @@ export const useAppLogic = () => {
   };
 
   const handleLogout = () => {
+    Logout();
     store.setIsLoggedIn(false);
     store.setCurrentUser(null);
     // Optional: Clear additional state if needed

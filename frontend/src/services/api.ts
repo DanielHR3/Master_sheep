@@ -1,6 +1,16 @@
 import * as WailsApp from "../../wailsjs/go/main/App";
 
 const IS_WAILS = !!(window as any).go;
+const TOKEN_KEY = 'sheepmaster_token';
+
+export const getAuthToken = () => localStorage.getItem(TOKEN_KEY);
+export const setAuthToken = (token: string) => localStorage.setItem(TOKEN_KEY, token);
+export const clearAuthToken = () => localStorage.removeItem(TOKEN_KEY);
+
+const authHeaders = (): Record<string, string> => {
+  const token = getAuthToken();
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+};
 
 export const getApiBaseUrl = () => {
   // 1. Si el usuario configuró manualmente una URL, esa tiene prioridad total
@@ -38,6 +48,7 @@ async function callApi(endpoint: string, method: string = 'GET', body?: any) {
     method,
     headers: {
       'Content-Type': 'application/json',
+      ...authHeaders(),
     },
     body: body ? JSON.stringify(body) : undefined,
   });
@@ -77,7 +88,15 @@ export const GetStats = async () => {
 export const Login = async (email: string, pass: string) => {
   if (IS_WAILS) return WailsApp.Login(email, pass);
   const res = await callApi('/login', 'POST', { email, password: pass });
+  if (res.token) setAuthToken(res.token);
   return res.success;
+};
+
+export const Logout = async () => {
+  if (!IS_WAILS) {
+    try { await callApi('/logout', 'POST'); } catch (_) { /* best-effort */ }
+    clearAuthToken();
+  }
 };
 
 export const AddAnimal = async (animal: any) => {
@@ -203,7 +222,7 @@ export const UpdateUser = async (user: any) => {
 export const DeleteUser = async (id: string) => {
   if (IS_WAILS) return WailsApp.DeleteUser(id);
   const baseUrl = getApiBaseUrl();
-  await fetch(`${baseUrl}/users?id=${id}`, { method: 'DELETE' });
+  await fetch(`${baseUrl}/users?id=${id}`, { method: 'DELETE', headers: authHeaders() });
 };
 
 export const UpdateAnimal = async (animal: any) => {
@@ -223,7 +242,9 @@ export const GetCurrentUser = async () => {
 
 export const ChangePassword = async (old: string, newP: string) => {
   if (IS_WAILS) return WailsApp.ChangePassword(old, newP);
-  return callApi('/change-password', 'POST', { old, new: newP });
+  const res = await callApi('/change-password', 'POST', { old, new: newP });
+  if (res.token) setAuthToken(res.token);
+  return res;
 };
 
 export const AddSeguimientoPeso = async (data: any) => {
@@ -269,6 +290,7 @@ export const ImportAnimalsExcel = async (filePathOrFile: string | File): Promise
     const baseUrl = getApiBaseUrl();
     const res = await fetch(`${baseUrl}/import-excel`, {
       method: 'POST',
+      headers: authHeaders(),
       body: formData
     });
     if (!res.ok) {

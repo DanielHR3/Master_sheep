@@ -364,35 +364,56 @@ func (a *App) GetIsDemoMode() bool {
 	return a.IsDemoMode
 }
 
-// Login maneja la autenticación local
-func (a *App) Login(email, password string) error {
+// authenticate verifica credenciales contra la base de datos y devuelve el
+// usuario correspondiente sin mutar el estado de la instancia (a diferencia
+// de Login). La usa el servidor HTTP para emitir sesiones por-petición.
+func (a *App) authenticate(email, password string) (*User, error) {
 	var user User
 	var dbPassword string
-	fmt.Printf("Intentando login con: %s\n", email)
 	err := a.db.QueryRow(a.q("SELECT id, email, password, role FROM users WHERE email = ?"), email).
 		Scan(&user.ID, &user.Email, &dbPassword, &user.Role)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmt.Printf("Usuario no encontrado: %s\n", email)
-			return fmt.Errorf("usuario no encontrado")
+			return nil, fmt.Errorf("usuario no encontrado")
 		}
-		fmt.Printf("Error en query: %v\n", err)
-		return err
+		return nil, err
 	}
 
-	fmt.Printf("Usuario encontrado: %s, validando contraseña...\n", user.Email)
-	err = bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(password))
-	if err != nil {
-		fmt.Printf("Contraseña incorrecta para %s\n", email)
-		return fmt.Errorf("contraseña incorrecta")
+	if err := bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(password)); err != nil {
+		return nil, fmt.Errorf("contraseña incorrecta")
 	}
 
-	fmt.Printf("Login exitoso para %s\n", user.Email)
 	if user.RanchoID == "" {
 		user.RanchoID = user.ID
 	}
-	a.user = &user
+	return &user, nil
+}
+
+// loadUserByID recupera un usuario por su ID (usado para resolver la sesión
+// asociada a un token en cada petición HTTP).
+func (a *App) loadUserByID(id string) (*User, error) {
+	var user User
+	err := a.db.QueryRow(a.q("SELECT id, email, name, role, rancho_id FROM users WHERE id = ?"), id).
+		Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.RanchoID)
+	if err != nil {
+		return nil, err
+	}
+	if user.RanchoID == "" {
+		user.RanchoID = user.ID
+	}
+	return &user, nil
+}
+
+// Login maneja la autenticación local usada por el binding de Wails
+// (escritorio: un único usuario por proceso, por lo que mutar a.user aquí
+// es correcto). El servidor HTTP multi-usuario usa authenticate() en su lugar.
+func (a *App) Login(email, password string) error {
+	user, err := a.authenticate(email, password)
+	if err != nil {
+		return err
+	}
+	a.user = user
 	return nil
 }
 
