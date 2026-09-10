@@ -76,25 +76,24 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
             <>
               <SidebarItem icon={<FileSpreadsheet size={22} />} label="Reportes y Descargas" active={activeTab === 'reports'} onClick={() => setActiveTab('reports')} isCollapsed={isCollapsed} />
               <SidebarItem icon={<ShieldCheck size={22} />} label="Personal" active={activeTab === 'staff'} onClick={() => setActiveTab('staff')} isCollapsed={isCollapsed} />
-              
-              {!isCollapsed && (
-                <div className="pt-4 mt-2 px-2">
-                  <label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 mb-2">
-                    <MapPin size={12} className="text-emerald-500" />
-                    Cambiar Rancho
-                  </label>
-                  <Segmented
-                    className="w-full grid grid-cols-3 gap-0.5 p-0.5"
-                    value={selectedRanchOverride || ''}
-                    onValueChange={(val: string) => setSelectedRanchOverride?.(val === '' ? null : val)}
-                  >
-                    <SegmentedItem value="" className="truncate px-1.5 py-1.5 text-[10px]" title="Vista Global / Default">Global</SegmentedItem>
-                    <SegmentedItem value="BUGAMBILIAS" className="truncate px-1.5 py-1.5 text-[10px]" title="Las Bugambilias (Pie de Cría)">Bugamb.</SegmentedItem>
-                    <SegmentedItem value="PABLITO" className="truncate px-1.5 py-1.5 text-[10px]" title="Don Pablito (Engorda)">Pablito</SegmentedItem>
-                  </Segmented>
-                </div>
-              )}
             </>
+          )}
+          {(user?.role === 'Admin' || user?.role === 'SuperAdmin') && !isCollapsed && (
+            <div className="pt-4 mt-2 px-2">
+              <label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 mb-2">
+                <MapPin size={12} className="text-emerald-500" />
+                Cambiar Rancho
+              </label>
+              <Segmented
+                className="w-full grid grid-cols-3 gap-0.5 p-0.5"
+                value={selectedRanchOverride || ''}
+                onValueChange={(val: string) => setSelectedRanchOverride?.(val === '' ? null : val)}
+              >
+                <SegmentedItem value="" className="truncate px-1.5 py-1.5 text-[10px]" title="Vista Global / Default">Global</SegmentedItem>
+                <SegmentedItem value="BUGAMBILIAS" className="truncate px-1.5 py-1.5 text-[10px]" title="Las Bugambilias (Pie de Cría)">Bugamb.</SegmentedItem>
+                <SegmentedItem value="PABLITO" className="truncate px-1.5 py-1.5 text-[10px]" title="Don Pablito (Engorda)">Pablito</SegmentedItem>
+              </Segmented>
+            </div>
           )}
           
           <div className={`pt-6 mt-6 border-t ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
