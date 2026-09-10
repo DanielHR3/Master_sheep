@@ -14,6 +14,7 @@ import {
   MapPin
 } from 'lucide-react';
 import SidebarItem from '../SidebarItem';
+import { Segmented, SegmentedItem } from '../ui/segmented';
 
 interface SidebarProps {
   activeTab: string;
@@ -82,15 +83,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
                     <MapPin size={12} className="text-emerald-500" />
                     Cambiar Rancho
                   </label>
-                  <select 
-                    className={`w-full text-xs p-2 rounded-xl border font-bold ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-100 border-slate-200 text-slate-800'} focus:outline-none focus:border-emerald-500`}
+                  <Segmented
+                    className="w-full grid grid-cols-3 gap-0.5 p-0.5"
                     value={selectedRanchOverride || ''}
-                    onChange={(e) => setSelectedRanchOverride?.(e.target.value === '' ? null : e.target.value)}
+                    onValueChange={(val: string) => setSelectedRanchOverride?.(val === '' ? null : val)}
                   >
-                    <option value="">Vista Global / Default</option>
-                    <option value="BUGAMBILIAS">Las Bugambilias (Pie de Cría)</option>
-                    <option value="PABLITO">Don Pablito (Engorda)</option>
-                  </select>
+                    <SegmentedItem value="" className="truncate px-1.5 py-1.5 text-[10px]" title="Vista Global / Default">Global</SegmentedItem>
+                    <SegmentedItem value="BUGAMBILIAS" className="truncate px-1.5 py-1.5 text-[10px]" title="Las Bugambilias (Pie de Cría)">Bugamb.</SegmentedItem>
+                    <SegmentedItem value="PABLITO" className="truncate px-1.5 py-1.5 text-[10px]" title="Don Pablito (Engorda)">Pablito</SegmentedItem>
+                  </Segmented>
                 </div>
               )}
             </>

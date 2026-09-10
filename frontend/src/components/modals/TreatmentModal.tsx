@@ -1,5 +1,6 @@
 import React from 'react';
 import Modal from '../shared/Modal';
+import { Slider } from '../ui/slider';
 
 interface TreatmentModalProps {
   show: boolean;
@@ -45,12 +46,16 @@ const TreatmentModal: React.FC<TreatmentModalProps> = ({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-slate-500">Días de Duración</label>
-            <input 
-              type="number" 
-              className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white" 
-              value={form.duracion} 
-              onChange={e => setForm({...form, duracion: parseInt(e.target.value)})} 
+            <label className="text-[10px] font-black uppercase text-slate-500 flex items-center justify-between">
+              <span>Días de Duración</span>
+              <span className="text-cyan-400 font-bold normal-case text-xs">{form.duracion || 0} días</span>
+            </label>
+            <Slider
+              min={1}
+              max={30}
+              step={1}
+              value={[form.duracion || 1]}
+              onValueChange={([val]) => setForm({...form, duracion: val})}
             />
           </div>
         </div>

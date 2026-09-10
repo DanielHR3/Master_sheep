@@ -10,6 +10,7 @@ import {
   FileSpreadsheet,
   LogOut
 } from 'lucide-react';
+import { Switch } from '../components/ui/switch';
 
 interface ProfileProps {
   user: any;
@@ -181,21 +182,19 @@ const Profile: React.FC<ProfileProps> = ({
               Cuando está activo, el sistema bloquea todas las modificaciones en la base de datos.
             </p>
           </div>
-          <button 
-            onClick={async () => {
-              const next = !isDemo;
-              await toggleDemoMode(next);
-              setIsDemo(next);
-            }}
-            className={`w-full lg:w-auto px-6 py-4 md:px-10 md:py-5 rounded-2xl md:rounded-[24px] font-black text-xs uppercase transition-all flex items-center justify-center gap-4 active:scale-95 cursor-pointer ${
-              isDemo 
-                ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/40' 
-                : (isDark ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-200 text-slate-650 hover:bg-slate-300')
-            }`}
-          >
-            {isDemo ? <Lock size={18} /> : <Shield size={18} />}
-            {isDemo ? 'DESACTIVAR MODO DEMO' : 'ACTIVAR MODO DEMO'}
-          </button>
+          <div className="w-full lg:w-auto flex items-center justify-center gap-4 px-6 py-4">
+            {isDemo ? <Lock size={18} className="text-rose-500" /> : <Shield size={18} className="text-slate-400" />}
+            <span className={`font-black text-xs uppercase tracking-widest ${isDemo ? 'text-rose-500' : (isDark ? 'text-slate-400' : 'text-slate-600')}`}>
+              {isDemo ? 'Modo Demo Activo' : 'Modo Demo Inactivo'}
+            </span>
+            <Switch
+              checked={isDemo}
+              onCheckedChange={async (next: boolean) => {
+                await toggleDemoMode(next);
+                setIsDemo(next);
+              }}
+            />
+          </div>
         </div>
       )}
     </div>

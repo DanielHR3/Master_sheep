@@ -1,5 +1,7 @@
 import React from 'react';
 import { useStore } from '../context/useStore';
+import { Card } from '../components/ui/card';
+import { Skeleton } from '../components/ui/skeleton';
 import { 
   Users, 
   TrendingUp, 
@@ -189,11 +191,11 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
         {isLoading ? (
           Array.from({ length: 6 }).map((_, idx) => (
-            <div key={idx} className={`p-4 rounded-3xl border animate-pulse ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-100 border-slate-200'}`}>
-              <div className={`w-10 h-10 rounded-xl mb-2 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
-              <div className={`w-16 h-3 rounded mb-2 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
-              <div className={`w-12 h-6 rounded ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
-            </div>
+            <Card key={idx} className="rounded-3xl p-4">
+              <Skeleton className="w-10 h-10 rounded-xl mb-2" />
+              <Skeleton className="w-16 h-3 mb-2" />
+              <Skeleton className="w-12 h-6" />
+            </Card>
           ))
         ) : (
             [
@@ -204,13 +206,17 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
               { label: '% Gestación', value: `${(stats?.porcentaje_gestacion || 0).toFixed(1)}%`, icon: Award, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
               { label: '% Parición', value: `${(stats?.porcentaje_paricion || 0).toFixed(1)}%`, icon: Award, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
             ].map((kpi, idx) => (
-            <div key={idx} className={`p-4 rounded-3xl border transition-all hover:scale-[1.01] ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
+            <Card
+              key={idx}
+              className={`rounded-3xl p-4 hover:scale-[1.01] ${isDark ? 'text-white' : 'text-slate-900'}`}
+              style={{ animationDelay: `${idx * 40}ms` }}
+            >
               <div className={`p-2.5 rounded-xl w-fit mb-2 border ${kpi.bg}`}>
                 <kpi.icon size={18} className={kpi.color} />
               </div>
               <p className={`font-black uppercase text-[10px] tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{kpi.label}</p>
               <h3 className={`text-2xl font-black tracking-tight mt-1 font-display ${isDark ? 'text-white' : 'text-slate-900'}`}>{kpi.value || 0}</h3>
-            </div>
+            </Card>
           ))
         )}
       </div>
@@ -231,10 +237,10 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
             {isLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className={`p-5 rounded-[28px] border animate-pulse ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-100 border-slate-200'}`}>
-                  <div className={`h-4 w-1/2 rounded mb-2 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
-                  <div className={`h-3 w-1/3 rounded ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
-                </div>
+                <Card key={i} className="rounded-[28px] p-5">
+                  <Skeleton className="h-4 w-1/2 mb-2" />
+                  <Skeleton className="h-3 w-1/3" />
+                </Card>
               ))
             ) : (stats?.alertas_venta || []).length > 0 ? (
               (stats?.alertas_venta || []).map((a: any, i: number) => (

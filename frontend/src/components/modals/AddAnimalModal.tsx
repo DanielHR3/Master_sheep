@@ -3,6 +3,7 @@ import Modal from '../shared/Modal';
 import { main } from "../../../wailsjs/go/models";
 import ImageUpload from '../ImageUpload';
 import { useStore } from '../../context/useStore';
+import { Slider } from '../ui/slider';
 
 interface AddAnimalModalProps {
   show: boolean;
@@ -95,12 +96,16 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-slate-500">Peso al Nacer (kg)</label>
-            <input 
-              type="number" 
-              className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white" 
-              value={form.peso_nacer || ''} 
-              onChange={e => setForm({...form, peso_nacer: parseFloat(e.target.value) || 0})} 
+            <label className="text-[10px] font-black uppercase text-slate-500 flex items-center justify-between">
+              <span>Peso al Nacer (kg)</span>
+              <span className="text-cyan-400 font-bold normal-case text-xs">{(form.peso_nacer || 0).toFixed(1)} kg</span>
+            </label>
+            <Slider
+              min={0}
+              max={8}
+              step={0.1}
+              value={[form.peso_nacer || 0]}
+              onValueChange={([val]) => setForm({...form, peso_nacer: val})}
             />
           </div>
         </div>
@@ -151,12 +156,16 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-slate-500">Peso 150 días (kg)</label>
-                <input 
-                  type="number" 
-                  className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white" 
-                  value={form.peso_150_dias || ''} 
-                  onChange={e => setForm({...form, peso_150_dias: parseFloat(e.target.value) || 0})} 
+                <label className="text-[10px] font-black uppercase text-slate-500 flex items-center justify-between">
+                  <span>Peso 150 días (kg)</span>
+                  <span className="text-cyan-400 font-bold normal-case text-xs">{(form.peso_150_dias || 0).toFixed(1)} kg</span>
+                </label>
+                <Slider
+                  min={0}
+                  max={60}
+                  step={0.5}
+                  value={[form.peso_150_dias || 0]}
+                  onValueChange={([val]) => setForm({...form, peso_150_dias: val})}
                 />
               </div>
             </div>
