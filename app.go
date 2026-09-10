@@ -251,11 +251,22 @@ func (a *App) initDB() error {
 		key TEXT PRIMARY KEY,
 		value TEXT
 	);
+
+	CREATE TABLE IF NOT EXISTS sessions (
+		token TEXT PRIMARY KEY,
+		user_id TEXT NOT NULL,
+		expires_at TIMESTAMP NOT NULL
+	);
 	`
 	_, err = a.db.Exec(schema)
 	if err != nil {
 		fmt.Printf("Aviso: Error en esquema inicial (posiblemente tablas ya existen): %v\n", err)
 	}
+
+	// Las sesiones HTTP viven en la base de datos (no en memoria del proceso)
+	// para que funcionen correctamente en plataformas que corren múltiples
+	// instancias concurrentes (ej. Cloud Run autoescalado).
+	sessions.init(a.db, a.driverName)
 
 	// Migraciones y Setup Inicial con ON CONFLICT para Postgres / OR IGNORE para SQLite
 	if a.driverName == "postgres" {
@@ -391,14 +402,19 @@ func (a *App) authenticate(email, password string) (*User, error) {
 }
 
 // loadUserByID recupera un usuario por su ID (usado para resolver la sesión
-// asociada a un token en cada petición HTTP).
+// asociada a un token en cada petición HTTP). rancho_id puede ser NULL para
+// cuentas creadas antes de que esa columna existiera, por eso se escanea
+// como sql.NullString en vez de string.
 func (a *App) loadUserByID(id string) (*User, error) {
 	var user User
+	var name, rancho sql.NullString
 	err := a.db.QueryRow(a.q("SELECT id, email, name, role, rancho_id FROM users WHERE id = ?"), id).
-		Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.RanchoID)
+		Scan(&user.ID, &user.Email, &name, &user.Role, &rancho)
 	if err != nil {
 		return nil, err
 	}
+	user.Name = name.String
+	user.RanchoID = rancho.String
 	if user.RanchoID == "" {
 		user.RanchoID = user.ID
 	}
