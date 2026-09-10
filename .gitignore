@@ -4,6 +4,11 @@ build/bin
 *.dll
 *.so
 *.dylib
+sheepmaster
+server
+
+# Broken/orphaned git submodule references
+deploy_temp
 
 # Node.js
 node_modules
@@ -29,3 +34,4 @@ seeder/
 *.zip
 *.log
 .env
+test_animals.xlsx
