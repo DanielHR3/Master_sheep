@@ -577,6 +577,9 @@ func (a *App) AddAnimal(animal Animal) error {
 		animal.PadreID, animal.MadreID, animal.Destino, animal.FechaDefuncion, animal.MotivoDefuncion,
 		animal.AbueloPaternoID, animal.AbuelaPaternaID, animal.AbueloMaternoID, animal.AbuelaMaternaID, animal.TipoParto, animal.MetodoConcepcion,
 		animal.Peso150Dias, animal.FechaDestete, animal.Foto)
+	if err == nil {
+		a.queueSync("insert", "animal", animal.ID, animal)
+	}
 	return err
 }
 
@@ -604,6 +607,9 @@ func (a *App) UpdateAnimal(animal Animal) error {
 		animal.AbueloPaternoID, animal.AbuelaPaternaID, animal.AbueloMaternoID, animal.AbuelaMaternaID,
 		animal.TipoParto, animal.MetodoConcepcion, animal.Peso150Dias, animal.FechaDestete, animal.Foto,
 		animal.ID, a.tenantID())
+	if err == nil {
+		a.queueSync("update", "animal", animal.ID, animal)
+	}
 	return err
 }
 
@@ -639,7 +645,13 @@ func (a *App) DeleteAnimal(id string) error {
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	a.queueSync("delete", "animal", id, struct {
+		ID string `json:"id"`
+	}{id})
+	return nil
 }
 
 // GetCorrales obtiene la lista de corrales
