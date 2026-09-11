@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useStore } from '../../context/useStore';
-import { AlertCircle, CheckCircle2, X } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -25,6 +25,10 @@ export default function Snackbar() {
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-rose-100 text-rose-600">
             <AlertCircle size={20} />
           </div>
+        ) : notification.type === 'info' ? (
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-cyan-100 text-cyan-600">
+            <Info size={20} />
+          </div>
         ) : (
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600">
             <CheckCircle2 size={20} />
@@ -32,7 +36,7 @@ export default function Snackbar() {
         )}
         <p className={twMerge(
           "text-sm font-medium",
-          notification.type === 'error' ? "text-rose-800" : "text-emerald-800"
+          notification.type === 'error' ? "text-rose-800" : notification.type === 'info' ? "text-cyan-800" : "text-emerald-800"
         )}>
           {notification.message}
         </p>

@@ -120,7 +120,7 @@ function App() {
             state.modals.setShowAddAnimal(true); 
           }} 
           onAddInsumo={() => { 
-            state.setInsumoForm({ nombre: '', tipo: 'Medicamente', stock_actual: 0, stock_minimo: 0, unidad: 'ml', costo_unitario: 0, dlas_retiro: 0, lote: '', fecha_vencimiento: '', proveedor: '' }); 
+            state.setInsumoForm({ nombre: '', tipo: 'Medicamente', stock_actual: 0, stock_minimo: 0, unidad: 'ml', costo_unitario: 0, dias_retiro: 0, lote: '', fecha_vencimiento: '', proveedor: '' });
             state.modals.setShowAddInsumo(true); 
           }} 
           onConfirmUltrasound={(a: any) => { state.setSelectedAnimal(a); state.modals.setShowConfirmModal(true); }} 

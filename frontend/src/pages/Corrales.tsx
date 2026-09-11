@@ -1,6 +1,9 @@
 import React from 'react';
 import { Plus, Warehouse, Trash2 } from 'lucide-react';
 import { main } from "../../wailsjs/go/models";
+import { useStore } from '../context/useStore';
+import { Card } from '../components/ui/card';
+import { Skeleton } from '../components/ui/skeleton';
 
 interface CorralesProps {
   corrales: main.Corral[];
@@ -12,6 +15,7 @@ interface CorralesProps {
 }
 
 const Corrales: React.FC<CorralesProps> = ({ corrales, animals, theme, onAddCorral, onDeleteCorral, user }) => {
+  const isLoading = useStore().loading;
   return (
     <div className="space-y-10 pt-10 animate-in slide-in-from-right-8 duration-700">
       <div className="flex justify-between items-center">
@@ -34,7 +38,16 @@ const Corrales: React.FC<CorralesProps> = ({ corrales, animals, theme, onAddCorr
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {corrales.length > 0 ? corrales.map((corral) => {
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, idx) => (
+            <Card key={idx} className="rounded-[40px] p-8">
+              <Skeleton className="w-12 h-12 rounded-[20px] mb-6" />
+              <Skeleton className="h-8 w-2/3 mb-2" />
+              <Skeleton className="h-3 w-1/2 mb-6" />
+              <Skeleton className="h-2 w-full" />
+            </Card>
+          ))
+        ) : corrales.length > 0 ? corrales.map((corral) => {
           const occupancy = (Array.isArray(animals) ? animals : []).filter(a => a.corral_id === corral.nombre || a.corral_id === corral.id).length;
           const percentage = (occupancy / (corral.capacidad || 1)) * 100;
           return (

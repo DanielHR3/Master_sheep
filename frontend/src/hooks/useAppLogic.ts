@@ -56,9 +56,10 @@ export const useAppLogic = () => {
     corral: '', 
     peso: '', 
     fecha_nacimiento: new Date().toISOString().split('T')[0], 
-    padre_id: '', 
-    madre_id: '', 
-    destino: 'Engorda' 
+    padre_id: '',
+    madre_id: '',
+    destino: 'Engorda',
+    especie: 'Ovino'
   });
   
   const [corralForm, setCorralForm] = useState({ nombre: '', tipo: 'General', capacidad: 50 });
@@ -209,7 +210,7 @@ export const useAppLogic = () => {
       });
       await AddAnimal(animal);
       setShowAddAnimal(false);
-      setAnimalForm({ arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino: 'Engorda' });
+      setAnimalForm({ arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino: 'Engorda', especie: 'Ovino' });
       store.setNotification({ message: "Animal registrado exitosamente", type: 'success' });
       refreshData();
     } catch (err: any) {
@@ -571,10 +572,10 @@ export const useAppLogic = () => {
         }
       },
 
-      handleConfirmUltrasound: async (result: string) => {
+      handleConfirmUltrasound: async (preñada: boolean, fetos: number) => {
         if (!selectedAnimal) return;
         try {
-          await ConfirmarUltrasonido(selectedAnimal.id, result);
+          await ConfirmarUltrasonido(selectedAnimal.id, preñada, fetos);
           setShowConfirmModal(false);
           store.setNotification({ message: "Ultrasonido confirmado", type: 'success' });
           refreshData();

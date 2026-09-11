@@ -1,5 +1,8 @@
 import React from 'react';
 import { Stethoscope, Syringe } from 'lucide-react';
+import { useStore } from '../context/useStore';
+import { Card } from '../components/ui/card';
+import { Skeleton } from '../components/ui/skeleton';
 
 interface ClinicalProps {
   animals: any[];
@@ -9,6 +12,7 @@ interface ClinicalProps {
 }
 
 const Clinical: React.FC<ClinicalProps> = ({ animals, insumos, onTreatment, theme }) => {
+  const isLoading = useStore().loading;
   return (
     <div className="max-w-7xl mx-auto pt-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
        <div className="flex justify-between items-center mb-8">
@@ -22,7 +26,18 @@ const Clinical: React.FC<ClinicalProps> = ({ animals, insumos, onTreatment, them
            </div>
        </div>
 
-       {(!animals || animals.length === 0) ? (
+       {isLoading ? (
+         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+           {Array.from({ length: 4 }).map((_, idx) => (
+             <Card key={idx} className="rounded-3xl p-6">
+               <Skeleton className="h-5 w-16 mb-4" />
+               <Skeleton className="h-5 w-2/3 mb-1" />
+               <Skeleton className="h-4 w-1/3 mb-6" />
+               <Skeleton className="h-10 w-full" />
+             </Card>
+           ))}
+         </div>
+       ) : (!animals || animals.length === 0) ? (
          <div className="text-center py-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-[40px]">
             <Syringe size={48} className="mx-auto text-slate-300 dark:text-slate-600 mb-4" />
             <h3 className="text-xl font-bold dark:text-white text-slate-800 mb-2">No hay animales registrados</h3>

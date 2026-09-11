@@ -175,12 +175,20 @@ func (a *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !loginAttempts.allowed(creds.Email) {
+		w.WriteHeader(http.StatusTooManyRequests)
+		json.NewEncoder(w).Encode(map[string]string{"error": "demasiados intentos fallidos, intenta de nuevo en unos minutos"})
+		return
+	}
+
 	user, err := a.authenticate(creds.Email, creds.Password)
 	if err != nil {
+		loginAttempts.recordFailure(creds.Email)
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
 	}
+	loginAttempts.clear(creds.Email)
 
 	token, err := sessions.create(user.ID)
 	if err != nil {

@@ -1,14 +1,25 @@
 import React from 'react';
-import { X, CheckCircle2, FlaskConical, AlertCircle, Save } from 'lucide-react';
+import { X, CheckCircle2, FlaskConical, AlertCircle } from 'lucide-react';
+import { Slider } from '../ui/slider';
 
 interface ConfirmModalProps {
   show: boolean;
   onClose: () => void;
   selectedAnimal: any;
-  onConfirm: (result: string) => void;
+  onConfirm: (preñada: boolean, fetos: number) => void;
 }
 
 const ConfirmModal: React.FC<ConfirmModalProps> = ({ show, onClose, selectedAnimal, onConfirm }) => {
+  const [step, setStep] = React.useState<'select' | 'fetos'>('select');
+  const [fetos, setFetos] = React.useState(1);
+
+  React.useEffect(() => {
+    if (show) {
+      setStep('select');
+      setFetos(1);
+    }
+  }, [show]);
+
   if (!show || !selectedAnimal) return null;
 
   return (
@@ -29,37 +40,55 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({ show, onClose, selectedAnim
           </button>
         </div>
 
-        <div className="p-10 space-y-6">
-          <p className="text-center text-slate-400 font-bold text-sm">Seleccione el resultado del diagnóstico de gestación para este animal:</p>
-          
-          <div className="grid grid-cols-1 gap-4">
-            <button
-              onClick={() => onConfirm('Positivo')}
-              className="p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-3xl text-emerald-500 flex items-center justify-between group hover:bg-emerald-500 hover:text-white transition-all shadow-lg shadow-emerald-500/5"
-            >
-              <div className="flex items-center gap-4">
-                 <div className="p-3 bg-emerald-500/10 rounded-xl group-hover:bg-white/20 transition-colors"><CheckCircle2 size={24} /></div>
-                 <div className="text-left">
-                    <p className="text-xl font-black italic font-serif">Gestante</p>
-                    <p className="text-[10px] uppercase font-bold opacity-70">Confirmado Positivo</p>
-                 </div>
-              </div>
-            </button>
+        {step === 'select' ? (
+          <div className="p-10 space-y-6">
+            <p className="text-center text-slate-400 font-bold text-sm">Seleccione el resultado del diagnóstico de gestación para este animal:</p>
 
+            <div className="grid grid-cols-1 gap-4">
+              <button
+                onClick={() => setStep('fetos')}
+                className="p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-3xl text-emerald-500 flex items-center justify-between group hover:bg-emerald-500 hover:text-white transition-all shadow-lg shadow-emerald-500/5"
+              >
+                <div className="flex items-center gap-4">
+                   <div className="p-3 bg-emerald-500/10 rounded-xl group-hover:bg-white/20 transition-colors"><CheckCircle2 size={24} /></div>
+                   <div className="text-left">
+                      <p className="text-xl font-black italic font-serif">Gestante</p>
+                      <p className="text-[10px] uppercase font-bold opacity-70">Confirmado Positivo</p>
+                   </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => onConfirm(false, 0)}
+                className="p-6 bg-rose-500/10 border border-rose-500/20 rounded-3xl text-rose-500 flex items-center justify-between group hover:bg-rose-500 hover:text-white transition-all shadow-lg shadow-rose-500/5"
+              >
+                <div className="flex items-center gap-4">
+                   <div className="p-3 bg-rose-500/10 rounded-xl group-hover:bg-white/20 transition-colors"><AlertCircle size={24} /></div>
+                   <div className="text-left">
+                      <p className="text-xl font-black italic font-serif">Vacía</p>
+                      <p className="text-[10px] uppercase font-bold opacity-70">Confirmado Negativo</p>
+                   </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="p-10 space-y-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-slate-500 flex items-center justify-between">
+                <span>Número de Fetos</span>
+                <span className="text-cyan-400 font-bold normal-case text-xs">{fetos}</span>
+              </label>
+              <Slider min={1} max={4} step={1} value={[fetos]} onValueChange={([val]) => setFetos(val)} />
+            </div>
             <button
-              onClick={() => onConfirm('Negativo')}
-              className="p-6 bg-rose-500/10 border border-rose-500/20 rounded-3xl text-rose-500 flex items-center justify-between group hover:bg-rose-500 hover:text-white transition-all shadow-lg shadow-rose-500/5"
+              onClick={() => onConfirm(true, fetos)}
+              className="w-full py-4 bg-emerald-600 text-white font-black rounded-xl hover:bg-emerald-500 transition-all uppercase tracking-widest shadow-lg shadow-emerald-500/20"
             >
-              <div className="flex items-center gap-4">
-                 <div className="p-3 bg-rose-500/10 rounded-xl group-hover:bg-white/20 transition-colors"><AlertCircle size={24} /></div>
-                 <div className="text-left">
-                    <p className="text-xl font-black italic font-serif">Vacía</p>
-                    <p className="text-[10px] uppercase font-bold opacity-70">Confirmado Negativo</p>
-                 </div>
-              </div>
+              Confirmar Gestación
             </button>
           </div>
-        </div>
+        )}
 
         <div className="p-8 border-t border-white/5 bg-slate-950/50">
           <button

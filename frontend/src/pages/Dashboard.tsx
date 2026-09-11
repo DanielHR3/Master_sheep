@@ -36,6 +36,8 @@ interface DashboardStats {
   corrales: any[];
   alertas_venta: any[];
   enfermedades: Record<string, Record<string, number>>;
+  porcentaje_gestacion?: number;
+  porcentaje_paricion?: number;
 }
 
 interface DashboardProps {

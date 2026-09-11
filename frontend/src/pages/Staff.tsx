@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { UserPlus, CircleUser, Trash2, Eye, EyeOff, Edit3 } from 'lucide-react';
+import { useStore } from '../context/useStore';
+import { Card } from '../components/ui/card';
+import { Skeleton } from '../components/ui/skeleton';
 
 interface StaffProps {
   users: any[];
@@ -21,6 +24,7 @@ const Staff: React.FC<StaffProps> = ({
   theme 
 }) => {
   const isDark = theme === 'dark';
+  const isLoading = useStore().loading;
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   return (
@@ -138,7 +142,17 @@ const Staff: React.FC<StaffProps> = ({
           </div>
 
           <div className="lg:col-span-2 space-y-4">
-             {users.map((u: any) => (
+             {isLoading ? (
+               Array.from({ length: 3 }).map((_, idx) => (
+                 <Card key={idx} className="rounded-3xl p-6 flex items-center gap-4">
+                   <Skeleton className="w-12 h-12 rounded-2xl" />
+                   <div className="flex-1 space-y-2">
+                     <Skeleton className="h-4 w-1/3" />
+                     <Skeleton className="h-3 w-1/2" />
+                   </div>
+                 </Card>
+               ))
+             ) : users.map((u: any) => (
                 <div key={u.id} className={`p-6 border rounded-3xl flex justify-between items-center group transition-all ${
                   isDark ? 'bg-slate-900/90 border-slate-800 text-white hover:bg-slate-800/50' : 'bg-white border-slate-200 text-slate-900 shadow-sm hover:bg-slate-50'
                 }`}>

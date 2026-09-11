@@ -10,7 +10,7 @@ interface AppState {
   loading: boolean;
   isLoggedIn: boolean;
   isDemo: boolean;
-  notification: { message: string, type: 'success' | 'error' } | null;
+  notification: { message: string, type: 'success' | 'error' | 'info' } | null;
   selectedRanchOverride: string | null;
   
   // Data State
@@ -30,7 +30,7 @@ interface AppState {
   setLoading: (loading: boolean) => void;
   setIsLoggedIn: (isLoggedIn: boolean) => void;
   setIsDemo: (isDemo: boolean) => void;
-  setNotification: (notification: { message: string, type: 'success' | 'error' } | null) => void;
+  setNotification: (notification: { message: string, type: 'success' | 'error' | 'info' } | null) => void;
   setSelectedRanchOverride: (ranch: string | null) => void;
   setStats: (stats: any) => void;
   setAnimals: (animals: main.Animal[]) => void;
