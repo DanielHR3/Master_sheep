@@ -3,10 +3,22 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+)
+
+// errCloudUserNotFound y errCloudWrongPassword son los únicos dos resultados
+// de authenticateCloud que cuentan como un rechazo DEFINITIVO de la nube
+// (la nube respondió y dijo "no"). loginDesktop los usa para decidir que NO
+// debe caer al caché offline en esos casos — cualquier otro error (uno de
+// conexión/transitorio) sí debe caer al caché, porque significa que la nube
+// en realidad no pudo dar una respuesta autoritativa.
+var (
+	errCloudUserNotFound  = errors.New("usuario no encontrado")
+	errCloudWrongPassword = errors.New("contraseña incorrecta")
 )
 
 // cacheIdentity guarda (o actualiza) la identidad real de Supabase para uso
@@ -58,12 +70,12 @@ func authenticateCloud(db *sql.DB, email, password string) (*User, error) {
 		Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.RanchoID, &dbPassword)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("usuario no encontrado")
+			return nil, errCloudUserNotFound
 		}
 		return nil, err
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(password)); err != nil {
-		return nil, fmt.Errorf("contraseña incorrecta")
+		return nil, errCloudWrongPassword
 	}
 	if user.RanchoID == "" {
 		user.RanchoID = user.ID
@@ -73,23 +85,31 @@ func authenticateCloud(db *sql.DB, email, password string) (*User, error) {
 
 // loginDesktop intenta autenticar contra Supabase; si no hay conexión de
 // nube configurada o no responde, cae a la identidad cacheada localmente.
-// Un error de credenciales estando en línea (contraseña incorrecta) NO cae
-// al caché — se reporta tal cual, porque la nube ya dio una respuesta
-// autoritativa.
+// Un rechazo DEFINITIVO de credenciales estando en línea (usuario no
+// encontrado o contraseña incorrecta) NO cae al caché — se reporta tal
+// cual, porque la nube ya dio una respuesta autoritativa. Cualquier OTRO
+// error de authenticateCloud (conexión caída entre el ping y la consulta,
+// timeout, etc.) sí cae al caché, porque en ese caso la nube en realidad
+// no llegó a responder.
 func (a *App) loginDesktop(email, password string) (*User, error) {
 	if a.cloudDB != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 		defer cancel()
 		if pingErr := a.cloudDB.PingContext(ctx); pingErr == nil {
 			user, err := authenticateCloud(a.cloudDB, email, password)
-			if err != nil {
-				return nil, err // credenciales rechazadas en línea: no caer al caché
+			if err == nil {
+				hash, hashErr := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+				if hashErr != nil {
+					fmt.Printf("Aviso: no se pudo generar el hash para cachear la identidad de %s: %v\n", email, hashErr)
+				} else if cacheErr := a.cacheIdentity(user, string(hash)); cacheErr != nil {
+					fmt.Printf("Aviso: no se pudo cachear la identidad de %s tras login en nube: %v\n", email, cacheErr)
+				}
+				return user, nil
 			}
-			hash, hashErr := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-			if hashErr == nil {
-				_ = a.cacheIdentity(user, string(hash))
+			if errors.Is(err, errCloudUserNotFound) || errors.Is(err, errCloudWrongPassword) {
+				return nil, err // rechazo definitivo de credenciales: no caer al caché
 			}
-			return user, nil
+			// Error de conexión/transitorio tras un ping exitoso: caer al caché.
 		}
 	}
 	// Sin conexión (o cloudDB nunca configurado): usar la última identidad cacheada.

@@ -71,6 +71,12 @@ func (a *App) initDB() error {
 
 	if !isServerBuild {
 		if cloudURL := os.Getenv("DATABASE_URL"); cloudURL != "" {
+			// a.cloudDB se abre una sola vez aquí y se mantiene abierto por
+			// toda la vida del proceso de escritorio (nunca se cierra
+			// explícitamente) — igual que a.db. Es intencional, no una fuga:
+			// es un proceso de escritorio de larga duración con un único
+			// usuario, así que el pool de conexiones vive hasta que el
+			// proceso termina y el SO libera el socket.
 			if cloudDB, err := sql.Open("postgres", cloudURL); err == nil {
 				a.cloudDB = cloudDB
 			}
