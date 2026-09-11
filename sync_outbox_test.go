@@ -147,3 +147,42 @@ func TestDeleteAnimalEnqueuesSync(t *testing.T) {
 		t.Fatalf("outbox = %v, want [... delete animal]", got)
 	}
 }
+
+func TestAddCorralEnqueuesSync(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	if err := a.AddCorral(Corral{ID: "c1", Nombre: "Corral 1", Capacidad: 20}); err != nil {
+		t.Fatalf("AddCorral: %v", err)
+	}
+	if got := outboxRows(t, a); len(got) != 1 || got[0] != [2]string{"insert", "corral"} {
+		t.Fatalf("outbox = %v, want [insert corral]", got)
+	}
+	if p := outboxPayload(t, a, "corral", "c1"); p["nombre"] != "Corral 1" {
+		t.Errorf("payload = %v, want nombre Corral 1", p)
+	}
+}
+
+func TestDeleteCorralEnqueuesSync(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	if err := a.AddCorral(Corral{ID: "c1", Nombre: "Corral 1"}); err != nil {
+		t.Fatalf("AddCorral: %v", err)
+	}
+	if err := a.DeleteCorral("c1"); err != nil {
+		t.Fatalf("DeleteCorral: %v", err)
+	}
+	if got := outboxRows(t, a); len(got) != 2 || got[1] != [2]string{"delete", "corral"} {
+		t.Fatalf("outbox = %v, want [... delete corral]", got)
+	}
+}
+
+func TestAddInsumoEnqueuesSync(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	if err := a.AddInsumo(Insumo{ID: "i1", Nombre: "Ivermectina", StockActual: 100}); err != nil {
+		t.Fatalf("AddInsumo: %v", err)
+	}
+	if got := outboxRows(t, a); len(got) != 1 || got[0] != [2]string{"insert", "insumo"} {
+		t.Fatalf("outbox = %v, want [insert insumo]", got)
+	}
+	if p := outboxPayload(t, a, "insumo", "i1"); p["stock_actual"] != float64(100) {
+		t.Errorf("payload = %v, want stock_actual 100", p)
+	}
+}

@@ -691,6 +691,9 @@ func (a *App) AddCorral(corral Corral) error {
 
 	_, err := a.db.Exec(a.q("INSERT INTO corrales (id, user_id, nombre, tipo, capacidad) VALUES (?, ?, ?, ?, ?)"),
 		corral.ID, a.tenantID(), corral.Nombre, corral.Tipo, corral.Capacidad)
+	if err == nil {
+		a.queueSync("insert", "corral", corral.ID, corral)
+	}
 	return err
 }
 
@@ -718,7 +721,13 @@ func (a *App) DeleteCorral(id string) error {
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	a.queueSync("delete", "corral", id, struct {
+		ID string `json:"id"`
+	}{id})
+	return nil
 }
 
 // RegistrarEventoReproductivo gestiona montas e IAs
@@ -996,6 +1005,9 @@ func (a *App) AddInsumo(i Insumo) error {
 		(id, user_id, nombre, tipo, unidad, stock_actual, stock_minimo, costo_unitario, dias_retiro, lote, fecha_vencimiento, proveedor) 
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		i.ID, a.tenantID(), i.Nombre, i.Tipo, i.Unidad, i.StockActual, i.StockMinimo, i.CostoUnitario, i.DiasRetiro, i.Lote, i.FechaVencimiento, i.Proveedor)
+	if err == nil {
+		a.queueSync("insert", "insumo", i.ID, i)
+	}
 	return err
 }
 
