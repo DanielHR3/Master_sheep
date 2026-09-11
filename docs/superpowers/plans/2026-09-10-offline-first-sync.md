@@ -455,15 +455,9 @@ func authenticateCloud(db *sql.DB, email, password string) (*User, error) {
 	if user.RanchoID == "" {
 		user.RanchoID = user.ID
 	}
-	return &user, dbPassword2err(dbPassword)
+	return &user, nil
 }
-
-// dbPassword2err is a placeholder helper removed in step below — see note.
 ```
-
-(Note for the implementer: drop the bogus `dbPassword2err` line above — it
-was left in by mistake during drafting. `authenticateCloud` should just
-`return &user, nil` on success.)
 
 ```go
 // loginDesktop intenta autenticar contra Supabase; si no hay conexión de
@@ -542,6 +536,90 @@ func (a *App) Login(email, password string) error {
 
 Run: `go test -run TestLoginDesktopFallsBackWhenCloudUnreachable .`
 Expected: PASS
+
+- [ ] **Step 4b: Write and pass tests for the cloud-reachable success path**
+
+These use a second in-memory SQLite DB as a stand-in for `a.cloudDB`
+(valid here for the same reason as Task 10: `modernc.org/sqlite` accepts
+the same `$1` placeholder syntax `authenticateCloud` uses). This closes
+the only path in this task not otherwise covered — a live Supabase
+connection is never required by any test in this plan.
+
+```go
+func newFakeCloudUsersDB(t *testing.T, email, plaintextPassword string) *sql.DB {
+	t.Helper()
+	db, err := sql.Open("sqlite", ":memory:")
+	if err != nil {
+		t.Fatalf("open fake cloud users db: %v", err)
+	}
+	if _, err := db.Exec(`CREATE TABLE users (id TEXT PRIMARY KEY, email TEXT, name TEXT, role TEXT, rancho_id TEXT, password TEXT)`); err != nil {
+		t.Fatalf("create fake users table: %v", err)
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatalf("bcrypt: %v", err)
+	}
+	_, err = db.Exec(`INSERT INTO users (id, email, name, role, rancho_id, password) VALUES ($1, $2, $3, $4, $5, $6)`,
+		"cloud-u1", email, "Cloud User", "Admin", "cloud-rancho-1", string(hash))
+	if err != nil {
+		t.Fatalf("seed fake cloud user: %v", err)
+	}
+	return db
+}
+
+func TestAuthenticateCloudSuccess(t *testing.T) {
+	cloud := newFakeCloudUsersDB(t, "cloud@example.com", "s3cret")
+	user, err := authenticateCloud(cloud, "cloud@example.com", "s3cret")
+	if err != nil {
+		t.Fatalf("authenticateCloud: %v", err)
+	}
+	if user.RanchoID != "cloud-rancho-1" {
+		t.Errorf("got RanchoID %q, want cloud-rancho-1", user.RanchoID)
+	}
+
+	if _, err := authenticateCloud(cloud, "cloud@example.com", "wrong"); err == nil {
+		t.Error("expected an error for the wrong password, got nil")
+	}
+}
+
+func TestLoginDesktopCachesIdentityWhenCloudReachable(t *testing.T) {
+	a := newTestApp(t)
+	a.cloudDB = newFakeCloudUsersDB(t, "cloud@example.com", "s3cret")
+
+	user, err := a.loginDesktop("cloud@example.com", "s3cret")
+	if err != nil {
+		t.Fatalf("loginDesktop: %v", err)
+	}
+	if user.RanchoID != "cloud-rancho-1" {
+		t.Errorf("got RanchoID %q, want cloud-rancho-1", user.RanchoID)
+	}
+
+	var cachedRancho string
+	err = a.db.QueryRow("SELECT rancho_id FROM cached_identity WHERE email = ?", "cloud@example.com").Scan(&cachedRancho)
+	if err != nil {
+		t.Fatalf("expected identity to be cached locally after cloud login: %v", err)
+	}
+	if cachedRancho != "cloud-rancho-1" {
+		t.Errorf("cached rancho_id %q, want cloud-rancho-1", cachedRancho)
+	}
+}
+
+func TestLoginDesktopRejectsWrongPasswordWithoutFallingBackToCache(t *testing.T) {
+	a := newTestApp(t)
+	a.cloudDB = newFakeCloudUsersDB(t, "cloud@example.com", "s3cret")
+	// Seed a DIFFERENT cached password to prove a wrong-password rejection
+	// from a reachable cloud does not fall back and check the stale cache.
+	hash, _ := bcrypt.GenerateFromPassword([]byte("stale-cached-password"), bcrypt.DefaultCost)
+	_ = a.cacheIdentity(&User{ID: "cloud-u1", Email: "cloud@example.com", RanchoID: "cloud-rancho-1"}, string(hash))
+
+	if _, err := a.loginDesktop("cloud@example.com", "stale-cached-password"); err == nil {
+		t.Error("expected the cloud's rejection of this password to stand, not fall back to the stale cache")
+	}
+}
+```
+
+Run: `go test -run 'TestAuthenticateCloudSuccess|TestLoginDesktopCachesIdentityWhenCloudReachable|TestLoginDesktopRejectsWrongPasswordWithoutFallingBackToCache' .`
+Expected: PASS (all three)
 
 - [ ] **Step 5: Rebuild both targets**
 
@@ -665,29 +743,32 @@ Expected: PASS
 
 - [ ] **Step 5: Write and run a second test confirming server mode is a no-op**
 
+`isServerBuild` is a compile-time constant — a single test binary only
+ever sees one value of it, so this test is only meaningful when the suite
+itself is run with `-tags server`. Skip it explicitly otherwise, so a
+`go test .` run reports it as skipped rather than silently passing an
+empty check:
+
 ```go
-func TestEnqueueSyncNoOpConceptCheck(t *testing.T) {
-	// isServerBuild is a compile-time const; this test documents the
-	// expectation and is exercised for real when the suite is run with
-	// `go test -tags server ./...` (enqueueSync must return nil without
-	// writing a row in that build). No additional code needed here beyond
-	// this comment-as-contract, since isServerBuild cannot be toggled at
-	// runtime within a single test binary.
-	if isServerBuild {
-		a := newTestApp(t)
-		if err := a.enqueueSync("insert", "animal", "x", Animal{ID: "x"}); err != nil {
-			t.Fatalf("enqueueSync: %v", err)
-		}
-		count, _ := a.pendingSyncCount()
-		if count != 0 {
-			t.Errorf("expected no-op in server build, got %d queued", count)
-		}
+func TestEnqueueSyncNoOpInServerBuild(t *testing.T) {
+	if !isServerBuild {
+		t.Skip("only meaningful when run with `go test -tags server .`")
+	}
+	a := newTestApp(t)
+	if err := a.enqueueSync("insert", "animal", "x", Animal{ID: "x"}); err != nil {
+		t.Fatalf("enqueueSync: %v", err)
+	}
+	count, _ := a.pendingSyncCount()
+	if count != 0 {
+		t.Errorf("expected no-op in server build, got %d queued", count)
 	}
 }
 ```
 
-Run: `go test -tags server -run TestEnqueueSyncNoOpConceptCheck . && go test -run TestEnqueueSyncNoOpConceptCheck .`
-Expected: PASS in both invocations (the second one skips the body since `isServerBuild` is false there).
+Run: `go test -tags server -run TestEnqueueSyncNoOpInServerBuild .`
+Expected: PASS (exercises the real check)
+Run: `go test -run TestEnqueueSyncNoOpInServerBuild .`
+Expected: PASS with `--- SKIP` reported (confirms the guard, not a vacuous pass)
 
 - [ ] **Step 6: Commit**
 
@@ -834,13 +915,16 @@ git commit -m "feat(offline-sync): enqueue sync for tarea writes"
   - `func applyDelete(db *sql.DB, table string, id string) error`
   - `var entityTable = map[string]string{...}`
 
-This task tests against a **second in-memory SQLite DB standing in for
-Postgres** (both drivers accept `$1`-less `?` placeholders differently, so
-the test uses SQLite's own `INSERT ... ON CONFLICT` syntax, which is
-sufficiently equivalent to Postgres's for this generic function's logic —
-the real Postgres syntax with `$1, $2...` is what ships in the function
-itself and is exercised for real in Task 11's manual end-to-end check
-against actual Supabase).
+This task tests the **actual production functions** directly against an
+in-memory SQLite DB standing in for Postgres. This works without any
+duplicate SQLite-flavored copy of the logic: `modernc.org/sqlite` accepts
+Postgres-style `$1, $2...` positional placeholders and `ON CONFLICT (id) DO
+UPDATE SET col = excluded.col` syntax identically to how `lib/pq` does
+(verified empirically before writing this task — a throwaway Go program
+ran `INSERT ... VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET val =
+excluded.val` against `sql.Open("sqlite", ":memory:")` and it worked).
+Postgres itself is only touched for real in Task 14's manual end-to-end
+check.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -855,6 +939,11 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+// newFakeCloudDB stands in for the Postgres cloudDB connection in tests.
+// It is safe to test the production applyUpsert/applyDelete against it
+// because modernc.org/sqlite accepts the same "$1, $2..." positional
+// placeholders and "ON CONFLICT (id) DO UPDATE SET col = excluded.col"
+// syntax that lib/pq does.
 func newFakeCloudDB(t *testing.T) *sql.DB {
 	t.Helper()
 	db, err := sql.Open("sqlite", ":memory:")
@@ -871,12 +960,12 @@ func TestApplyUpsertInsertsThenUpdates(t *testing.T) {
 	cloud := newFakeCloudDB(t)
 
 	row := map[string]interface{}{"id": "a1", "arete": "SM-010", "raza": "Dorper"}
-	if err := applyUpsertSQLite(cloud, "animales", row); err != nil {
-		t.Fatalf("applyUpsertSQLite insert: %v", err)
+	if err := applyUpsert(cloud, "animales", row); err != nil {
+		t.Fatalf("applyUpsert insert: %v", err)
 	}
 
 	var raza string
-	if err := cloud.QueryRow("SELECT raza FROM animales WHERE id = ?", "a1").Scan(&raza); err != nil {
+	if err := cloud.QueryRow("SELECT raza FROM animales WHERE id = $1", "a1").Scan(&raza); err != nil {
 		t.Fatalf("query after insert: %v", err)
 	}
 	if raza != "Dorper" {
@@ -884,10 +973,10 @@ func TestApplyUpsertInsertsThenUpdates(t *testing.T) {
 	}
 
 	row["raza"] = "Katahdin"
-	if err := applyUpsertSQLite(cloud, "animales", row); err != nil {
-		t.Fatalf("applyUpsertSQLite update: %v", err)
+	if err := applyUpsert(cloud, "animales", row); err != nil {
+		t.Fatalf("applyUpsert update: %v", err)
 	}
-	if err := cloud.QueryRow("SELECT raza FROM animales WHERE id = ?", "a1").Scan(&raza); err != nil {
+	if err := cloud.QueryRow("SELECT raza FROM animales WHERE id = $1", "a1").Scan(&raza); err != nil {
 		t.Fatalf("query after update: %v", err)
 	}
 	if raza != "Katahdin" {
@@ -900,8 +989,8 @@ func TestApplyDeleteRemovesRow(t *testing.T) {
 	if _, err := cloud.Exec("INSERT INTO animales (id, arete, raza) VALUES ('a1', 'SM-010', 'Dorper')"); err != nil {
 		t.Fatalf("seed row: %v", err)
 	}
-	if err := applyDeleteSQLite(cloud, "animales", "a1"); err != nil {
-		t.Fatalf("applyDeleteSQLite: %v", err)
+	if err := applyDelete(cloud, "animales", "a1"); err != nil {
+		t.Fatalf("applyDelete: %v", err)
 	}
 	var count int
 	cloud.QueryRow("SELECT COUNT(*) FROM animales").Scan(&count)
@@ -911,69 +1000,10 @@ func TestApplyDeleteRemovesRow(t *testing.T) {
 }
 ```
 
-(Note: the test calls `applyUpsertSQLite`/`applyDeleteSQLite` — thin
-SQLite-syntax variants used ONLY by these tests, defined in the test file
-itself, to verify the row-building logic without needing a live Postgres.
-The production `applyUpsert`/`applyDelete` used by Task 11 build Postgres
-`$N` placeholder syntax and are exercised against real Supabase in Task
-11's manual step. Add this note as a comment above the test helpers so a
-future reader isn't confused about why two near-identical functions
-exist.)
-
-Add to the bottom of `sync_outbox_apply_test.go`:
-
-```go
-// applyUpsertSQLite/applyDeleteSQLite mirror the production
-// applyUpsert/applyDelete (sync_outbox.go) but emit SQLite's "?"
-// placeholder + ON CONFLICT syntax, so this file's tests can run against
-// an in-memory SQLite standing in for Postgres without a live database.
-func applyUpsertSQLite(db *sql.DB, table string, row map[string]interface{}) error {
-	cols := make([]string, 0, len(row))
-	placeholders := make([]string, 0, len(row))
-	updates := make([]string, 0, len(row))
-	args := make([]interface{}, 0, len(row))
-	for col, val := range row {
-		cols = append(cols, col)
-		placeholders = append(placeholders, "?")
-		if col != "id" {
-			updates = append(updates, col+" = excluded."+col)
-		}
-		args = append(args, val)
-	}
-	query := "INSERT INTO " + table + " (" + joinComma(cols) + ") VALUES (" + joinComma(placeholders) + ") ON CONFLICT(id) DO UPDATE SET " + joinComma(updates)
-	_, err := db.Exec(query, args...)
-	return err
-}
-
-func applyDeleteSQLite(db *sql.DB, table, id string) error {
-	_, err := db.Exec("DELETE FROM "+table+" WHERE id = ?", id)
-	return err
-}
-
-func joinComma(items []string) string {
-	out := ""
-	for i, s := range items {
-		if i > 0 {
-			out += ", "
-		}
-		out += s
-	}
-	return out
-}
-```
-
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `go test -run TestApplyUpsertInsertsThenUpdates .`
-Expected: FAIL — the test helpers exist (defined in the test file), so this
-actually compiles; it fails only if the SQL logic is wrong. Since step 1
-already contains correct logic for the test helpers, this red step is
-about confirming the *production* `applyUpsert` doesn't exist yet — add a
-trivial reference to it in a throwaway line first if you want a true red
-step, or proceed straight to step 3 and treat step 4 as the first real
-pass (acceptable here since the test file's helpers are self-contained
-scaffolding, not the unit under test — the unit under test is exercised
-for real in Task 11).
+Run: `go test -run 'TestApplyUpsertInsertsThenUpdates|TestApplyDeleteRemovesRow' .`
+Expected: FAIL — `undefined: applyUpsert` (and `applyDelete`)
 
 - [ ] **Step 3: Write the production implementation in `sync_outbox.go`**
 
@@ -995,6 +1025,8 @@ var entityTable = map[string]string{
 
 // applyUpsert construye un INSERT ... ON CONFLICT (id) DO UPDATE genérico
 // a partir de las columnas presentes en `row`, contra Postgres (cloudDB).
+// Usa placeholders "$1, $2..." — funciona igual contra el cloudDB real
+// (Postgres) y, en pruebas, contra SQLite (ver newFakeCloudDB).
 func applyUpsert(db *sql.DB, table string, row map[string]interface{}) error {
 	cols := make([]string, 0, len(row))
 	placeholders := make([]string, 0, len(row))
@@ -1005,7 +1037,7 @@ func applyUpsert(db *sql.DB, table string, row map[string]interface{}) error {
 		cols = append(cols, col)
 		placeholders = append(placeholders, fmt.Sprintf("$%d", i))
 		if col != "id" {
-			updates = append(updates, fmt.Sprintf("%s = EXCLUDED.%s", col, col))
+			updates = append(updates, fmt.Sprintf("%s = excluded.%s", col, col))
 		}
 		args = append(args, val)
 		i++
@@ -1018,7 +1050,8 @@ func applyUpsert(db *sql.DB, table string, row map[string]interface{}) error {
 	return err
 }
 
-// applyDelete borra una fila por id en Postgres (cloudDB).
+// applyDelete borra una fila por id (cloudDB real o, en pruebas, el
+// SQLite de newFakeCloudDB).
 func applyDelete(db *sql.DB, table, id string) error {
 	_, err := db.Exec(fmt.Sprintf("DELETE FROM %s WHERE id = $1", table), id)
 	return err
@@ -1027,7 +1060,7 @@ func applyDelete(db *sql.DB, table, id string) error {
 
 Add `"fmt"` and `"strings"` to `sync_outbox.go`'s imports.
 
-- [ ] **Step 4: Run the SQLite-backed tests to confirm the row-building logic is sound**
+- [ ] **Step 4: Run test to verify it passes**
 
 Run: `go test -run 'TestApplyUpsertInsertsThenUpdates|TestApplyDeleteRemovesRow' .`
 Expected: PASS
@@ -1573,6 +1606,28 @@ is the acceptance gate for the whole feature. Report the exact step and
 error to the user rather than declaring the plan complete.
 
 ---
+
+## Pre-flight Fixes (applied before dispatching Task 1)
+
+- **Task 10** originally tested throwaway SQLite-syntax duplicate functions
+  (`applyUpsertSQLite`/`applyDeleteSQLite`) instead of the real production
+  `applyUpsert`/`applyDelete`, and its stated "red step" would have passed
+  immediately (the test never referenced unwritten code). Verified
+  empirically that `modernc.org/sqlite` accepts Postgres `$1` placeholder
+  and `ON CONFLICT ... excluded.` syntax identically to `lib/pq`, so the
+  task now tests the real functions directly against an in-memory SQLite
+  standing in for Postgres — real red step, no duplicate logic.
+- **Task 4** left a deliberately-wrong line (`dbPassword2err`) in a code
+  sample with a note to delete it — replaced with clean, correct code.
+  Also added `TestAuthenticateCloudSuccess`,
+  `TestLoginDesktopCachesIdentityWhenCloudReachable`, and
+  `TestLoginDesktopRejectsWrongPasswordWithoutFallingBackToCache`, using
+  the same real-SQLite-as-fake-Postgres technique — the cloud-reachable
+  success path (and the "online + wrong password must not fall back to a
+  stale cache" rule from the spec) had no test coverage before this fix.
+- **Task 5**'s server-mode no-op test was a silent no-op in the default
+  (non-server) test run — replaced with an explicit `t.Skip` so the
+  guard is visible in test output instead of passing vacuously.
 
 ## Self-Review Notes (already applied above, kept for the record)
 
