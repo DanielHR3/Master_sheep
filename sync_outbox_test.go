@@ -347,3 +347,32 @@ func TestMoverAnimalEnqueuesSync(t *testing.T) {
 		t.Errorf("animal payload = %v, want corral_id Corral 2", p)
 	}
 }
+
+func TestAddTareaEnqueuesSync(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	if err := a.AddTarea(Tarea{ID: "k1", Titulo: "Vacunar", Prioridad: "Alta"}); err != nil {
+		t.Fatalf("AddTarea: %v", err)
+	}
+	if got := outboxRows(t, a); len(got) != 1 || got[0] != [2]string{"insert", "tarea"} {
+		t.Fatalf("outbox = %v, want [insert tarea]", got)
+	}
+	if p := outboxPayload(t, a, "tarea", "k1"); p["estatus"] != "Pendiente" || p["creado_por"] != "u1" {
+		t.Errorf("payload = %v, want defaulted estatus Pendiente and creado_por u1", p)
+	}
+}
+
+func TestCompletarTareaEnqueuesSync(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	if err := a.AddTarea(Tarea{ID: "k1", Titulo: "Vacunar"}); err != nil {
+		t.Fatalf("AddTarea: %v", err)
+	}
+	if err := a.CompletarTarea("k1"); err != nil {
+		t.Fatalf("CompletarTarea: %v", err)
+	}
+	if got := outboxRows(t, a); len(got) != 2 || got[1] != [2]string{"update", "tarea"} {
+		t.Fatalf("outbox = %v, want [... update tarea]", got)
+	}
+	if p := outboxPayload(t, a, "tarea", "k1"); p["estatus"] != "Completada" {
+		t.Errorf("payload = %v, want estatus Completada", p)
+	}
+}

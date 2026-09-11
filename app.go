@@ -1322,6 +1322,9 @@ func (a *App) AddTarea(t Tarea) error {
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		t.ID, a.tenantID(), t.AsignadoA, t.CreadoPor, t.Titulo, t.Descripcion, t.Estatus, 
 		t.FechaVenc, t.AnimalID, t.InsumoID, t.Prioridad)
+	if err == nil {
+		a.queueSync("insert", "tarea", t.ID, t)
+	}
 	return err
 }
 
@@ -1332,6 +1335,9 @@ func (a *App) CompletarTarea(tareaID string) error {
 	}
 
 	_, err := a.db.Exec(a.q("UPDATE tareas SET estatus = 'Completada' WHERE id = ?"), tareaID)
+	if err == nil {
+		a.queueSync("update", "tarea", tareaID, map[string]interface{}{"id": tareaID, "estatus": "Completada"})
+	}
 	return err
 }
 
