@@ -186,3 +186,164 @@ func TestAddInsumoEnqueuesSync(t *testing.T) {
 		t.Errorf("payload = %v, want stock_actual 100", p)
 	}
 }
+
+// Grupo clínico / reproductivo. Varios de estos métodos tocan más de una
+// tabla (p. ej. un tratamiento descuenta stock y crea recordatorios); cada
+// efecto secundario también debe encolarse para que la nube no diverja.
+
+func seedAnimalAndInsumo(t *testing.T, a *App) {
+	t.Helper()
+	if err := a.AddAnimal(Animal{ID: "a1", Arete: "SM-001", Sexo: "Hembra"}); err != nil {
+		t.Fatalf("AddAnimal: %v", err)
+	}
+	if err := a.AddInsumo(Insumo{ID: "i1", Nombre: "Ivermectina", StockActual: 100, DiasRetiro: 5}); err != nil {
+		t.Fatalf("AddInsumo: %v", err)
+	}
+	if _, err := a.db.Exec("DELETE FROM sync_outbox"); err != nil {
+		t.Fatalf("clear outbox: %v", err)
+	}
+}
+
+func TestRegistrarEventoReproductivoEnqueuesSync(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	seedAnimalAndInsumo(t, a)
+	if err := a.RegistrarEventoReproductivo(EventoReproductivo{ID: "e1", AnimalID: "a1", Tipo: "Monta Natural", FechaEvento: "2026-09-01"}); err != nil {
+		t.Fatalf("RegistrarEventoReproductivo: %v", err)
+	}
+	want := [][2]string{{"insert", "evento_reproductivo"}, {"update", "animal"}}
+	if got := outboxRows(t, a); len(got) != 2 || got[0] != want[0] || got[1] != want[1] {
+		t.Fatalf("outbox = %v, want %v", got, want)
+	}
+	if p := outboxPayload(t, a, "evento_reproductivo", "e1"); p["fecha_probable_parto"] != "2027-01-26" || p["resultado"] != "Pendiente" {
+		t.Errorf("payload = %v, want computed fecha_probable_parto and resultado Pendiente", p)
+	}
+	if p := outboxPayload(t, a, "animal", "a1"); p["estado_reproductivo"] != "Gestación" {
+		t.Errorf("animal payload = %v, want estado_reproductivo Gestación", p)
+	}
+}
+
+func TestRegistrarTratamientoEnqueuesSync(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	seedAnimalAndInsumo(t, a)
+	if err := a.RegistrarTratamiento(Tratamiento{ID: "t1", AnimalID: "a1", InsumoID: "i1", Dosis: 2.5, Fecha: "2026-09-01", DuracionDias: 3}); err != nil {
+		t.Fatalf("RegistrarTratamiento: %v", err)
+	}
+	want := [][2]string{
+		{"insert", "tratamiento"}, {"update", "insumo"}, {"insert", "movimiento_insumo"},
+		{"insert", "tarea"}, {"insert", "tarea"},
+	}
+	got := outboxRows(t, a)
+	if len(got) != len(want) {
+		t.Fatalf("outbox = %v, want %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("outbox[%d] = %v, want %v (full: %v)", i, got[i], want[i], got)
+		}
+	}
+	p := outboxPayload(t, a, "tratamiento", "t1")
+	if _, has := p["duracion_dias"]; has {
+		t.Errorf("tratamiento payload must not include duracion_dias (not a column): %v", p)
+	}
+	if p["fecha_fin_retiro"] != "2026-09-06" {
+		t.Errorf("tratamiento payload fecha_fin_retiro = %v, want 2026-09-06", p["fecha_fin_retiro"])
+	}
+	if p := outboxPayload(t, a, "insumo", "i1"); p["stock_actual"] != float64(97.5) {
+		t.Errorf("insumo payload stock_actual = %v, want 97.5", p["stock_actual"])
+	}
+}
+
+func TestRegistrarPartoEnqueuesSync(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	seedAnimalAndInsumo(t, a)
+	if err := a.RegistrarParto(Parto{ID: "p1", AnimalID: "a1", CantidadCrias: 2, TipoParto: "Doble"}); err != nil {
+		t.Fatalf("RegistrarParto: %v", err)
+	}
+	want := [][2]string{{"insert", "parto"}, {"update", "animal"}}
+	if got := outboxRows(t, a); len(got) != 2 || got[0] != want[0] || got[1] != want[1] {
+		t.Fatalf("outbox = %v, want %v", got, want)
+	}
+	if p := outboxPayload(t, a, "animal", "a1"); p["estado_reproductivo"] != "Lactancia" || p["conteo_fetos"] != float64(0) {
+		t.Errorf("animal payload = %v, want Lactancia / conteo_fetos 0", p)
+	}
+}
+
+func TestRegistrarDiagnosticoGestacionEnqueuesSync(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	seedAnimalAndInsumo(t, a)
+	if err := a.RegistrarDiagnosticoGestacion(DiagnosticoGestacion{ID: "d1", AnimalID: "a1", Resultado: 1, ConteoFetos: 1}); err != nil {
+		t.Fatalf("RegistrarDiagnosticoGestacion: %v", err)
+	}
+	if got := outboxRows(t, a); len(got) != 1 || got[0] != [2]string{"insert", "diagnostico_gestacion"} {
+		t.Fatalf("outbox = %v, want [insert diagnostico_gestacion]", got)
+	}
+}
+
+func TestCrearRecetaVeterinariaEnqueuesSync(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	seedAnimalAndInsumo(t, a)
+	if err := a.CrearRecetaVeterinaria(RecetaVeterinaria{ID: "r1", AnimalID: "a1", MVZ: "Dr. X"}); err != nil {
+		t.Fatalf("CrearRecetaVeterinaria: %v", err)
+	}
+	if got := outboxRows(t, a); len(got) != 1 || got[0] != [2]string{"insert", "receta"} {
+		t.Fatalf("outbox = %v, want [insert receta]", got)
+	}
+	var fechaLocal string
+	a.db.QueryRow("SELECT fecha FROM recetas_veterinarias WHERE id = 'r1'").Scan(&fechaLocal)
+	if p := outboxPayload(t, a, "receta", "r1"); p["fecha"] != fechaLocal || fechaLocal == "" {
+		t.Errorf("receta payload fecha = %v, want the persisted value %q", p["fecha"], fechaLocal)
+	}
+}
+
+func TestAddSeguimientoPesoEnqueuesSync(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	seedAnimalAndInsumo(t, a)
+	if err := a.AddSeguimientoPeso(SeguimientoPeso{ID: "s1", AnimalID: "a1", Peso: 32.5}); err != nil {
+		t.Fatalf("AddSeguimientoPeso: %v", err)
+	}
+	if got := outboxRows(t, a); len(got) != 1 || got[0] != [2]string{"insert", "seguimiento_peso"} {
+		t.Fatalf("outbox = %v, want [insert seguimiento_peso]", got)
+	}
+	if p := outboxPayload(t, a, "seguimiento_peso", "s1"); p["fecha"] == "" || p["fecha"] == nil {
+		t.Errorf("seguimiento_peso payload should carry the defaulted fecha: %v", p)
+	}
+}
+
+func TestConfirmarUltrasonidoEnqueuesSync(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	seedAnimalAndInsumo(t, a)
+	if err := a.ConfirmarUltrasonido("a1", true, 2); err != nil {
+		t.Fatalf("ConfirmarUltrasonido: %v", err)
+	}
+	want := [][2]string{{"update", "animal"}, {"insert", "tarea"}}
+	if got := outboxRows(t, a); len(got) != 2 || got[0] != want[0] || got[1] != want[1] {
+		t.Fatalf("outbox = %v, want %v", got, want)
+	}
+	if p := outboxPayload(t, a, "animal", "a1"); p["conteo_fetos"] != float64(2) || p["estado_reproductivo"] == nil {
+		t.Errorf("animal payload = %v, want conteo_fetos 2 and an estado_reproductivo", p)
+	}
+
+	// Negativo: solo actualiza el animal, no crea tarea.
+	a.db.Exec("DELETE FROM sync_outbox")
+	if err := a.ConfirmarUltrasonido("a1", false, 0); err != nil {
+		t.Fatalf("ConfirmarUltrasonido negativo: %v", err)
+	}
+	if got := outboxRows(t, a); len(got) != 1 || got[0] != [2]string{"update", "animal"} {
+		t.Fatalf("outbox (negativo) = %v, want [update animal]", got)
+	}
+}
+
+func TestMoverAnimalEnqueuesSync(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	seedAnimalAndInsumo(t, a)
+	if err := a.MoverAnimal("a1", "Corral 2", "engorda"); err != nil {
+		t.Fatalf("MoverAnimal: %v", err)
+	}
+	want := [][2]string{{"insert", "movimiento"}, {"update", "animal"}}
+	if got := outboxRows(t, a); len(got) != 2 || got[0] != want[0] || got[1] != want[1] {
+		t.Fatalf("outbox = %v, want %v", got, want)
+	}
+	if p := outboxPayload(t, a, "animal", "a1"); p["corral_id"] != "Corral 2" {
+		t.Errorf("animal payload = %v, want corral_id Corral 2", p)
+	}
+}

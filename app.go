@@ -757,7 +757,14 @@ func (a *App) RegistrarEventoReproductivo(event EventoReproductivo) error {
 
 	// Actualizar animal
 	_, err = a.db.Exec(a.q("UPDATE animales SET estado_reproductivo = 'Gestación' WHERE id = ?"), event.AnimalID)
-	return err
+	if err != nil {
+		return err
+	}
+	a.queueSync("insert", "evento_reproductivo", event.ID, event)
+	a.queueSync("update", "animal", event.AnimalID, map[string]interface{}{
+		"id": event.AnimalID, "estado_reproductivo": "Gestación",
+	})
+	return nil
 }
 
 // GetStats obtiene los KPIs del dashboard de forma local (Master Sheep Pro)
@@ -929,17 +936,31 @@ func (a *App) ConfirmarUltrasonido(animalID string, preñada bool, fetos int) er
 
 	_, err := a.db.Exec(a.q("UPDATE animales SET estado_reproductivo = ?, conteo_fetos = ? WHERE id = ?"),
 		estado, fetos, animalID)
+	if err != nil {
+		return err
+	}
+	a.queueSync("update", "animal", animalID, map[string]interface{}{
+		"id": animalID, "estado_reproductivo": estado, "conteo_fetos": fetos,
+	})
 	
 	// Si es positivo, generar tarea de seguimiento
 	if preñada {
-		taskID := uuid.New().String()
-		vencimiento := time.Now().AddDate(0, 0, 45).Format("2006-01-02")
-		a.db.Exec(a.q(`INSERT INTO tareas (id, user_id, titulo, descripcion, fecha_vencimiento, estatus, prioridad) 
+		tarea := Tarea{
+			ID:          uuid.New().String(),
+			Titulo:      "REVISIÓN: Segundo Ultrasonido",
+			Descripcion: "Verificar viabilidad fetal del animal " + animalID,
+			FechaVenc:   time.Now().AddDate(0, 0, 45).Format("2006-01-02"),
+			Estatus:     "Pendiente",
+			Prioridad:   "Media",
+		}
+		if _, terr := a.db.Exec(a.q(`INSERT INTO tareas (id, user_id, titulo, descripcion, fecha_vencimiento, estatus, prioridad) 
 			VALUES (?, ?, ?, ?, ?, ?, ?)`),
-			taskID, a.tenantID(), "REVISIÓN: Segundo Ultrasonido", "Verificar viabilidad fetal del animal "+animalID, vencimiento, "Pendiente", "Media")
+			tarea.ID, a.tenantID(), tarea.Titulo, tarea.Descripcion, tarea.FechaVenc, tarea.Estatus, tarea.Prioridad); terr == nil {
+			a.queueSync("insert", "tarea", tarea.ID, tarea)
+		}
 	}
 	
-	return err
+	return nil
 }
 
 // MoverAnimal registra cambio de corral
@@ -954,17 +975,25 @@ func (a *App) MoverAnimal(animalID string, toCorralID string, motivo string) err
 
 	// Registrar movimiento
 	movID := uuid.New().String()
+	fechaMov := time.Now().Format("2006-01-02")
 	_, err := a.db.Exec(a.q(`INSERT INTO movimientos 
 		(id, user_id, animal_id, corral_previo, corral_nuevo, fecha_movimiento, motivo) 
 		VALUES (?, ?, ?, ?, ?, ?, ?)`),
-		movID, a.tenantID(), animalID, fromCorralID, toCorralID, time.Now().Format("2006-01-02"), motivo)
+		movID, a.tenantID(), animalID, fromCorralID, toCorralID, fechaMov, motivo)
 	
 	if err != nil {
 		return err
 	}
+	a.queueSync("insert", "movimiento", movID, map[string]interface{}{
+		"id": movID, "animal_id": animalID, "corral_previo": fromCorralID, "corral_nuevo": toCorralID,
+		"fecha_movimiento": fechaMov, "motivo": motivo,
+	})
 
 	// Actualizar animal
 	_, err = a.db.Exec(a.q("UPDATE animales SET corral_id = ? WHERE id = ?"), toCorralID, animalID)
+	if err == nil {
+		a.queueSync("update", "animal", animalID, map[string]interface{}{"id": animalID, "corral_id": toCorralID})
+	}
 	return err
 }
 
@@ -1069,6 +1098,7 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 	}
 
 	// 4. Generar Tareas Recordatorias para días subsecuentes
+	var recordatorios []Tarea
 	if t.DuracionDias > 1 {
 		for i := 1; i < t.DuracionDias; i++ {
 			taskID := uuid.New().String()
@@ -1086,10 +1116,37 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 				tx.Rollback()
 				return err
 			}
+			recordatorios = append(recordatorios, Tarea{
+				ID: taskID, AsignadoA: "", CreadoPor: a.tenantID(), Titulo: titulo, Descripcion: desc,
+				Estatus: "Pendiente", FechaVenc: fechaVenc, AnimalID: t.AnimalID, InsumoID: t.InsumoID, Prioridad: "Alta",
+			})
 		}
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	// Encolar para la nube exactamente lo que se escribió localmente.
+	// El struct Tratamiento trae duracion_dias, que no es columna, así que
+	// se arma el payload a mano con las columnas del INSERT.
+	a.queueSync("insert", "tratamiento", t.ID, map[string]interface{}{
+		"id": t.ID, "animal_id": t.AnimalID, "insumo_id": t.InsumoID, "dosis": t.Dosis,
+		"via_administracion": t.ViaAdministracion, "fecha": t.Fecha, "fecha_fin_retiro": t.FechaFinRetiro,
+		"tecnico": t.Tecnico, "observaciones": t.Observaciones,
+	})
+	var stockActual float64
+	if qerr := a.db.QueryRow(a.q("SELECT stock_actual FROM insumos WHERE id = ?"), t.InsumoID).Scan(&stockActual); qerr == nil {
+		a.queueSync("update", "insumo", t.InsumoID, map[string]interface{}{"id": t.InsumoID, "stock_actual": stockActual})
+	}
+	a.queueSync("insert", "movimiento_insumo", movID, map[string]interface{}{
+		"id": movID, "insumo_id": t.InsumoID, "tipo": "Salida", "cantidad": t.Dosis,
+		"fecha": t.Fecha, "motivo": "Tratamiento Animal", "animal_id": t.AnimalID,
+	})
+	for _, r := range recordatorios {
+		a.queueSync("insert", "tarea", r.ID, r)
+	}
+	return nil
 }
 
 // RegistrarParto finaliza la gestación
@@ -1121,7 +1178,14 @@ func (a *App) RegistrarParto(p Parto) error {
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	a.queueSync("insert", "parto", p.ID, p)
+	a.queueSync("update", "animal", p.AnimalID, map[string]interface{}{
+		"id": p.AnimalID, "estado_reproductivo": "Lactancia", "conteo_fetos": 0,
+	})
+	return nil
 }
 
 func (a *App) GetPartos(animalID string) ([]Parto, error) {
@@ -1160,6 +1224,9 @@ func (a *App) RegistrarDiagnosticoGestacion(dg DiagnosticoGestacion) error {
 	}
 	_, err := a.db.Exec(a.q(`INSERT INTO diagnostico_gestacion (id, user_id, animal_id, fecha, condicion_corporal, resultado, conteo_fetos, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
 		dg.ID, a.tenantID(), dg.AnimalID, dg.Fecha, dg.CondicionCorporal, dg.Resultado, dg.ConteoFetos, dg.Observaciones)
+	if err == nil {
+		a.queueSync("insert", "diagnostico_gestacion", dg.ID, dg)
+	}
 	return err
 }
 
@@ -1187,8 +1254,12 @@ func (a *App) CrearRecetaVeterinaria(rv RecetaVeterinaria) error {
 	if rv.ID == "" {
 		rv.ID = uuid.New().String()
 	}
+	rv.Fecha = time.Now().Format("2006-01-02")
 	_, err := a.db.Exec(a.q(`INSERT INTO recetas_veterinarias (id, user_id, animal_id, mvz, productor, fecha, peso, diagnostico, tratamiento) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`),
-		rv.ID, a.tenantID(), rv.AnimalID, rv.MVZ, rv.Productor, time.Now().Format("2006-01-02"), rv.Peso, rv.Diagnostico, rv.Tratamiento)
+		rv.ID, a.tenantID(), rv.AnimalID, rv.MVZ, rv.Productor, rv.Fecha, rv.Peso, rv.Diagnostico, rv.Tratamiento)
+	if err == nil {
+		a.queueSync("insert", "receta", rv.ID, rv)
+	}
 	return err
 }
 
@@ -1444,6 +1515,9 @@ func (a *App) AddSeguimientoPeso(sp SeguimientoPeso) error {
 
 	_, err := a.db.Exec(a.q(`INSERT INTO seguimientos_peso (id, user_id, animal_id, fecha, peso, notas) VALUES (?, ?, ?, ?, ?, ?)`),
 		sp.ID, a.tenantID(), sp.AnimalID, sp.Fecha, sp.Peso, sp.Notas)
+	if err == nil {
+		a.queueSync("insert", "seguimiento_peso", sp.ID, sp)
+	}
 	return err
 }
 
