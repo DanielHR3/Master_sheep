@@ -69,6 +69,81 @@ func (a *App) initDB() error {
 	a.db = db
 
 	// Crear tablas si no existen
+	if err := a.createSchema(); err != nil {
+		fmt.Printf("Aviso: Error en esquema inicial (posiblemente tablas ya existen): %v\n", err)
+	}
+
+	// Las sesiones HTTP viven en la base de datos (no en memoria del proceso)
+	// para que funcionen correctamente en plataformas que corren múltiples
+	// instancias concurrentes (ej. Cloud Run autoescalado).
+	sessions.init(a.db, a.driverName)
+
+	// Migraciones y Setup Inicial con ON CONFLICT para Postgres / OR IGNORE para SQLite
+	if a.driverName == "postgres" {
+		_, _ = a.db.Exec("INSERT INTO settings (key, value) VALUES ('is_demo_mode', 'false') ON CONFLICT DO NOTHING")
+	} else {
+		_, _ = a.db.Exec("INSERT OR IGNORE INTO settings (key, value) VALUES ('is_demo_mode', 'false')")
+	}
+
+	// Migraciones (Silenciosas si fallan por ya existir columnas)
+	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_nacer REAL DEFAULT 0")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_destete REAL DEFAULT 0")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN padre_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN madre_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN abuelo_paterno_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN abuela_paterna_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN abuelo_materno_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN especie TEXT DEFAULT 'Ovino'")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN abuela_materna_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN tipo_parto TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN metodo_concepcion TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN destino TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN destino TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_defuncion TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN motivo_defuncion TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_150_dias REAL DEFAULT 0")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_destete TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN foto TEXT")
+	a.db.Exec("ALTER TABLE tratamientos ADD COLUMN via_administracion TEXT")
+	a.db.Exec("ALTER TABLE users ADD COLUMN rancho_id TEXT")
+
+	// Insertar usuario Super Administrador y los Admins de cada rancho
+	superAdminID := uuid.New().String()
+	donPablitoID := uuid.New().String()
+	bugambiliasID := uuid.New().String()
+	hashedPwd, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+
+	if a.driverName == "postgres" {
+		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
+			superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
+		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
+			donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
+		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
+			bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
+	} else {
+		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
+			superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
+		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
+			donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
+		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
+			bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
+	}
+
+	// Cargar configuración de Modo Demo
+	var demoVal string
+	err = a.db.QueryRow(a.q("SELECT value FROM settings WHERE key = 'is_demo_mode'")).Scan(&demoVal)
+	if err == nil {
+		a.IsDemoMode = (demoVal == "true")
+	} else {
+		a.IsDemoMode = false
+	}
+
+	return nil
+}
+
+// createSchema crea todas las tablas si no existen. Se extrajo de initDB()
+// para poder probarla de forma aislada (ver schema_offline_test.go).
+func (a *App) createSchema() error {
 	schema := `
 	CREATE TABLE IF NOT EXISTS users (
 		id TEXT PRIMARY KEY,
@@ -257,78 +332,30 @@ func (a *App) initDB() error {
 		user_id TEXT NOT NULL,
 		expires_at TIMESTAMP NOT NULL
 	);
+
+	CREATE TABLE IF NOT EXISTS cached_identity (
+		email TEXT PRIMARY KEY,
+		user_id TEXT NOT NULL,
+		name TEXT,
+		role TEXT NOT NULL,
+		rancho_id TEXT NOT NULL,
+		password_hash TEXT NOT NULL,
+		cached_at TIMESTAMP NOT NULL
+	);
+
+	CREATE TABLE IF NOT EXISTS sync_outbox (
+		id TEXT PRIMARY KEY,
+		operation TEXT NOT NULL,
+		entity_type TEXT NOT NULL,
+		entity_id TEXT NOT NULL,
+		payload TEXT NOT NULL,
+		rancho_id TEXT NOT NULL,
+		created_at TIMESTAMP NOT NULL,
+		last_error TEXT
+	);
 	`
-	_, err = a.db.Exec(schema)
-	if err != nil {
-		fmt.Printf("Aviso: Error en esquema inicial (posiblemente tablas ya existen): %v\n", err)
-	}
-
-	// Las sesiones HTTP viven en la base de datos (no en memoria del proceso)
-	// para que funcionen correctamente en plataformas que corren múltiples
-	// instancias concurrentes (ej. Cloud Run autoescalado).
-	sessions.init(a.db, a.driverName)
-
-	// Migraciones y Setup Inicial con ON CONFLICT para Postgres / OR IGNORE para SQLite
-	if a.driverName == "postgres" {
-		_, _ = a.db.Exec("INSERT INTO settings (key, value) VALUES ('is_demo_mode', 'false') ON CONFLICT DO NOTHING")
-	} else {
-		_, _ = a.db.Exec("INSERT OR IGNORE INTO settings (key, value) VALUES ('is_demo_mode', 'false')")
-	}
-
-	// Migraciones (Silenciosas si fallan por ya existir columnas)
-	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_nacer REAL DEFAULT 0")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_destete REAL DEFAULT 0")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN padre_id TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN madre_id TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN abuelo_paterno_id TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN abuela_paterna_id TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN abuelo_materno_id TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN especie TEXT DEFAULT 'Ovino'")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN abuela_materna_id TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN tipo_parto TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN metodo_concepcion TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN destino TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN destino TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_defuncion TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN motivo_defuncion TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_150_dias REAL DEFAULT 0")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_destete TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN foto TEXT")
-	a.db.Exec("ALTER TABLE tratamientos ADD COLUMN via_administracion TEXT")
-	a.db.Exec("ALTER TABLE users ADD COLUMN rancho_id TEXT")
-
-	// Insertar usuario Super Administrador y los Admins de cada rancho
-	superAdminID := uuid.New().String()
-	donPablitoID := uuid.New().String()
-	bugambiliasID := uuid.New().String()
-	hashedPwd, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
-	
-	if a.driverName == "postgres" {
-		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
-			superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
-		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
-			donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
-		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
-			bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
-	} else {
-		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
-			superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
-		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
-			donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
-		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
-			bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
-	}
-
-	// Cargar configuración de Modo Demo
-	var demoVal string
-	err = a.db.QueryRow(a.q("SELECT value FROM settings WHERE key = 'is_demo_mode'")).Scan(&demoVal)
-	if err == nil {
-		a.IsDemoMode = (demoVal == "true")
-	} else {
-		a.IsDemoMode = false
-	}
-
-	return nil
+	_, err := a.db.Exec(schema)
+	return err
 }
 
 // q es un helper para formatear consultas según el motor (Postgres usa $1, $2... SQLite usa ?)
