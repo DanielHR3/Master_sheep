@@ -17,6 +17,7 @@ func newTestApp(t *testing.T) *App {
 	if err := a.createSchema(); err != nil {
 		t.Fatalf("createSchema: %v", err)
 	}
+	a.runMigrations()
 	return a
 }
 

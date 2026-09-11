@@ -100,27 +100,7 @@ func (a *App) initDB() error {
 		_, _ = a.db.Exec("INSERT OR IGNORE INTO settings (key, value) VALUES ('is_demo_mode', 'false')")
 	}
 
-	// Migraciones (Silenciosas si fallan por ya existir columnas)
-	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_nacer REAL DEFAULT 0")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_destete REAL DEFAULT 0")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN padre_id TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN madre_id TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN abuelo_paterno_id TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN abuela_paterna_id TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN abuelo_materno_id TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN especie TEXT DEFAULT 'Ovino'")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN abuela_materna_id TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN tipo_parto TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN metodo_concepcion TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN destino TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN destino TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_defuncion TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN motivo_defuncion TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_150_dias REAL DEFAULT 0")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_destete TEXT")
-	a.db.Exec("ALTER TABLE animales ADD COLUMN foto TEXT")
-	a.db.Exec("ALTER TABLE tratamientos ADD COLUMN via_administracion TEXT")
-	a.db.Exec("ALTER TABLE users ADD COLUMN rancho_id TEXT")
+	a.runMigrations()
 
 	// Insertar usuario Super Administrador y los Admins de cada rancho
 	superAdminID := uuid.New().String()
@@ -154,6 +134,32 @@ func (a *App) initDB() error {
 	}
 
 	return nil
+}
+
+// runMigrations agrega columnas introducidas después del esquema base.
+// Cada ALTER falla silenciosamente si la columna ya existe. Se extrajo de
+// initDB() para que las pruebas con SQLite en memoria vean el mismo
+// esquema que la app real (ver newTestApp en schema_offline_test.go).
+func (a *App) runMigrations() {
+	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_nacer REAL DEFAULT 0")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_destete REAL DEFAULT 0")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN padre_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN madre_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN abuelo_paterno_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN abuela_paterna_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN abuelo_materno_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN especie TEXT DEFAULT 'Ovino'")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN abuela_materna_id TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN tipo_parto TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN metodo_concepcion TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN destino TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_defuncion TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN motivo_defuncion TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_150_dias REAL DEFAULT 0")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_destete TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN foto TEXT")
+	a.db.Exec("ALTER TABLE tratamientos ADD COLUMN via_administracion TEXT")
+	a.db.Exec("ALTER TABLE users ADD COLUMN rancho_id TEXT")
 }
 
 // createSchema crea todas las tablas si no existen. Se extrajo de initDB()
@@ -565,7 +571,7 @@ func (a *App) AddAnimal(animal Animal) error {
 		 abuelo_paterno_id, abuela_paterna_id, abuelo_materno_id, abuela_materna_id, tipo_parto, metodo_concepcion,
 		 peso_150_dias, fecha_destete, foto) 
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
-		animal.ID, a.tenantID(), animal.Especie, animal.Especie, animal.Arete, animal.Raza, animal.Sexo, 
+		animal.ID, a.tenantID(), animal.Especie, animal.Arete, animal.Raza, animal.Sexo, 
 		animal.FechaNacimiento, animal.Estatus, animal.EstadoRepro, 
 		animal.ConteoFetos, animal.CorralID, animal.PesoNacer, animal.PesoDestete,
 		animal.PadreID, animal.MadreID, animal.Destino, animal.FechaDefuncion, animal.MotivoDefuncion,
@@ -671,7 +677,7 @@ func (a *App) AddCorral(corral Corral) error {
 		corral.ID = uuid.New().String()
 	}
 
-	_, err := a.db.Exec(a.q("INSERT INTO corrales (id, user_id, nombre, tipo, capacidad) VALUES (?, ?, ?, ?, ?, ?)"),
+	_, err := a.db.Exec(a.q("INSERT INTO corrales (id, user_id, nombre, tipo, capacidad) VALUES (?, ?, ?, ?, ?)"),
 		corral.ID, a.tenantID(), corral.Nombre, corral.Tipo, corral.Capacidad)
 	return err
 }
@@ -719,7 +725,7 @@ func (a *App) RegistrarEventoReproductivo(event EventoReproductivo) error {
 
 	_, err := a.db.Exec(a.q(`INSERT INTO eventos_reproductivos 
 		(id, user_id, animal_id, tipo, fecha_evento, id_macho, lote_semen, tecnico, protocolo, fecha_probable_parto, resultado)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		event.ID, a.tenantID(), event.AnimalID, event.Tipo, 
 		event.FechaEvento, event.IDMacho, event.LoteSemen, 
 		event.Tecnico, event.Protocolo, event.FechaProbableParto, event.Resultado)
@@ -908,7 +914,7 @@ func (a *App) ConfirmarUltrasonido(animalID string, preñada bool, fetos int) er
 		taskID := uuid.New().String()
 		vencimiento := time.Now().AddDate(0, 0, 45).Format("2006-01-02")
 		a.db.Exec(a.q(`INSERT INTO tareas (id, user_id, titulo, descripcion, fecha_vencimiento, estatus, prioridad) 
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
+			VALUES (?, ?, ?, ?, ?, ?, ?)`),
 			taskID, a.tenantID(), "REVISIÓN: Segundo Ultrasonido", "Verificar viabilidad fetal del animal "+animalID, vencimiento, "Pendiente", "Media")
 	}
 	
@@ -929,7 +935,7 @@ func (a *App) MoverAnimal(animalID string, toCorralID string, motivo string) err
 	movID := uuid.New().String()
 	_, err := a.db.Exec(a.q(`INSERT INTO movimientos 
 		(id, user_id, animal_id, corral_previo, corral_nuevo, fecha_movimiento, motivo) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
+		VALUES (?, ?, ?, ?, ?, ?, ?)`),
 		movID, a.tenantID(), animalID, fromCorralID, toCorralID, time.Now().Format("2006-01-02"), motivo)
 	
 	if err != nil {
@@ -976,7 +982,7 @@ func (a *App) AddInsumo(i Insumo) error {
 
 	_, err := a.db.Exec(a.q(`INSERT INTO insumos 
 		(id, user_id, nombre, tipo, unidad, stock_actual, stock_minimo, costo_unitario, dias_retiro, lote, fecha_vencimiento, proveedor) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		i.ID, a.tenantID(), i.Nombre, i.Tipo, i.Unidad, i.StockActual, i.StockMinimo, i.CostoUnitario, i.DiasRetiro, i.Lote, i.FechaVencimiento, i.Proveedor)
 	return err
 }
@@ -1010,7 +1016,7 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 	// 1. Insertar tratamiento inicial
 	_, err = tx.Exec(a.q(`INSERT INTO tratamientos 
 		(id, user_id, animal_id, insumo_id, dosis, via_administracion, fecha, fecha_fin_retiro, tecnico, observaciones) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		t.ID, a.tenantID(), t.AnimalID, t.InsumoID, t.Dosis, t.ViaAdministracion,
 		t.Fecha, t.FechaFinRetiro, t.Tecnico, t.Observaciones)
 	
@@ -1030,7 +1036,7 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 	movID := uuid.New().String()
 	_, err = tx.Exec(a.q(`INSERT INTO movimientos_insumo 
 		(id, user_id, insumo_id, tipo, cantidad, fecha, motivo, animal_id) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
 		movID, a.tenantID(), t.InsumoID, "Salida", t.Dosis, t.Fecha, "Tratamiento Animal", t.AnimalID)
 	
 	if err != nil {
@@ -1048,7 +1054,7 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 			
 			_, err = tx.Exec(a.q(`INSERT INTO tareas 
 				(id, user_id, asignado_a, creado_por, titulo, descripcion, estatus, fecha_vencimiento, animal_id, insumo_id, prioridad) 
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 				taskID, a.tenantID(), "", a.tenantID(), titulo, desc, "Pendiente", 
 				fechaVenc, t.AnimalID, t.InsumoID, "Alta")
 			
@@ -1077,7 +1083,7 @@ func (a *App) RegistrarParto(p Parto) error {
 	}
 
 	// 1. Insertar en tabla partos
-	_, err = tx.Exec(a.q(`INSERT INTO partos (id, user_id, animal_id, fecha, cantidad_crias, tipo_parto, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
+	_, err = tx.Exec(a.q(`INSERT INTO partos (id, user_id, animal_id, fecha, cantidad_crias, tipo_parto, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)`),
 		p.ID, a.tenantID(), p.AnimalID, p.Fecha, p.CantidadCrias, p.TipoParto, p.Observaciones)
 	if err != nil {
 		tx.Rollback()
@@ -1128,7 +1134,7 @@ func (a *App) RegistrarDiagnosticoGestacion(dg DiagnosticoGestacion) error {
 	if dg.ID == "" {
 		dg.ID = uuid.New().String()
 	}
-	_, err := a.db.Exec(a.q(`INSERT INTO diagnostico_gestacion (id, user_id, animal_id, fecha, condicion_corporal, resultado, conteo_fetos, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+	_, err := a.db.Exec(a.q(`INSERT INTO diagnostico_gestacion (id, user_id, animal_id, fecha, condicion_corporal, resultado, conteo_fetos, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
 		dg.ID, a.tenantID(), dg.AnimalID, dg.Fecha, dg.CondicionCorporal, dg.Resultado, dg.ConteoFetos, dg.Observaciones)
 	return err
 }
@@ -1157,7 +1163,7 @@ func (a *App) CrearRecetaVeterinaria(rv RecetaVeterinaria) error {
 	if rv.ID == "" {
 		rv.ID = uuid.New().String()
 	}
-	_, err := a.db.Exec(a.q(`INSERT INTO recetas_veterinarias (id, user_id, animal_id, mvz, productor, fecha, peso, diagnostico, tratamiento) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+	_, err := a.db.Exec(a.q(`INSERT INTO recetas_veterinarias (id, user_id, animal_id, mvz, productor, fecha, peso, diagnostico, tratamiento) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		rv.ID, a.tenantID(), rv.AnimalID, rv.MVZ, rv.Productor, time.Now().Format("2006-01-02"), rv.Peso, rv.Diagnostico, rv.Tratamiento)
 	return err
 }
@@ -1218,7 +1224,7 @@ func (a *App) AddTarea(t Tarea) error {
 
 	_, err := a.db.Exec(a.q(`INSERT INTO tareas 
 		(id, user_id, asignado_a, creado_por, titulo, descripcion, estatus, fecha_vencimiento, animal_id, insumo_id, prioridad) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		t.ID, a.tenantID(), t.AsignadoA, t.CreadoPor, t.Titulo, t.Descripcion, t.Estatus, 
 		t.FechaVenc, t.AnimalID, t.InsumoID, t.Prioridad)
 	return err
@@ -1336,7 +1342,7 @@ func (a *App) AddUser(u User) error {
 		return err
 	}
 
-	_, err = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?, ?)"),
+	_, err = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)"),
 		u.ID, u.Email, string(hashedPwd), u.Name, u.Role, a.tenantID())
 	return err
 }
@@ -1412,7 +1418,7 @@ func (a *App) AddSeguimientoPeso(sp SeguimientoPeso) error {
 		sp.Fecha = time.Now().Format("2006-01-02")
 	}
 
-	_, err := a.db.Exec(a.q(`INSERT INTO seguimientos_peso (id, user_id, animal_id, fecha, peso, notas) VALUES (?, ?, ?, ?, ?, ?, ?)`),
+	_, err := a.db.Exec(a.q(`INSERT INTO seguimientos_peso (id, user_id, animal_id, fecha, peso, notas) VALUES (?, ?, ?, ?, ?, ?)`),
 		sp.ID, a.tenantID(), sp.AnimalID, sp.Fecha, sp.Peso, sp.Notas)
 	return err
 }
