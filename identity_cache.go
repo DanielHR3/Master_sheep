@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -45,4 +46,52 @@ func (a *App) authenticateOffline(email, password string) (*User, error) {
 	}
 	user.Email = email
 	return &user, nil
+}
+
+// authenticateCloud autentica directo contra Postgres, sin pasar por a.db
+// (que en modo escritorio es SQLite). Placeholders en sintaxis Postgres
+// porque cloudDB, cuando existe, siempre es Postgres.
+func authenticateCloud(db *sql.DB, email, password string) (*User, error) {
+	var user User
+	var dbPassword string
+	err := db.QueryRow(`SELECT id, email, name, role, rancho_id, password FROM users WHERE email = $1`, email).
+		Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.RanchoID, &dbPassword)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("usuario no encontrado")
+		}
+		return nil, err
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(password)); err != nil {
+		return nil, fmt.Errorf("contraseña incorrecta")
+	}
+	if user.RanchoID == "" {
+		user.RanchoID = user.ID
+	}
+	return &user, nil
+}
+
+// loginDesktop intenta autenticar contra Supabase; si no hay conexión de
+// nube configurada o no responde, cae a la identidad cacheada localmente.
+// Un error de credenciales estando en línea (contraseña incorrecta) NO cae
+// al caché — se reporta tal cual, porque la nube ya dio una respuesta
+// autoritativa.
+func (a *App) loginDesktop(email, password string) (*User, error) {
+	if a.cloudDB != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		if pingErr := a.cloudDB.PingContext(ctx); pingErr == nil {
+			user, err := authenticateCloud(a.cloudDB, email, password)
+			if err != nil {
+				return nil, err // credenciales rechazadas en línea: no caer al caché
+			}
+			hash, hashErr := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+			if hashErr == nil {
+				_ = a.cacheIdentity(user, string(hash))
+			}
+			return user, nil
+		}
+	}
+	// Sin conexión (o cloudDB nunca configurado): usar la última identidad cacheada.
+	return a.authenticateOffline(email, password)
 }

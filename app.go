@@ -23,8 +23,9 @@ import (
 type App struct {
 	ctx        context.Context
 	db         *sql.DB
-	user       *User // Usuario actualmente autenticado
-	IsDemoMode bool  // Modo Lectura (Bloquea mutaciones)
+	cloudDB    *sql.DB // conexión opcional a Postgres, solo para sincronización/login en modo escritorio
+	user       *User   // Usuario actualmente autenticado
+	IsDemoMode bool    // Modo Lectura (Bloquea mutaciones)
 	driverName string
 }
 
@@ -67,6 +68,14 @@ func (a *App) initDB() error {
 		return err
 	}
 	a.db = db
+
+	if !isServerBuild {
+		if cloudURL := os.Getenv("DATABASE_URL"); cloudURL != "" {
+			if cloudDB, err := sql.Open("postgres", cloudURL); err == nil {
+				a.cloudDB = cloudDB
+			}
+		}
+	}
 
 	// Crear tablas si no existen
 	if err := a.createSchema(); err != nil {
@@ -452,7 +461,13 @@ func (a *App) loadUserByID(id string) (*User, error) {
 // (escritorio: un único usuario por proceso, por lo que mutar a.user aquí
 // es correcto). El servidor HTTP multi-usuario usa authenticate() en su lugar.
 func (a *App) Login(email, password string) error {
-	user, err := a.authenticate(email, password)
+	var user *User
+	var err error
+	if isServerBuild {
+		user, err = a.authenticate(email, password)
+	} else {
+		user, err = a.loginDesktop(email, password)
+	}
 	if err != nil {
 		return err
 	}
