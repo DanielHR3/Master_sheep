@@ -25,6 +25,7 @@ import PartoModal from './components/modals/PartoModal';
 import GenealogyModal from './components/modals/GenealogyModal';
 import ConfirmModal from './components/modals/ConfirmModal';
 import ChangePasswordModal from './components/modals/ChangePasswordModal';
+import RanchoPerfilModal from './components/modals/RanchoPerfilModal';
 
 // Pages
 import Dashboard from './pages/Dashboard';
@@ -144,6 +145,8 @@ function App() {
           onAddWeight={(a) => { state.setSelectedAnimal(a); state.modals.setShowWeightModal(true); }} 
           onViewWeights={actions.handleViewWeights} 
           onViewGenealogy={(a) => { state.setSelectedAnimal(a); state.modals.setShowGenealogy(true); }}
+          onFicha={actions.handleDownloadFicha}
+          referencias={store.referencias}
           onImportExcel={actions.handleImportExcel}
           onDownloadTemplate={actions.handleDownloadTemplate}
         />;
@@ -165,6 +168,7 @@ function App() {
           onStaff={() => store.setActiveTab('staff')} 
           onReports={() => store.setActiveTab('reports')}
           onCorrales={() => store.setActiveTab('corrales')}
+          onRanchoPerfil={() => state.modals.setShowRanchoPerfil(true)}
           user={store.currentUser} 
           isDemo={store.isDemo} 
           setIsDemo={store.setIsDemo} 
@@ -327,6 +331,13 @@ function App() {
         animal={state.selectedAnimal} 
         animals={store.animals}
         theme={store.theme} 
+        onChanged={actions.refreshData}
+        notify={(message, type) => store.setNotification({ message, type })}
+      />
+      <RanchoPerfilModal
+        show={state.modals.showRanchoPerfil}
+        onClose={() => state.modals.setShowRanchoPerfil(false)}
+        onSaved={() => store.setNotification({ message: 'Datos del rancho guardados', type: 'success' })}
       />
     </div>
   );

@@ -8,8 +8,7 @@ import {
   Shield,
   Warehouse,
   FileSpreadsheet,
-  LogOut
-} from 'lucide-react';
+  LogOut, FileText } from 'lucide-react';
 import { Switch } from '../components/ui/switch';
 
 interface ProfileProps {
@@ -20,6 +19,7 @@ interface ProfileProps {
   onStaff: () => void;
   onReports: () => void;
   onCorrales: () => void;
+  onRanchoPerfil?: () => void;
   isDemo: boolean;
   setIsDemo: (isDemo: boolean) => void;
   toggleDemoMode: (next: boolean) => Promise<void>;
@@ -28,6 +28,7 @@ interface ProfileProps {
 
 const Profile: React.FC<ProfileProps> = ({ 
   user, 
+  onRanchoPerfil,
   theme, 
   setTheme, 
   onSecurity, 
@@ -115,6 +116,24 @@ const Profile: React.FC<ProfileProps> = ({
             Contraseña
           </p>
         </div>
+
+        {/* Datos del rancho para la ficha genealógica (Admin) */}
+        {(user?.role === 'Admin' || user?.role === 'SuperAdmin') && onRanchoPerfil && (
+          <div
+            onClick={onRanchoPerfil}
+            className={`p-5 @2xl:p-8 border rounded-[24px] @2xl:rounded-[30px] cursor-pointer transition-all group hover:scale-[1.02] flex flex-col items-center @2xl:items-start text-center @2xl:text-left ${
+              isDark ? 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/80 text-white' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-900 shadow-sm'
+            }`}
+          >
+            <FileText size={22} className="text-amber-500 mb-3 group-hover:scale-110 transition-transform" />
+            <h4 className={`font-black uppercase text-[10px] @2xl:text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>
+              Datos del rancho
+            </h4>
+            <p className="text-[9px] @2xl:text-[10px] text-slate-400 mt-1 uppercase font-bold">
+              Ficha genealógica
+            </p>
+          </div>
+        )}
 
         {/* Atajo de Corrales */}
         <div 

@@ -82,10 +82,30 @@ func main() {
 	}
 
 	razas := []string{"Dorper", "Katahdin", "Pelibuey"}
+	// Ancestros de referencia (certificado UNO del semental SEM-01): abuelos, bisabuelos y tatarabuelos
+	ref := func(arete, registro, padre, madre string) {
+		call("POST", "/api/animals", map[string]interface{}{"id": arete, "arete": arete, "es_referencia": true, "registro": registro, "grado_registro": "SI",
+			"raza": "DOR", "pureza": 100, "sexo": map[bool]string{true: "Macho", false: "Hembra"}[arete[0] != 'M' && arete[0] != 'A' || arete[len(arete)-1] == 'M'], "padre_id": padre, "madre_id": madre, "especie": "Ovino", "destino": "Pie de Cría", "estatus": "Referencia"})
+	}
+	ref("PHIL-0314", "DSSA:D0PM770140314", "", "")
+	ref("PHIL-0117", "DSSA:DOPF770130117", "", "")
+	ref("DOLL-9522", "DSSA:1700-12-9522", "", "")
+	ref("CHAR-0222", "DSSA:770-11-0222", "", "")
+	ref("PHIL-3543-F", "UNO:220916MF-RP", "PHIL-0314", "PHIL-0117")
+	ref("ERH-3440-J", "UNO:242367HJ-RP", "DOLL-9522", "CHAR-0222")
+	ref("REF-7672-G", "UNO:223233MG-RP", "", "")
+	ref("JYN-7786-G", "UNO:222211HG-RP", "", "")
 	// Sementales y madres fundadoras (generación 1)
 	for i := 0; i < 3; i++ {
-		call("POST", "/api/animals", map[string]interface{}{"id": fmt.Sprintf("SEM-%02d", i+1), "arete": fmt.Sprintf("SEM-%02d", i+1), "raza": razas[i], "sexo": "Macho",
-			"fecha_nacimiento": date(1100 + i*90), "estatus": "Activo", "estado_reproductivo": "Semental", "corral_id": "Sementales", "destino": "Pie de Cría", "peso_nacer": 4.2})
+		sem := map[string]interface{}{"id": fmt.Sprintf("SEM-%02d", i+1), "arete": fmt.Sprintf("SEM-%02d", i+1), "raza": razas[i], "sexo": "Macho",
+			"fecha_nacimiento": date(1100 + i*90), "estatus": "Activo", "estado_reproductivo": "Semental", "corral_id": "Sementales", "destino": "Pie de Cría", "peso_nacer": 4.2}
+		if i == 0 { // semental con certificado UNO y árbol de referencia
+			sem["nombre"], sem["registro"], sem["grado_registro"], sem["pureza"], sem["color"] = "Campeón", "UNO:272991MN-RP", "RP", 100, "Carac. raza"
+			sem["tatuaje_der"], sem["tatuaje_izq"], sem["siniiga"] = "CSL", "5105N", "484011300505105"
+			sem["tipo_parto"], sem["metodo_concepcion"], sem["tipo_nacimiento"] = "Sencillo", "Inseminación Artificial", "Natural"
+			sem["padre_id"], sem["madre_id"] = "PHIL-3543-F", "ERH-3440-J"
+		}
+		call("POST", "/api/animals", sem)
 	}
 	for i := 0; i < 12; i++ {
 		call("POST", "/api/animals", map[string]interface{}{"id": fmt.Sprintf("MAD-%02d", i+1), "arete": fmt.Sprintf("MAD-%02d", i+1), "raza": razas[i%3], "sexo": "Hembra",

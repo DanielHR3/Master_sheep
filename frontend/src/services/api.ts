@@ -1,4 +1,5 @@
 import * as WailsApp from "../../wailsjs/go/main/App";
+import { main } from "../../wailsjs/go/models";
 
 const IS_WAILS = !!(window as any).go;
 const TOKEN_KEY = 'sheepmaster_token';
@@ -227,7 +228,7 @@ export const DeleteUser = async (id: string) => {
 
 export const UpdateAnimal = async (animal: any) => {
   if (IS_WAILS) return WailsApp.UpdateAnimal(animal);
-  return callApi('/animals', 'POST', animal);
+  return callApi('/animals', 'PUT', animal);
 };
 
 export const DeleteAnimal = async (id: string) => {
@@ -371,6 +372,50 @@ export const DownloadImportTemplate = async (): Promise<string> => {
   const link = document.createElement('a');
   link.href = url;
   link.download = 'plantilla_animales_sheepmaster.xlsx';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  return '';
+};
+
+// --- Genealogía / ficha ---
+export const GetPedigree = async (animalId: string): Promise<main.PedigreeNode> => {
+  if (IS_WAILS) return WailsApp.GetPedigree(animalId);
+  return main.PedigreeNode.createFrom(await callApi(`/pedigree?id=${encodeURIComponent(animalId)}`));
+};
+
+export const GetAnimalesReferencia = async (): Promise<main.Animal[]> => {
+  if (IS_WAILS) return WailsApp.GetAnimalesReferencia();
+  const res = await callApi('/animals/referencias');
+  return Array.isArray(res) ? res.map((r: any) => main.Animal.createFrom(r)) : [];
+};
+
+export const GetRanchoPerfil = async (): Promise<main.RanchoPerfil> => {
+  if (IS_WAILS) return WailsApp.GetRanchoPerfil();
+  return main.RanchoPerfil.createFrom(await callApi('/rancho-perfil'));
+};
+
+export const SaveRanchoPerfil = async (p: main.RanchoPerfil): Promise<void> => {
+  if (IS_WAILS) return WailsApp.SaveRanchoPerfil(p);
+  await callApi('/rancho-perfil', 'PUT', p);
+};
+
+// Ficha genealógica en PDF. En escritorio abre "Guardar como" y devuelve la
+// ruta; en web descarga el archivo y devuelve "".
+export const DownloadFicha = async (animalId: string, arete: string): Promise<string> => {
+  if (IS_WAILS) return WailsApp.ExportFichaGenealogica(animalId);
+  const res = await fetch(`${getApiBaseUrl()}/animals/${encodeURIComponent(animalId)}/ficha`, { headers: authHeaders() });
+  if (!res.ok) {
+    let msg = 'No se pudo generar la ficha.';
+    try { msg = (await res.json()).error || msg; } catch { /* sin cuerpo */ }
+    throw new Error(msg);
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `ficha_${(arete || animalId).replace(/[\/\\ ]/g, '_')}.pdf`;
   document.body.appendChild(link);
   link.click();
   link.remove();

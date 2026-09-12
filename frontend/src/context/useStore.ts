@@ -16,6 +16,7 @@ interface AppState {
   // Data State
   stats: any;
   animals: main.Animal[];
+  referencias: main.Animal[];
   corrales: main.Corral[];
   insumos: main.Insumo[];
   tareas: any[];
@@ -34,6 +35,7 @@ interface AppState {
   setSelectedRanchOverride: (ranch: string | null) => void;
   setStats: (stats: any) => void;
   setAnimals: (animals: main.Animal[]) => void;
+  setReferencias: (referencias: main.Animal[]) => void;
   setCorrales: (corrales: main.Corral[]) => void;
   setInsumos: (insumos: main.Insumo[]) => void;
   setTareas: (tareas: any[]) => void;
@@ -56,6 +58,7 @@ export const useStore = create<AppState>()(
       
       stats: { total_cabezas: 0, fertilidad: 0, corrales: [] },
       animals: [],
+      referencias: [],
       corrales: [],
       insumos: [],
       tareas: [],
@@ -73,6 +76,7 @@ export const useStore = create<AppState>()(
       setSelectedRanchOverride: (selectedRanchOverride) => set({ selectedRanchOverride }),
       setStats: (stats) => set({ stats }),
       setAnimals: (animals) => set({ animals }),
+      setReferencias: (referencias) => set({ referencias }),
       setCorrales: (corrales) => set({ corrales }),
       setInsumos: (insumos) => set({ insumos }),
       setTareas: (tareas) => set({ tareas }),

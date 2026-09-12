@@ -162,6 +162,26 @@ export function ExportImportTemplate() {
   return window['go']['main']['App']['ExportImportTemplate']();
 }
 
+export function GetPedigree(arg1) {
+  return window['go']['main']['App']['GetPedigree'](arg1);
+}
+
+export function GetAnimalesReferencia() {
+  return window['go']['main']['App']['GetAnimalesReferencia']();
+}
+
+export function GetRanchoPerfil() {
+  return window['go']['main']['App']['GetRanchoPerfil']();
+}
+
+export function SaveRanchoPerfil(arg1) {
+  return window['go']['main']['App']['SaveRanchoPerfil'](arg1);
+}
+
+export function ExportFichaGenealogica(arg1) {
+  return window['go']['main']['App']['ExportFichaGenealogica'](arg1);
+}
+
 export function ToggleDemoMode(arg1) {
   return window['go']['main']['App']['ToggleDemoMode'](arg1);
 }

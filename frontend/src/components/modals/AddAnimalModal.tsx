@@ -2,6 +2,7 @@ import React from 'react';
 import Modal from '../shared/Modal';
 import { main } from "../../../wailsjs/go/models";
 import ImageUpload from '../ImageUpload';
+import CertificateFields from './CertificateFields';
 import { useStore } from '../../context/useStore';
 import { Slider } from '../ui/slider';
 
@@ -180,6 +181,8 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
                 />
               </div>
             </div>
+
+            <CertificateFields values={form} onChange={(k, v) => setForm({ ...form, [k]: v })} />
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-500">Foto del Animal</label>

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -52,5 +53,25 @@ func TestSyncNowRejectsGet(t *testing.T) {
 	a.handleSyncNow(rec, httptest.NewRequest(http.MethodGet, "/api/sync-now", nil))
 	if rec.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("status = %d", rec.Code)
+	}
+}
+
+// Regresión: la web mandaba las ediciones como POST (alta), que chocaba con
+// la restricción UNIQUE del arete. PUT actualiza.
+func TestHandleAnimalsPutUpdates(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	if err := a.AddAnimal(Animal{ID: "a1", Arete: "SM-1", Raza: "Dorper"}); err != nil {
+		t.Fatal(err)
+	}
+	body, _ := json.Marshal(Animal{ID: "a1", Arete: "SM-1", Raza: "Katahdin", MadreID: "MAD-01"})
+	req := httptest.NewRequest(http.MethodPut, "/api/animals", bytes.NewReader(body))
+	rec := httptest.NewRecorder()
+	a.handleAnimals(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("PUT status = %d: %s", rec.Code, rec.Body.String())
+	}
+	animals, _ := a.GetAnimales()
+	if len(animals) != 1 || animals[0].Raza != "Katahdin" || animals[0].MadreID != "MAD-01" {
+		t.Fatalf("after PUT = %+v", animals)
 	}
 }

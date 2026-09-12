@@ -23,6 +23,17 @@ export namespace main {
 	    tipo_parto: string;
 	    metodo_concepcion: string;
 	    tipo_nacimiento: string;
+	    es_referencia: boolean;
+	    nombre: string;
+	    tatuaje_der: string;
+	    tatuaje_izq: string;
+	    tatuaje_cola: string;
+	    color: string;
+	    pureza: number;
+	    grado_registro: string;
+	    registro: string;
+	    siniiga: string;
+	    id_electronica: string;
 	    destino: string;
 	    fecha_defuncion: string;
 	    motivo_defuncion: string;
@@ -58,6 +69,17 @@ export namespace main {
 	        this.tipo_parto = source["tipo_parto"];
 	        this.metodo_concepcion = source["metodo_concepcion"];
 	        this.tipo_nacimiento = source["tipo_nacimiento"];
+	        this.es_referencia = source["es_referencia"];
+	        this.nombre = source["nombre"];
+	        this.tatuaje_der = source["tatuaje_der"];
+	        this.tatuaje_izq = source["tatuaje_izq"];
+	        this.tatuaje_cola = source["tatuaje_cola"];
+	        this.color = source["color"];
+	        this.pureza = source["pureza"];
+	        this.grado_registro = source["grado_registro"];
+	        this.registro = source["registro"];
+	        this.siniiga = source["siniiga"];
+	        this.id_electronica = source["id_electronica"];
 	        this.destino = source["destino"];
 	        this.fecha_defuncion = source["fecha_defuncion"];
 	        this.motivo_defuncion = source["motivo_defuncion"];
@@ -348,5 +370,74 @@ export namespace main {
 		}
 	}
 
-}
 
+	export class PedigreeNode {
+	    id: string;
+	    arete: string;
+	    nombre: string;
+	    registro: string;
+	    grado_registro: string;
+	    raza: string;
+	    pureza: number;
+	    sexo: string;
+	    foto: string;
+	    es_referencia: boolean;
+	    existe: boolean;
+	    padre?: PedigreeNode;
+	    madre?: PedigreeNode;
+
+	    static createFrom(source: any = {}) {
+	        return new PedigreeNode(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.arete = source["arete"];
+	        this.nombre = source["nombre"];
+	        this.registro = source["registro"];
+	        this.grado_registro = source["grado_registro"];
+	        this.raza = source["raza"];
+	        this.pureza = source["pureza"];
+	        this.sexo = source["sexo"];
+	        this.foto = source["foto"];
+	        this.es_referencia = source["es_referencia"];
+	        this.existe = source["existe"];
+	        this.padre = source["padre"] ? new PedigreeNode(source["padre"]) : undefined;
+	        this.madre = source["madre"] ? new PedigreeNode(source["madre"]) : undefined;
+	    }
+	}
+	export class RanchoPerfil {
+	    rancho_id: string;
+	    nombre: string;
+	    criador_clave: string;
+	    criador_nombre: string;
+	    criador_centro: string;
+	    criador_municipio_estado: string;
+	    propietario_clave: string;
+	    propietario_nombre: string;
+	    propietario_centro: string;
+	    propietario_municipio_estado: string;
+	    logo: string;
+
+	    static createFrom(source: any = {}) {
+	        return new RanchoPerfil(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.rancho_id = source["rancho_id"];
+	        this.nombre = source["nombre"];
+	        this.criador_clave = source["criador_clave"];
+	        this.criador_nombre = source["criador_nombre"];
+	        this.criador_centro = source["criador_centro"];
+	        this.criador_municipio_estado = source["criador_municipio_estado"];
+	        this.propietario_clave = source["propietario_clave"];
+	        this.propietario_nombre = source["propietario_nombre"];
+	        this.propietario_centro = source["propietario_centro"];
+	        this.propietario_municipio_estado = source["propietario_municipio_estado"];
+	        this.logo = source["logo"];
+	    }
+	}
+
+}

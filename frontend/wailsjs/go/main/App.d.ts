@@ -82,6 +82,16 @@ export function SyncNow():Promise<{[key: string]: any}>;
 
 export function ExportImportTemplate():Promise<string>;
 
+export function GetPedigree(arg1:string):Promise<main.PedigreeNode>;
+
+export function GetAnimalesReferencia():Promise<Array<main.Animal>>;
+
+export function GetRanchoPerfil():Promise<main.RanchoPerfil>;
+
+export function SaveRanchoPerfil(arg1:main.RanchoPerfil):Promise<void>;
+
+export function ExportFichaGenealogica(arg1:string):Promise<string>;
+
 export function ToggleDemoMode(arg1:boolean):Promise<void>;
 
 export function UpdateAnimal(arg1:main.Animal):Promise<void>;

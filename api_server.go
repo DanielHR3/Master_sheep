@@ -141,6 +141,9 @@ func (a *App) StartAPIServer(port int) {
 	mux.HandleFunc("/api/sync-status", corsWrapper(a.withAuth((*App).handleSyncStatus)))
 	mux.HandleFunc("/api/import-template", corsWrapper(a.withAuth((*App).handleImportTemplate)))
 	mux.HandleFunc("GET /api/animals/{id}/ficha", corsWrapper(a.withAuth((*App).handleFichaPDF)))
+	mux.HandleFunc("/api/pedigree", corsWrapper(a.withAuth((*App).handlePedigree)))
+	mux.HandleFunc("/api/animals/referencias", corsWrapper(a.withAuth((*App).handleAnimalesReferencia)))
+	mux.HandleFunc("/api/rancho-perfil", corsWrapper(a.withAuth((*App).handleRanchoPerfil)))
 	mux.HandleFunc("/api/sync-now", corsWrapper(a.withAuth((*App).handleSyncNow)))
 
 	// Servir archivos estáticos del frontend (PWA)
@@ -244,6 +247,21 @@ func (a *App) handleAnimals(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
+	case http.MethodPut:
+		var animal Animal
+		if err := json.NewDecoder(r.Body).Decode(&animal); err != nil {
+			http.Error(w, "JSON inválido", http.StatusBadRequest)
+			return
+		}
+		if animal.ID == "" {
+			http.Error(w, "Falta id", http.StatusBadRequest)
+			return
+		}
+		if err := a.UpdateAnimal(animal); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 	case http.MethodDelete:
 		id := r.URL.Query().Get("id")
 		if id == "" {
@@ -680,4 +698,60 @@ func (a *App) handleImportTemplate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	w.Header().Set("Content-Disposition", `attachment; filename="plantilla_animales_sheepmaster.xlsx"`)
 	w.Write(data)
+}
+
+// handlePedigree: GET /api/pedigree?id=<animal>
+func (a *App) handlePedigree(w http.ResponseWriter, r *http.Request) {
+	tree, err := a.GetPedigree(r.URL.Query().Get("id"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tree)
+}
+
+// handleAnimalesReferencia: GET /api/animals/referencias
+func (a *App) handleAnimalesReferencia(w http.ResponseWriter, r *http.Request) {
+	refs, err := a.GetAnimalesReferencia()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if refs == nil {
+		refs = []Animal{}
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(refs)
+}
+
+// handleRanchoPerfil: GET lee, PUT/POST guarda (solo Admin).
+func (a *App) handleRanchoPerfil(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	switch r.Method {
+	case http.MethodGet:
+		p, err := a.GetRanchoPerfil()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(p)
+	case http.MethodPut, http.MethodPost:
+		var p RanchoPerfil
+		if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+			http.Error(w, "JSON inválido", http.StatusBadRequest)
+			return
+		}
+		if err := a.SaveRanchoPerfil(p); err != nil {
+			status := http.StatusInternalServerError
+			if strings.Contains(err.Error(), "no autorizado") {
+				status = http.StatusForbidden
+			}
+			http.Error(w, err.Error(), status)
+			return
+		}
+		json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	default:
+		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
+	}
 }

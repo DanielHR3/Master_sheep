@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Save, Edit3, Tag, Map, Calendar, Scale, Users, Target, Activity } from 'lucide-react';
 import { main } from "../../../wailsjs/go/models";
 import ImageUpload from '../ImageUpload';
+import CertificateFields from './CertificateFields';
 
 interface EditAnimalModalProps {
   show: boolean;
@@ -209,6 +210,9 @@ const EditAnimalModal: React.FC<EditAnimalModalProps> = ({ show, onClose, form, 
                     value={form.peso_150_dias || ''}
                     onChange={e => setForm({ ...form, peso_150_dias: parseFloat(e.target.value) || 0 } as main.Animal)}
                   />
+                </div>
+                <div className="md:col-span-2">
+                  <CertificateFields dark values={form} onChange={(k, v) => setForm({ ...form, [k]: v } as main.Animal)} />
                 </div>
               </>
             )}

@@ -28,6 +28,8 @@ interface InventoryProps {
   onViewGenealogy: (animal: main.Animal) => void;
   onImportExcel: () => void;
   onDownloadTemplate: () => void;
+  onFicha?: (a: main.Animal) => void;
+  referencias?: main.Animal[];
   user: any;
 }
 
@@ -49,10 +51,13 @@ const Inventory: React.FC<InventoryProps> = ({
   onViewGenealogy,
   onImportExcel,
   onDownloadTemplate,
+  onFicha,
+  referencias = [],
   user
 }) => {
   const [filterDestino, setFilterDestino] = useState<'all' | 'Engorda' | 'Pie de Cría'>('all');
   const [search, setSearch] = useState('');
+  const [showRefs, setShowRefs] = useState(false);
   // Búsqueda por arete, raza, corral o linaje (padre/madre): el caso real es
   // "¿qué líneas trae este semental?" tecleando el arete en el celular.
   const matchesSearch = (a: main.Animal) => {
@@ -95,6 +100,7 @@ const Inventory: React.FC<InventoryProps> = ({
                  <button onClick={() => setFilterDestino('Engorda')} className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer ${filterDestino === 'Engorda' ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Engorda</button>
                )}
                <button onClick={() => setFilterDestino('Pie de Cría')} className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer ${filterDestino === 'Pie de Cría' ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Pie de Cría</button>
+               <button onClick={() => setShowRefs(v => !v)} title="Ancestros que no viven en el rancho (solo genealogía)" className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer ${showRefs ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Referencias ({referencias.length})</button>
             </div>
           )}
           {subTab === 'animals' && (
@@ -155,7 +161,31 @@ const Inventory: React.FC<InventoryProps> = ({
         </div>
       </div>
 
-      {subTab === 'animals' ? (
+      {subTab === 'animals' && showRefs ? (
+        <div className={`rounded-3xl border overflow-hidden ${isDark ? 'border-slate-800' : 'border-slate-200 bg-white'}`}>
+          <table className="w-full text-sm">
+            <thead className={`text-[10px] font-black uppercase tracking-wider ${isDark ? 'bg-slate-900 text-slate-400' : 'bg-slate-50 text-slate-500'}`}>
+              <tr><th className="text-left px-4 py-3">Identificación</th><th className="text-left px-4 py-3">Registro</th><th className="text-left px-4 py-3">Nombre</th><th className="text-left px-4 py-3">Raza / pureza</th><th className="text-left px-4 py-3">Padre × Madre</th><th className="px-4 py-3"></th></tr>
+            </thead>
+            <tbody>
+              {referencias.filter(matchesSearch).map(r => (
+                <tr key={r.id} className={`border-t ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
+                  <td className="px-4 py-3 font-black">{r.arete}</td>
+                  <td className="px-4 py-3">{r.registro || '—'}{r.grado_registro ? ` // ${r.grado_registro}` : ''}</td>
+                  <td className="px-4 py-3">{r.nombre || '—'}</td>
+                  <td className="px-4 py-3">{r.raza}{r.pureza ? ` ${r.pureza}%` : ''}</td>
+                  <td className="px-4 py-3 text-slate-400">{r.padre_id || '--'} × {r.madre_id || '--'}</td>
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
+                    <button onClick={() => onEditAnimal(r)} className="text-xs font-black uppercase text-cyan-500 hover:text-cyan-400 mr-3 cursor-pointer">Editar</button>
+                    <button onClick={() => onDeleteAnimal(r.id)} className="text-xs font-black uppercase text-rose-500 hover:text-rose-400 cursor-pointer">Borrar</button>
+                  </td>
+                </tr>
+              ))}
+              {referencias.length === 0 && <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">Sin referencias. Se crean desde el árbol de Genética (botón "Agregar") o con la carga masiva (columna Referencia = Sí).</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      ) : subTab === 'animals' ? (
         <div className="grid grid-cols-1 @xl:grid-cols-2 @4xl:grid-cols-3 @6xl:grid-cols-4 gap-6">
           {(Array.isArray(animals) ? animals : []).filter(a => (filterDestino === 'all' || a.destino === filterDestino) && matchesSearch(a)).map((a: main.Animal) => (
             <AnimalCard 
@@ -170,6 +200,7 @@ const Inventory: React.FC<InventoryProps> = ({
               onAddWeight={() => onAddWeight(a)} 
               onViewWeights={() => onViewWeights(a)} 
               onViewGenealogy={() => onViewGenealogy(a)}
+              onFicha={onFicha ? () => onFicha(a) : undefined}
               isAdmin={user?.role === 'Admin'}
             />
           ))}

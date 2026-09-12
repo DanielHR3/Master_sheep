@@ -39,6 +39,8 @@ import {
   GetIsDemoMode,
   ImportAnimalsExcel,
   DownloadImportTemplate,
+  DownloadFicha,
+  GetAnimalesReferencia,
   SyncNow
 } from "../services/api";
 import { markAppSeen } from '../lib/publicRoute';
@@ -52,6 +54,8 @@ export interface AnimalFormState {
   abuelo_paterno_id: string; abuela_paterna_id: string; abuelo_materno_id: string; abuela_materna_id: string;
   tipo_parto: string; metodo_concepcion: string; tipo_nacimiento: string;
   fecha_destete: string; peso_150_dias: number; foto: string;
+  nombre: string; tatuaje_der: string; tatuaje_izq: string; tatuaje_cola: string; color: string;
+  pureza: number; grado_registro: string; registro: string; siniiga: string; id_electronica: string;
 }
 
 export const emptyAnimalForm = (destino: string): AnimalFormState => ({
@@ -60,6 +64,8 @@ export const emptyAnimalForm = (destino: string): AnimalFormState => ({
   abuelo_paterno_id: '', abuela_paterna_id: '', abuelo_materno_id: '', abuela_materna_id: '',
   tipo_parto: '', metodo_concepcion: '', tipo_nacimiento: '',
   fecha_destete: '', peso_150_dias: 0, foto: '',
+  nombre: '', tatuaje_der: '', tatuaje_izq: '', tatuaje_cola: '', color: '',
+  pureza: 0, grado_registro: '', registro: '', siniiga: '', id_electronica: '',
 });
 
 export const useAppLogic = () => {
@@ -124,6 +130,7 @@ export const useAppLogic = () => {
   const [showEditAnimal, setShowEditAnimal] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showGenealogy, setShowGenealogy] = useState(false);
+  const [showRanchoPerfil, setShowRanchoPerfil] = useState(false);
   const [showProlapsoModal, setShowProlapsoModal] = useState(false);
 
   useEffect(() => {
@@ -155,6 +162,7 @@ export const useAppLogic = () => {
 
       store.setStats(s);
       store.setAnimals(a || []);
+      try { store.setReferencias(await GetAnimalesReferencia() || []); } catch { store.setReferencias([]); }
       store.setCorrales(c || []);
       store.setInsumos(i || []);
       store.setTareas(t || []);
@@ -228,6 +236,9 @@ export const useAppLogic = () => {
         fecha_destete: animalForm.fecha_destete,
         peso_150_dias: animalForm.peso_150_dias || 0,
         foto: animalForm.foto,
+        nombre: animalForm.nombre, tatuaje_der: animalForm.tatuaje_der, tatuaje_izq: animalForm.tatuaje_izq, tatuaje_cola: animalForm.tatuaje_cola,
+        color: animalForm.color, pureza: animalForm.pureza || 0, grado_registro: animalForm.grado_registro, registro: animalForm.registro,
+        siniiga: animalForm.siniiga, id_electronica: animalForm.id_electronica,
         destino: animalForm.destino
       });
       await AddAnimal(animal);
@@ -552,6 +563,7 @@ export const useAppLogic = () => {
         showEditAnimal, setShowEditAnimal,
         showChangePassword, setShowChangePassword,
         showGenealogy, setShowGenealogy,
+        showRanchoPerfil, setShowRanchoPerfil,
         showProlapsoModal, setShowProlapsoModal,
       }
     },
@@ -579,6 +591,14 @@ export const useAppLogic = () => {
       handleFileChange,
       toggleTheme: () => store.setTheme(store.theme === 'dark' ? 'light' : 'dark'),
       handleImportExcel: () => fileInputRef.current?.click(),
+      handleDownloadFicha: async (a: main.Animal) => {
+        try {
+          const path = await DownloadFicha(a.id, a.arete);
+          store.setNotification({ message: path ? `Ficha guardada en ${path}` : 'Ficha genealógica descargada.', type: 'success' });
+        } catch (err: any) {
+          store.setNotification({ message: 'No se pudo generar la ficha: ' + (err?.message || err), type: 'error' });
+        }
+      },
       handleDownloadTemplate: async () => {
         try {
           const path = await DownloadImportTemplate();
