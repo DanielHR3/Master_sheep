@@ -140,6 +140,7 @@ func (a *App) StartAPIServer(port int) {
 	mux.HandleFunc("/api/confirm-ultrasound", corsWrapper(a.withAuth((*App).handleConfirmUltrasound)))
 	mux.HandleFunc("/api/sync-status", corsWrapper(a.withAuth((*App).handleSyncStatus)))
 	mux.HandleFunc("/api/import-template", corsWrapper(a.withAuth((*App).handleImportTemplate)))
+	mux.HandleFunc("GET /api/animals/{id}/ficha", corsWrapper(a.withAuth((*App).handleFichaPDF)))
 	mux.HandleFunc("/api/sync-now", corsWrapper(a.withAuth((*App).handleSyncNow)))
 
 	// Servir archivos estáticos del frontend (PWA)
