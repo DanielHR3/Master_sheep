@@ -80,6 +80,8 @@ export function GetSyncStatus():Promise<{[key: string]: any}>;
 
 export function SyncNow():Promise<{[key: string]: any}>;
 
+export function ExportImportTemplate():Promise<string>;
+
 export function ToggleDemoMode(arg1:boolean):Promise<void>;
 
 export function UpdateAnimal(arg1:main.Animal):Promise<void>;

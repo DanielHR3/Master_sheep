@@ -3,7 +3,8 @@ import {
   PlusCircle, 
   FileSpreadsheet, 
   FlaskConical,
-  Search
+  Search,
+  Download
 } from 'lucide-react';
 import { useStore } from '../context/useStore';
 import { main } from "../../wailsjs/go/models";
@@ -26,6 +27,7 @@ interface InventoryProps {
   onViewWeights: (animal: main.Animal) => void;
   onViewGenealogy: (animal: main.Animal) => void;
   onImportExcel: () => void;
+  onDownloadTemplate: () => void;
   user: any;
 }
 
@@ -46,6 +48,7 @@ const Inventory: React.FC<InventoryProps> = ({
   onViewWeights, 
   onViewGenealogy,
   onImportExcel,
+  onDownloadTemplate,
   user
 }) => {
   const [filterDestino, setFilterDestino] = useState<'all' | 'Engorda' | 'Pie de Cría'>('all');
@@ -112,6 +115,17 @@ const Inventory: React.FC<InventoryProps> = ({
         <div className="flex flex-wrap gap-3">
            {subTab === 'animals' && (
              <>
+               <button 
+                 onClick={onDownloadTemplate} 
+                 title="Descarga la plantilla de Excel con los encabezados que reconoce la carga masiva"
+                 className={`px-5 py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer ${
+                   isDark 
+                     ? 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800' 
+                     : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
+                 }`}
+               >
+                 <Download size={18} /> Plantilla Excel
+               </button>
                <button 
                  onClick={onImportExcel} 
                  className={`px-6 py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer ${

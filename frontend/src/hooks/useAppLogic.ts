@@ -38,6 +38,7 @@ import {
   ToggleDemoMode,
   GetIsDemoMode,
   ImportAnimalsExcel,
+  DownloadImportTemplate,
   SyncNow
 } from "../services/api";
 import { markAppSeen } from '../lib/publicRoute';
@@ -578,6 +579,14 @@ export const useAppLogic = () => {
       handleFileChange,
       toggleTheme: () => store.setTheme(store.theme === 'dark' ? 'light' : 'dark'),
       handleImportExcel: () => fileInputRef.current?.click(),
+      handleDownloadTemplate: async () => {
+        try {
+          const path = await DownloadImportTemplate();
+          store.setNotification({ message: path ? `Plantilla guardada en ${path}` : 'Plantilla descargada. Llénala y súbela con "Carga masiva".', type: 'success' });
+        } catch (err: any) {
+          store.setNotification({ message: 'No se pudo generar la plantilla: ' + (err?.message || err), type: 'error' });
+        }
+      },
       handleSyncToJarvis: async () => {
         try {
           store.setLoading(true);

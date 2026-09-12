@@ -359,3 +359,21 @@ export const GetLandingConfig = async (): Promise<{ bookingUrl: string }> => {
     return { bookingUrl: '' };
   }
 };
+
+// Plantilla de carga masiva. En escritorio abre "Guardar como" y devuelve la
+// ruta; en web descarga el archivo y devuelve "".
+export const DownloadImportTemplate = async (): Promise<string> => {
+  if (IS_WAILS) return WailsApp.ExportImportTemplate();
+  const res = await fetch(`${getApiBaseUrl()}/import-template`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('No se pudo generar la plantilla.');
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'plantilla_animales_sheepmaster.xlsx';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  return '';
+};

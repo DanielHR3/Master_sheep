@@ -158,6 +158,10 @@ export function SyncNow() {
   return window['go']['main']['App']['SyncNow']();
 }
 
+export function ExportImportTemplate() {
+  return window['go']['main']['App']['ExportImportTemplate']();
+}
+
 export function ToggleDemoMode(arg1) {
   return window['go']['main']['App']['ToggleDemoMode'](arg1);
 }

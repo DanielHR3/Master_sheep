@@ -145,6 +145,7 @@ function App() {
           onViewWeights={actions.handleViewWeights} 
           onViewGenealogy={(a) => { state.setSelectedAnimal(a); state.modals.setShowGenealogy(true); }}
           onImportExcel={actions.handleImportExcel}
+          onDownloadTemplate={actions.handleDownloadTemplate}
         />;
       case 'corrales':
         return <Corrales animals={store.animals} corrales={store.corrales} theme={store.theme} onAddCorral={() => state.modals.setShowAddCorral(true)} onDeleteCorral={actions.handleDeleteCorral} user={store.currentUser} />;
