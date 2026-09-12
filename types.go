@@ -31,6 +31,7 @@ type Animal struct {
         AbuelaMaternaID   string    `json:"abuela_materna_id"`
         TipoParto         string    `json:"tipo_parto"`
         MetodoConcepcion  string    `json:"metodo_concepcion"`
+        TipoNacimiento    string    `json:"tipo_nacimiento"` // 'Natural' o 'Inducido' (pie de cría)
         Destino           string    `json:"destino"` // 'Cria', 'Engorda'
         FechaDefuncion    string    `json:"fecha_defuncion"`
         MotivoDefuncion   string    `json:"motivo_defuncion"`

@@ -221,6 +221,7 @@ func (a *App) runMigrations() {
 	a.db.Exec("ALTER TABLE animales ADD COLUMN peso_150_dias REAL DEFAULT 0")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_destete TEXT")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN foto TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN tipo_nacimiento TEXT")
 	a.db.Exec("ALTER TABLE tratamientos ADD COLUMN via_administracion TEXT")
 	a.db.Exec("ALTER TABLE users ADD COLUMN rancho_id TEXT")
 }
@@ -590,7 +591,7 @@ func (a *App) GetAnimales() ([]Animal, error) {
 		COALESCE(fecha_defuncion, ''), COALESCE(motivo_defuncion, ''),
 		COALESCE(abuelo_paterno_id, ''), COALESCE(abuela_paterna_id, ''), COALESCE(abuelo_materno_id, ''), COALESCE(abuela_materna_id, ''),
 		COALESCE(tipo_parto, ''), COALESCE(metodo_concepcion, ''),
-		COALESCE(peso_150_dias, 0), COALESCE(fecha_destete, ''), COALESCE(foto, '')
+		COALESCE(peso_150_dias, 0), COALESCE(fecha_destete, ''), COALESCE(foto, ''), COALESCE(tipo_nacimiento, '')
 		FROM animales WHERE user_id = ?`), a.tenantID())
 	if err != nil {
 		return nil, err
@@ -601,10 +602,10 @@ func (a *App) GetAnimales() ([]Animal, error) {
 	for rows.Next() {
 		var animal Animal
 		var especie, arete, raza, sexo, fecha, estatus, repro, corral, padre, madre, destino, fDef, mDef sql.NullString
-		var abPat, abMat, abuelaPat, abuelaMat, tParto, mConcepcion, fDestete, foto sql.NullString
+		var abPat, abMat, abuelaPat, abuelaMat, tParto, mConcepcion, fDestete, foto, tNac sql.NullString
 		err := rows.Scan(&animal.ID, &especie, &arete, &raza, &sexo, &fecha, &estatus, &repro, &animal.ConteoFetos, &corral,
 			&animal.PesoNacer, &animal.PesoDestete, &padre, &madre, &destino, &fDef, &mDef,
-			&abPat, &abuelaPat, &abMat, &abuelaMat, &tParto, &mConcepcion, &animal.Peso150Dias, &fDestete, &foto)
+			&abPat, &abuelaPat, &abMat, &abuelaMat, &tParto, &mConcepcion, &animal.Peso150Dias, &fDestete, &foto, &tNac)
 		if err != nil {
 			return nil, err
 		}
@@ -629,6 +630,7 @@ func (a *App) GetAnimales() ([]Animal, error) {
 		animal.MetodoConcepcion = mConcepcion.String
 		animal.FechaDestete = fDestete.String
 		animal.Foto = foto.String
+		animal.TipoNacimiento = tNac.String
 		animals = append(animals, animal)
 	}
 	return animals, nil
@@ -650,14 +652,14 @@ func (a *App) AddAnimal(animal Animal) error {
 		(id, user_id, especie, arete, raza, sexo, fecha_nacimiento, estatus, estado_reproductivo, conteo_fetos, corral_id, 
 		 peso_nacer, peso_destete, padre_id, madre_id, destino, fecha_defuncion, motivo_defuncion,
 		 abuelo_paterno_id, abuela_paterna_id, abuelo_materno_id, abuela_materna_id, tipo_parto, metodo_concepcion,
-		 peso_150_dias, fecha_destete, foto) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		 peso_150_dias, fecha_destete, foto, tipo_nacimiento) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		animal.ID, a.tenantID(), animal.Especie, animal.Arete, animal.Raza, animal.Sexo, 
 		animal.FechaNacimiento, animal.Estatus, animal.EstadoRepro, 
 		animal.ConteoFetos, animal.CorralID, animal.PesoNacer, animal.PesoDestete,
 		animal.PadreID, animal.MadreID, animal.Destino, animal.FechaDefuncion, animal.MotivoDefuncion,
 		animal.AbueloPaternoID, animal.AbuelaPaternaID, animal.AbueloMaternoID, animal.AbuelaMaternaID, animal.TipoParto, animal.MetodoConcepcion,
-		animal.Peso150Dias, animal.FechaDestete, animal.Foto)
+		animal.Peso150Dias, animal.FechaDestete, animal.Foto, animal.TipoNacimiento)
 	if err == nil {
 		a.queueSync("insert", "animal", animal.ID, animalRow(animal))
 	}
@@ -680,6 +682,7 @@ func animalRow(animal Animal) map[string]interface{} {
 		"abuelo_materno_id": animal.AbueloMaternoID, "abuela_materna_id": animal.AbuelaMaternaID,
 		"tipo_parto": animal.TipoParto, "metodo_concepcion": animal.MetodoConcepcion,
 		"peso_150_dias": animal.Peso150Dias, "fecha_destete": animal.FechaDestete, "foto": animal.Foto,
+		"tipo_nacimiento": animal.TipoNacimiento,
 	}
 }
 
@@ -697,7 +700,7 @@ func (a *App) UpdateAnimal(animal Animal) error {
 		peso_nacer = ?, peso_destete = ?, padre_id = ?, madre_id = ?, 
 		destino = ?, fecha_defuncion = ?, motivo_defuncion = ?,
 		abuelo_paterno_id = ?, abuela_paterna_id = ?, abuelo_materno_id = ?, abuela_materna_id = ?,
-		tipo_parto = ?, metodo_concepcion = ?, peso_150_dias = ?, fecha_destete = ?, foto = ?
+		tipo_parto = ?, metodo_concepcion = ?, peso_150_dias = ?, fecha_destete = ?, foto = ?, tipo_nacimiento = ?
 		WHERE id = ? AND user_id = ?`),
 		animal.Especie, animal.Arete, animal.Raza, animal.Sexo, 
 		animal.FechaNacimiento, animal.Estatus, 
@@ -705,7 +708,7 @@ func (a *App) UpdateAnimal(animal Animal) error {
 		animal.PesoNacer, animal.PesoDestete, animal.PadreID, animal.MadreID,
 		animal.Destino, animal.FechaDefuncion, animal.MotivoDefuncion,
 		animal.AbueloPaternoID, animal.AbuelaPaternaID, animal.AbueloMaternoID, animal.AbuelaMaternaID,
-		animal.TipoParto, animal.MetodoConcepcion, animal.Peso150Dias, animal.FechaDestete, animal.Foto,
+		animal.TipoParto, animal.MetodoConcepcion, animal.Peso150Dias, animal.FechaDestete, animal.Foto, animal.TipoNacimiento,
 		animal.ID, a.tenantID())
 	if err == nil {
 		a.queueSync("update", "animal", animal.ID, animalRow(animal))
@@ -1743,10 +1746,26 @@ func (a *App) processExcel(f *excelize.File, userID string) (int, error) {
 		if len(row) > 7 { madreId = row[7] }
 		destino := "Engorda"
 		if len(row) > 8 { destino = row[8] }
+		// Columnas de pie de cría (opcionales): J especie, K tipo de parto,
+		// L método de concepción, M tipo de nacimiento, N-Q abuelos.
+		cell := func(i int) string {
+			if len(row) > i {
+				return strings.TrimSpace(row[i])
+			}
+			return ""
+		}
+		especie := cell(9)
+		if especie == "" {
+			especie = "Ovino"
+		}
+		tipoParto, metodoConcepcion, tipoNacimiento := cell(10), cell(11), cell(12)
+		abueloPat, abuelaPat, abueloMat, abuelaMat := cell(13), cell(14), cell(15), cell(16)
 
-		_, err = tx.Exec(a.q(`INSERT INTO animales (id, user_id, especie, arete, raza, sexo, corral_id, fecha_nacimiento, peso_nacer, padre_id, madre_id, destino, estatus, estado_reproductivo) 
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
-			id, userID, arete, raza, sexo, corral, fechaNac, pesoNacer, padreId, madreId, destino, "Activo", "Crecimiento")
+		_, err = tx.Exec(a.q(`INSERT INTO animales (id, user_id, especie, arete, raza, sexo, corral_id, fecha_nacimiento, peso_nacer, padre_id, madre_id, destino, estatus, estado_reproductivo,
+			tipo_parto, metodo_concepcion, tipo_nacimiento, abuelo_paterno_id, abuela_paterna_id, abuelo_materno_id, abuela_materna_id) 
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+			id, userID, especie, arete, raza, sexo, corral, fechaNac, pesoNacer, padreId, madreId, destino, "Activo", "Crecimiento",
+			tipoParto, metodoConcepcion, tipoNacimiento, abueloPat, abuelaPat, abueloMat, abuelaMat)
 		
 		if err != nil {
 			return count, fmt.Errorf("Error en fila %d: %v", i+1, err)
