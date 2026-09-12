@@ -30,6 +30,7 @@ func newFakeCloudDB(t *testing.T) *sql.DB {
 		`CREATE TABLE recetas_veterinarias (id TEXT PRIMARY KEY, animal_id TEXT)`,
 		`CREATE TABLE seguimientos_peso (id TEXT PRIMARY KEY, animal_id TEXT)`,
 		`CREATE TABLE movimientos_insumo (id TEXT PRIMARY KEY, animal_id TEXT)`,
+		`CREATE TABLE rancho_perfil (id TEXT PRIMARY KEY, rancho_id TEXT, nombre TEXT)`,
 	}
 	for _, s := range stmts {
 		if _, err := db.Exec(s); err != nil {

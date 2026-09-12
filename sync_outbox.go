@@ -33,7 +33,9 @@ func (a *App) enqueueSync(operation, entityType, entityID string, payload interf
 		return err
 	}
 	if _, ok := row["user_id"]; !ok {
-		row["user_id"] = a.tenantID()
+		if _, hasRancho := row["rancho_id"]; !hasRancho { // tablas por rancho (rancho_perfil) no tienen user_id
+			row["user_id"] = a.tenantID()
+		}
 	}
 	if data, err = json.Marshal(row); err != nil {
 		return err
@@ -76,6 +78,7 @@ var entityTable = map[string]string{
 	"tarea":                 "tareas",
 	"movimiento":            "movimientos",
 	"movimiento_insumo":     "movimientos_insumo",
+	"rancho_perfil":         "rancho_perfil",
 }
 
 // safeIdent acepta solo identificadores SQL simples (letras, dígitos y

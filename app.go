@@ -429,6 +429,20 @@ func (a *App) createSchema() error {
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
+	CREATE TABLE IF NOT EXISTS rancho_perfil (
+		id TEXT PRIMARY KEY,
+		rancho_id TEXT NOT NULL,
+		nombre TEXT,
+		criador_clave TEXT,
+		criador_nombre TEXT,
+		criador_centro TEXT,
+		criador_municipio_estado TEXT,
+		propietario_clave TEXT,
+		propietario_nombre TEXT,
+		propietario_centro TEXT,
+		propietario_municipio_estado TEXT,
+		logo TEXT
+	);
 	CREATE TABLE IF NOT EXISTS leads (
 		id TEXT PRIMARY KEY,
 		nombre TEXT NOT NULL,
