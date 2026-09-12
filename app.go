@@ -1145,6 +1145,9 @@ func (a *App) RegistrarTratamiento(t Tratamiento) error {
 	if a.user == nil {
 		return fmt.Errorf("no autenticado")
 	}
+	if t.ID == "" {
+		t.ID = uuid.New().String()
+	}
 	
 	// Obtener info del insumo para calcular retiro
 	var diasRetiro int

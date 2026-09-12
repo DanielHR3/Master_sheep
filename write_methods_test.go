@@ -98,3 +98,23 @@ func TestWriteMethodsPersistRows(t *testing.T) {
 		t.Errorf("animales after delete: got %d, want 0", got)
 	}
 }
+
+// Regresión: RegistrarTratamiento no generaba id cuando llegaba vacío, así
+// que el segundo tratamiento chocaba con la clave primaria (id "").
+func TestRegistrarTratamientoGeneratesID(t *testing.T) {
+	a := newTestApp(t)
+	a.user = &User{ID: "u1", RanchoID: "rancho-1", Role: "Admin"}
+	if err := a.AddInsumo(Insumo{ID: "i1", Nombre: "Ivermectina", StockActual: 10, DiasRetiro: 3}); err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < 2; i++ {
+		if err := a.RegistrarTratamiento(Tratamiento{AnimalID: "a1", InsumoID: "i1", Dosis: 1}); err != nil {
+			t.Fatalf("tratamiento %d sin id: %v", i+1, err)
+		}
+	}
+	var n int
+	a.db.QueryRow("SELECT COUNT(*) FROM tratamientos WHERE id <> ''").Scan(&n)
+	if n != 2 {
+		t.Fatalf("tratamientos con id: %d, want 2", n)
+	}
+}
