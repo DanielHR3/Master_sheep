@@ -97,11 +97,31 @@ func (c *fichaCanvas) text(x, y float64, size float64, style, s string) {
 	c.pdf.Text(x, y, c.tr(s))
 }
 
-func (c *fichaCanvas) label(x, y float64, k, v string) {
+// fitText escribe s sin pasarse de maxW: baja la fuente hasta 5.5 pt y, si
+// aun así no cabe, recorta con "…".
+func (c *fichaCanvas) fitText(x, y, maxW, size float64, style, s string) {
+	txt := c.tr(s)
+	for ; size >= 5.5; size -= 0.5 {
+		c.pdf.SetFont("Helvetica", style, size)
+		if c.pdf.GetStringWidth(txt) <= maxW {
+			c.pdf.Text(x, y, txt)
+			return
+		}
+	}
+	c.pdf.SetFont("Helvetica", style, 5.5)
+	ell := c.tr("…")
+	for len(txt) > 1 && c.pdf.GetStringWidth(txt+ell) > maxW {
+		txt = txt[:len(txt)-1]
+	}
+	c.pdf.Text(x, y, txt+ell)
+}
+
+// label pinta etiqueta (gris, mayúsculas) y valor, acotado a maxW.
+func (c *fichaCanvas) label(x, y, maxW float64, k, v string) {
 	c.pdf.SetTextColor(90, 100, 120)
 	c.text(x, y, 6.5, "B", strings.ToUpper(k))
 	c.pdf.SetTextColor(15, 23, 42)
-	c.text(x+30, y, 8.5, "", v)
+	c.fitText(x+24, y, maxW-24, 8.5, "", v)
 }
 
 func pct(v float64) string {
@@ -178,26 +198,19 @@ func renderFichaPDF(d FichaData, compress bool) ([]byte, error) {
 	// Bloque del animal
 	an := d.Animal
 	pdf.RoundedRect(left, 37, width, 40, 2, "1234", "D")
-	col1, col2 := left+4, left+width/2+2
+	colW3 := width / 3
+	col1, col2, col3 := left+3, left+colW3+3, left+2*colW3+3
 	rows1 := [][2]string{{"Nombre", an.Nombre}, {"Sexo", an.Sexo}, {"Raza", an.Raza}, {"Grado", pct(an.Pureza)}, {"Color", an.Color}, {"Identificación", an.Arete}}
 	rows2 := [][2]string{{"Tatuaje der.", an.TatuajeDer}, {"Tatuaje izq.", an.TatuajeIzq}, {"Cola", an.TatuajeCola}, {"Fecha nac.", an.FechaNacimiento},
 		{"Tipo de parto", an.TipoParto}, {"Concepción", an.MetodoConcepcion}}
 	rows3 := [][2]string{{"Nacimiento", an.TipoNacimiento}, {"ID electrónica", an.IDElectronica}, {"SINIIGA", an.Siniiga}}
-	y := 43.0
-	for _, r := range rows1 {
-		c.label(col1, y, r[0], r[1])
-		y += 6
-	}
-	y = 43.0
-	for _, r := range rows2 {
-		c.label(col2, y, r[0], r[1])
-		y += 6
-	}
-	// tercera columna corta debajo, dentro del bloque
-	y = 43.0
-	for _, r := range rows3 {
-		c.label(col2+58, y, r[0], r[1])
-		y += 6
+	for i, rows := range [][][2]string{rows1, rows2, rows3} {
+		x := []float64{col1, col2, col3}[i]
+		y := 43.0
+		for _, r := range rows {
+			c.label(x, y, colW3-5, r[0], r[1])
+			y += 6
+		}
 	}
 
 	// Árbol: 4 columnas (padres, abuelos, bisabuelos, tatarabuelos)
@@ -266,14 +279,15 @@ func renderFichaPDF(d FichaData, compress bool) ([]byte, error) {
 	pdf.SetDrawColor(203, 213, 225)
 	pdf.RoundedRect(left, 236, width, 40, 2, "1234", "D")
 	p := d.Perfil
-	y = 242
+	halfW := width / 2
+	y := 242.0
 	for _, r := range [][2]string{{"Criador", p.CriadorClave}, {"Nombre", p.CriadorNombre}, {"Centro", p.CriadorCentro}, {"Mpio/Edo", p.CriadorMunicipioEstado}} {
-		c.label(col1, y, r[0], r[1])
+		c.label(left+3, y, halfW-6, r[0], r[1])
 		y += 6
 	}
-	y = 242
+	y = 242.0
 	for _, r := range [][2]string{{"Propietario", p.PropietarioClave}, {"Nombre", p.PropietarioNombre}, {"Centro", p.PropietarioCentro}, {"Mpio/Edo", p.PropietarioMunicipioEstado}} {
-		c.label(col2, y, r[0], r[1])
+		c.label(left+halfW+3, y, halfW-6, r[0], r[1])
 		y += 6
 	}
 	pdf.SetTextColor(90, 100, 120)
