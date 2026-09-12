@@ -20,7 +20,7 @@ func newFakeCloudDB(t *testing.T) *sql.DB {
 	}
 	stmts := []string{
 		`CREATE TABLE animales (id TEXT PRIMARY KEY, user_id TEXT, arete TEXT, raza TEXT, corral_id TEXT, padre_id TEXT, madre_id TEXT)`,
-		`CREATE TABLE corrales (id TEXT PRIMARY KEY, user_id TEXT, nombre TEXT)`,
+		`CREATE TABLE corrales (id TEXT PRIMARY KEY, user_id TEXT, nombre TEXT, tipo TEXT, capacidad INTEGER)`,
 		`CREATE TABLE tratamientos (id TEXT PRIMARY KEY, animal_id TEXT)`,
 		`CREATE TABLE eventos_reproductivos (id TEXT PRIMARY KEY, animal_id TEXT, id_macho TEXT)`,
 		`CREATE TABLE tareas (id TEXT PRIMARY KEY, animal_id TEXT)`,

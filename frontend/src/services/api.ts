@@ -269,13 +269,21 @@ const CLOUD_NATIVE_STATUS: SyncStatus = { pending: 0, lastSync: 'N/A' };
 
 export const GetSyncStatus = async (): Promise<SyncStatus> => {
   if (IS_WAILS) return WailsApp.GetSyncStatus() as Promise<SyncStatus>;
-  return CLOUD_NATIVE_STATUS;
+  try {
+    return (await callApi('/sync-status')) as SyncStatus; // escritorio en modo móvil: estado real
+  } catch {
+    return CLOUD_NATIVE_STATUS;
+  }
 };
 
 // Fuerza un ciclo de sincronización local → nube y devuelve el estado.
 export const SyncNow = async (): Promise<SyncStatus> => {
   if (IS_WAILS) return WailsApp.SyncNow() as Promise<SyncStatus>;
-  return CLOUD_NATIVE_STATUS;
+  try {
+    return (await callApi('/sync-now', 'POST')) as SyncStatus;
+  } catch {
+    return CLOUD_NATIVE_STATUS;
+  }
 };
 
 export const GetIsDemoMode = async () => {

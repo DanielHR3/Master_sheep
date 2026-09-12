@@ -208,7 +208,7 @@ function App() {
         setSelectedRanchOverride={store.setSelectedRanchOverride}
       />
 
-      <main className={`transition-all duration-500 ease-in-out ${isSidebarCollapsed ? 'md:ml-24' : 'md:ml-80'} flex-1 p-6 md:p-12 pb-32 md:pb-12 max-w-7xl mx-auto w-full`}>
+      <main className={`transition-all duration-500 ease-in-out ${isSidebarCollapsed ? 'md:ml-24' : 'md:ml-80'} min-w-0 p-6 md:p-12 pb-32 md:pb-12 max-w-7xl`}>
         {renderContent()}
       </main>
 

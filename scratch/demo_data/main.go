@@ -84,13 +84,13 @@ func main() {
 	razas := []string{"Dorper", "Katahdin", "Pelibuey"}
 	// Sementales y madres fundadoras (generación 1)
 	for i := 0; i < 3; i++ {
-		call("POST", "/api/animals", map[string]interface{}{"id": fmt.Sprintf("demo-s%d", i), "arete": fmt.Sprintf("SEM-%02d", i+1), "raza": razas[i], "sexo": "Macho",
+		call("POST", "/api/animals", map[string]interface{}{"id": fmt.Sprintf("SEM-%02d", i+1), "arete": fmt.Sprintf("SEM-%02d", i+1), "raza": razas[i], "sexo": "Macho",
 			"fecha_nacimiento": date(1100 + i*90), "estatus": "Activo", "estado_reproductivo": "Semental", "corral_id": "Sementales", "destino": "Pie de Cría", "peso_nacer": 4.2})
 	}
 	for i := 0; i < 12; i++ {
-		call("POST", "/api/animals", map[string]interface{}{"id": fmt.Sprintf("demo-m%d", i), "arete": fmt.Sprintf("MAD-%02d", i+1), "raza": razas[i%3], "sexo": "Hembra",
+		call("POST", "/api/animals", map[string]interface{}{"id": fmt.Sprintf("MAD-%02d", i+1), "arete": fmt.Sprintf("MAD-%02d", i+1), "raza": razas[i%3], "sexo": "Hembra",
 			"fecha_nacimiento": date(800 + i*30), "estatus": "Activo", "estado_reproductivo": "Vacía", "corral_id": "Hembras Gestantes", "destino": "Pie de Cría",
-			"padre_id": fmt.Sprintf("demo-s%d", i%3), "peso_nacer": 3.8})
+			"padre_id": fmt.Sprintf("SEM-%02d", i%3+1), "peso_nacer": 3.8})
 	}
 	// Corderos de engorda (generación 2) con edades entre 2 y 7 meses
 	for i := 0; i < 45; i++ {
@@ -105,10 +105,11 @@ func main() {
 		} else if edad < 100 {
 			corral = "Destete"
 		}
-		id := fmt.Sprintf("demo-a%02d", i)
+		id := fmt.Sprintf("SM-%03d", 100+i)
 		call("POST", "/api/animals", map[string]interface{}{"id": id, "arete": fmt.Sprintf("SM-%03d", 100+i), "raza": razas[i%3], "sexo": sexo,
 			"fecha_nacimiento": date(edad), "estatus": "Activo", "estado_reproductivo": "Crecimiento", "corral_id": corral, "destino": "Engorda",
-			"padre_id": fmt.Sprintf("demo-s%d", i%3), "madre_id": fmt.Sprintf("demo-m%d", i%12), "peso_nacer": 3.5 + rnd.Float64()})
+			"padre_id": fmt.Sprintf("SEM-%02d", i%3+1), "madre_id": fmt.Sprintf("MAD-%02d", i%12+1), "peso_nacer": 3.5 + rnd.Float64(),
+			"abuelo_paterno_id": "SEM-91", "abuela_paterna_id": "MAD-91", "abuelo_materno_id": fmt.Sprintf("SEM-%02d", (i%12)%3+1), "abuela_materna_id": "MAD-92"})
 		// pesajes mensuales: ~0.25 kg/día → varios ya pasan de 42 kg con > 4 meses
 		peso := 4.0
 		for d := edad - 5; d > 0; d -= 30 {
@@ -118,14 +119,14 @@ func main() {
 	}
 	// Tratamientos recientes (periodo de retiro activo en algunos)
 	for i := 0; i < 8; i++ {
-		call("POST", "/api/treatments", map[string]interface{}{"animal_id": fmt.Sprintf("demo-a%02d", i*5), "insumo_id": "demo-i1", "dosis": 1.5,
+		call("POST", "/api/treatments", map[string]interface{}{"animal_id": fmt.Sprintf("SM-%03d", 100+i*5), "insumo_id": "demo-i1", "dosis": 1.5,
 			"via_administracion": "Subcutánea", "duracion_dias": 1, "fecha": date(rnd.Intn(20)), "tecnico": "MVZ Ramírez", "observaciones": "Desparasitación"})
 	}
 	// Montas, ultrasonidos y partos
 	for i := 0; i < 12; i++ {
-		madre := fmt.Sprintf("demo-m%d", i)
-		call("POST", "/api/reproduction", map[string]interface{}{"animal_id": madre, "tipo": "Monta Natural", "fecha_evento": date(30 + i*10), "id_macho": fmt.Sprintf("demo-s%d", i%3), "tecnico": "Encargado"})
-		if i < 6 {
+		madre := fmt.Sprintf("MAD-%02d", i+1)
+		call("POST", "/api/reproduction", map[string]interface{}{"animal_id": madre, "tipo": "Monta Natural", "fecha_evento": date(30 + i*10), "id_macho": fmt.Sprintf("SEM-%02d", i%3+1), "tecnico": "Encargado"})
+		if i < 3 {
 			call("POST", "/api/confirm-ultrasound", map[string]interface{}{"animal_id": madre, "preñada": true, "fetos": 1 + i%2})
 		}
 		if i >= 9 {

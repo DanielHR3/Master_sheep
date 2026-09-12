@@ -138,6 +138,8 @@ func (a *App) StartAPIServer(port int) {
 	mux.HandleFunc("/api/change-password", corsWrapper(a.withAuth((*App).handleChangePasswordAPI)))
 	mux.HandleFunc("/api/import-excel", corsWrapper(a.withAuth((*App).handleImportExcelAPI)))
 	mux.HandleFunc("/api/confirm-ultrasound", corsWrapper(a.withAuth((*App).handleConfirmUltrasound)))
+	mux.HandleFunc("/api/sync-status", corsWrapper(a.withAuth((*App).handleSyncStatus)))
+	mux.HandleFunc("/api/sync-now", corsWrapper(a.withAuth((*App).handleSyncNow)))
 
 	// Servir archivos estáticos del frontend (PWA)
 	staticDir := "./frontend/dist"
@@ -641,4 +643,27 @@ func (a *App) handleConfirmUltrasound(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+// handleSyncStatus expone el estado de la cola local → nube por HTTP. En el
+// servidor cloud no hay OfflineManager y responde {pending:0, lastSync:"N/A"};
+// en el escritorio (modo móvil o headless) devuelve el estado real.
+func (a *App) handleSyncStatus(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(a.GetSyncStatus())
+}
+
+// handleSyncNow fuerza un ciclo de sincronización y devuelve el estado.
+func (a *App) handleSyncNow(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	status, err := a.SyncNow()
+	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+		status["error"] = err.Error()
+	}
+	json.NewEncoder(w).Encode(status)
 }
