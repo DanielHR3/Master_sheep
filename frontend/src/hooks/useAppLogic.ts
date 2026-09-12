@@ -40,6 +40,7 @@ import {
   ImportAnimalsExcel,
   SyncNow
 } from "../services/api";
+import { markAppSeen } from '../lib/publicRoute';
 
 export const useAppLogic = () => {
   const store = useStore();
@@ -170,6 +171,7 @@ export const useAppLogic = () => {
     store.setCurrentUser(null); // Clear previous user to force loading state
     try {
       await Login(email, password);
+      markAppSeen();
       store.setIsLoggedIn(true);
       refreshData();
     } catch (err: any) {

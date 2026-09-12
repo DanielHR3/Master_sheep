@@ -36,11 +36,14 @@ import Staff from './pages/Staff';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Reports from './pages/Reports';
+import Landing from './landing/Landing';
+import { usePublicView, navigateTo } from './lib/publicRoute';
 
 function App() {
   const store = useStore();
   const { state, actions, refs } = useAppLogic();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
+  const publicView = usePublicView();
 
   React.useEffect(() => {
     const root = document.documentElement;
@@ -54,6 +57,9 @@ function App() {
   }, [store.theme]);
 
   if (!store.isLoggedIn) {
+    if (publicView === 'landing') {
+      return <Landing onLoginClick={() => navigateTo('/login')} />;
+    }
     return (
       <>
         <Snackbar />
