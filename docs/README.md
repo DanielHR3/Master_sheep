@@ -61,8 +61,10 @@ Seguridad" en cuanto inicies sesión por primera vez.
 En la **app de escritorio** el primer inicio de sesión de cada cuenta
 requiere internet: se valida contra Supabase y la identidad queda
 cacheada localmente (`cached_identity`) para poder entrar sin conexión
-después. Para habilitar login en nube y sincronización, define
-`DATABASE_URL` en el entorno del escritorio (ver `.env.example`).
+después. Para habilitar login en nube y sincronización, crea el archivo
+`~/Documents/SheepMaster/config.env` (misma carpeta que la base local) con
+una línea `DATABASE_URL=postgres://...` (ver `.env.example`). Una variable
+de entorno `DATABASE_URL` ya definida tiene prioridad sobre ese archivo.
 
 ---
 *Desarrollado para SheepMaster Enterprise.*

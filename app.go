@@ -47,6 +47,11 @@ func (a *App) startup(ctx context.Context) {
 
 // initDB inicializa la base de datos (PostgreSQL si hay URL, si no SQLite local)
 func (a *App) initDB() error {
+	if !isServerBuild {
+		if n := loadDesktopConfig(desktopConfigPath()); n > 0 {
+			fmt.Printf("Configuración de escritorio cargada desde %s\n", desktopConfigPath())
+		}
+	}
 	dbURL := os.Getenv("DATABASE_URL")
 	var db *sql.DB
 	var err error
