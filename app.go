@@ -118,26 +118,32 @@ func (a *App) initDB() error {
 	// cacheada en cached_identity (ver identity_cache.go), para que los
 	// datos que sincroniza lleven el rancho_id/user_id correcto.
 	if isServerBuild {
-		// Insertar usuario Super Administrador y los Admins de cada rancho
-		superAdminID := uuid.New().String()
-		donPablitoID := uuid.New().String()
-		bugambiliasID := uuid.New().String()
-		hashedPwd, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
-
-		if a.driverName == "postgres" {
-			_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
-				superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
-			_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
-				donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
-			_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
-				bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
+		// Cuentas semilla: SOLO si el operador define SEED_ADMIN_PASSWORD en el
+		// entorno del servidor (una vez, para una base nueva). Ya no existe
+		// ninguna contraseña por defecto en el código: la anterior (admin123)
+		// estuvo publicada en el README y seguía activa en producción.
+		if seedPwd := os.Getenv("SEED_ADMIN_PASSWORD"); seedPwd != "" {
+			superAdminID := uuid.New().String()
+			donPablitoID := uuid.New().String()
+			bugambiliasID := uuid.New().String()
+			hashedPwd, _ := bcrypt.GenerateFromPassword([]byte(seedPwd), bcrypt.DefaultCost)
+			if a.driverName == "postgres" {
+				_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
+					superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
+				_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
+					donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
+				_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
+					bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
+			} else {
+				_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
+					superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
+				_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
+					donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
+				_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
+					bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
+			}
 		} else {
-			_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
-				superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
-			_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
-				donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
-			_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
-				bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
+			fmt.Println("Aviso: SEED_ADMIN_PASSWORD no definida; no se crean cuentas semilla.")
 		}
 	}
 

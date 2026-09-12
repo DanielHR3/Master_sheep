@@ -152,7 +152,7 @@ func (a *App) StartAPIServer(port int) {
 
 	fmt.Printf("Servidor API y Web iniciado en puerto %d\n", port)
 	go func() {
-		err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", port), mux)
+		err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", port), securityHeaders(mux))
 		if err != nil {
 			fmt.Printf("ERROR iniciando servidor API: %v\n", err)
 		}
