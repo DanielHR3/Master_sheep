@@ -80,6 +80,7 @@ func (a *App) initDB() error {
 		return err
 	}
 	a.db = db
+	a.mailer = newMailerFromEnv()
 
 	if !isServerBuild {
 		if cloudURL := os.Getenv("DATABASE_URL"); cloudURL != "" {

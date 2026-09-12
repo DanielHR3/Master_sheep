@@ -78,6 +78,9 @@ func (a *App) StartAPIServer(port int) {
 	if origins == nil {
 		fmt.Println("ADVERTENCIA: ALLOWED_ORIGINS no configurada — CORS permite cualquier origen. Configúrala en producción.")
 	}
+	if a.mailer == nil {
+		fmt.Println("AVISO: SMTP_PASSWORD no configurada — los contactos de la landing se guardan en la tabla leads pero no se envían por correo.")
+	}
 
 	// Middleware de CORS
 	corsWrapper := func(h http.HandlerFunc) http.HandlerFunc {
@@ -110,6 +113,10 @@ func (a *App) StartAPIServer(port int) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	}))
+
+	// Landing pública: contacto y configuración (sin sesión)
+	mux.HandleFunc("/api/contact", corsWrapper(a.handleContact))
+	mux.HandleFunc("/api/landing-config", corsWrapper(a.handleLandingConfig))
 	mux.HandleFunc("/api/demo-mode", corsWrapper(a.handleDemoMode))
 
 	// Endpoints autenticados: cada uno se despacha sobre una copia de App

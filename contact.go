@@ -1,8 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 	"net/mail"
+	"os"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -102,4 +106,68 @@ func formatLeadEmail(c ContactRequest, ip string) (subject, body string) {
 	fmt.Fprintf(&b, "\nMensaje:\n%s\n", c.Mensaje)
 	fmt.Fprintf(&b, "\n--\nRecibido el %s desde la IP %s\n", time.Now().Format("2006-01-02 15:04"), ip)
 	return subject, b.String()
+}
+
+// handleContact recibe el formulario público. Orden: método → límite por
+// IP → JSON → campo trampa → validación → guardar → responder → correo en
+// segundo plano. El visitante siempre recibe "ok" si el lead quedó guardado.
+func (a *App) handleContact(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
+		return
+	}
+	ip := clientIP(r)
+	if !contactAttempts.allowed(ip) {
+		w.WriteHeader(http.StatusTooManyRequests)
+		json.NewEncoder(w).Encode(map[string]string{"error": "demasiados envíos, intenta más tarde"})
+		return
+	}
+	var c ContactRequest
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 16*1024)).Decode(&c); err != nil {
+		http.Error(w, "JSON inválido", http.StatusBadRequest)
+		return
+	}
+	contactAttempts.record(ip)
+	if strings.TrimSpace(c.Website) != "" {
+		// Campo trampa lleno: es un bot. Responder como si todo hubiera ido bien.
+		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
+		return
+	}
+	if err := c.validate(); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+	id, err := a.saveLead(c, ip)
+	if err != nil {
+		log.Printf("[contact] no se pudo guardar el lead: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "no se pudo guardar tu mensaje, intenta de nuevo"})
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]bool{"ok": true})
+	go a.notifyLead(id, c, ip)
+}
+
+// notifyLead manda el aviso por correo y marca el lead. Un fallo solo se
+// registra en el log: el lead ya está guardado.
+func (a *App) notifyLead(id string, c ContactRequest, ip string) {
+	if a.mailer == nil {
+		return
+	}
+	subject, body := formatLeadEmail(c, ip)
+	if err := a.mailer.Send(subject, body); err != nil {
+		log.Printf("[contact] lead %s guardado pero el correo falló: %v", id, err)
+		return
+	}
+	if err := a.markLeadNotified(id); err != nil {
+		log.Printf("[contact] correo enviado pero no se pudo marcar el lead %s: %v", id, err)
+	}
+}
+
+// handleLandingConfig expone configuración pública de la landing. Hoy solo
+// la URL de reservas de Google Calendar (vacía si no está configurada).
+func (a *App) handleLandingConfig(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"bookingUrl": os.Getenv("DEMO_BOOKING_URL")})
 }

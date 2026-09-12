@@ -13,6 +13,10 @@ func newTestApp(t *testing.T) *App {
 	if err != nil {
 		t.Fatalf("open sqlite: %v", err)
 	}
+	// Una sola conexión: cada conexión nueva a ":memory:" sería una base
+	// vacía distinta, y las goroutines (p. ej. el aviso por correo) verían
+	// "no such table".
+	db.SetMaxOpenConns(1)
 	a := &App{db: db, driverName: "sqlite"}
 	if err := a.createSchema(); err != nil {
 		t.Fatalf("createSchema: %v", err)
