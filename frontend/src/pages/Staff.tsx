@@ -36,8 +36,8 @@ const Staff: React.FC<StaffProps> = ({
           </div>
        </div>
 
-       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <div className={`lg:col-span-1 p-8 border rounded-[40px] ${
+       <div className="grid grid-cols-1 @3xl:grid-cols-3 gap-10">
+          <div className={`@3xl:col-span-1 p-8 border rounded-[40px] ${
             isDark ? 'bg-slate-900/90 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900 shadow-md'
           }`}>
              <h4 className={`text-xl font-black font-display mb-8 border-b pb-4 tracking-tight ${
@@ -141,7 +141,7 @@ const Staff: React.FC<StaffProps> = ({
              </div>
           </div>
 
-          <div className="lg:col-span-2 space-y-4">
+          <div className="@3xl:col-span-2 space-y-4">
              {isLoading ? (
                Array.from({ length: 3 }).map((_, idx) => (
                  <Card key={idx} className="rounded-3xl p-6 flex items-center gap-4">
@@ -167,7 +167,7 @@ const Staff: React.FC<StaffProps> = ({
                          <p className="text-[10px] text-slate-400 uppercase font-black">{u.role} • {u.email}</p>
                       </div>
                    </div>
-                    <div className="flex gap-2 lg:opacity-0 lg:group-hover:opacity-100 transition-all">
+                    <div className="flex gap-2 @3xl:opacity-0 @3xl:group-hover:opacity-100 transition-all">
                        <button 
                          onClick={() => {
                            setForm({ id: u.id, name: u.name, email: u.email, password: '', role: u.role });

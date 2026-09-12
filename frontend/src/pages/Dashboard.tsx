@@ -122,7 +122,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
   return (
     <div className="space-y-8 pt-6 animate-in fade-in duration-500">
       {/* Header Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col @2xl:flex-row justify-between items-start @2xl:items-center gap-4">
         <div>
           <h2 className={`text-5xl font-black font-display tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
             Resumen de Operación
@@ -165,11 +165,11 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
           <div className={`absolute inset-0 bg-gradient-to-r ${isDark ? 'from-slate-950 via-slate-900/90 to-transparent' : 'from-emerald-950 via-emerald-900/80 to-transparent'}`}></div>
         </div>
         
-        <div className="relative p-8 md:p-12 max-w-2xl">
+        <div className="relative p-8 @2xl:p-12 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase tracking-widest mb-4 backdrop-blur-md shadow-lg">
             <Zap size={12} /> SISTEMA AGROTECH V3.0
           </div>
-          <h2 className="text-4xl md:text-5xl font-black font-display tracking-tight text-white mb-4 leading-tight">
+          <h2 className="text-4xl @2xl:text-5xl font-black font-display tracking-tight text-white mb-4 leading-tight">
             Bienvenido a <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
               {ranchoName}
@@ -190,7 +190,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
       </div>
 
       {/* KPIs SUPERIORES */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 @xl:grid-cols-3 @4xl:grid-cols-6 gap-4">
         {isLoading ? (
           Array.from({ length: 6 }).map((_, idx) => (
             <Card key={idx} className="rounded-3xl p-4">
@@ -223,10 +223,10 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 @3xl:grid-cols-3 gap-8">
         {/* SEMÁFORO DE VENTAS (Engorda) o PIE DE CRÍA */}
         {!isBugambilias ? (
-          <div className={`lg:col-span-2 p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
+          <div className={`@3xl:col-span-2 p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
           <div className="flex justify-between items-center mb-8">
             <div>
               <h3 className={`text-2xl font-black font-display tracking-tight flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
@@ -236,7 +236,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
+          <div className="grid grid-cols-1 @4xl:grid-cols-2 gap-4 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
             {isLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <Card key={i} className="rounded-[28px] p-5">
@@ -274,7 +274,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
                 </div>
               ))
             ) : (
-              <div className={`md:col-span-2 py-16 text-center border-2 border-dashed rounded-[32px] ${
+              <div className={`@2xl:col-span-2 py-16 text-center border-2 border-dashed rounded-[32px] ${
                 isDark ? 'border-slate-800' : 'border-slate-200 bg-slate-50/55'
               }`}>
                 <p className="text-slate-400 font-bold uppercase text-xs tracking-wider italic">No hay animales próximos a venta</p>
@@ -283,7 +283,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
           </div>
         </div>
         ) : (
-          <div className={`lg:col-span-2 p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
+          <div className={`@3xl:col-span-2 p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
             <div className="flex justify-between items-center mb-8">
               <div>
                 <h3 className={`text-2xl font-black font-display tracking-tight flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
@@ -293,7 +293,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="grid grid-cols-1 @4xl:grid-cols-2 gap-4 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
               {pieDeCriaAlerts.length > 0 ? (
                 pieDeCriaAlerts.map((a: any, i: number) => (
                   <div key={i} className={`p-5 rounded-[28px] border flex items-center justify-between transition-all ${
@@ -318,7 +318,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
                   </div>
                 ))
               ) : (
-                <div className={`md:col-span-2 py-16 text-center border-2 border-dashed rounded-[32px] ${
+                <div className={`@2xl:col-span-2 py-16 text-center border-2 border-dashed rounded-[32px] ${
                   isDark ? 'border-slate-800' : 'border-slate-200 bg-slate-50/55'
                 }`}>
                   <p className="text-slate-400 font-bold uppercase text-xs tracking-wider italic">No hay tareas genéticas pendientes</p>
@@ -379,7 +379,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
       </div>
 
       {/* ESTADÍSTICAS Y GRÁFICAS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-8">
+      <div className="grid grid-cols-1 @3xl:grid-cols-2 gap-8 pb-8">
         <div className={`p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md'}`}>
             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
               <Syringe size={16} className="text-rose-500 dark:text-rose-400" /> Incidencia de Enfermedades por Temporada

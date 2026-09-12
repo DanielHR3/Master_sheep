@@ -37,7 +37,7 @@ const Corrales: React.FC<CorralesProps> = ({ corrales, animals, theme, onAddCorr
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 @2xl:grid-cols-2 @3xl:grid-cols-3 gap-8">
         {isLoading ? (
           Array.from({ length: 3 }).map((_, idx) => (
             <Card key={idx} className="rounded-[40px] p-8">

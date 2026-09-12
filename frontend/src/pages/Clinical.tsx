@@ -27,7 +27,7 @@ const Clinical: React.FC<ClinicalProps> = ({ animals, insumos, onTreatment, them
        </div>
 
        {isLoading ? (
-         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+         <div className="grid grid-cols-1 @xl:grid-cols-2 @2xl:grid-cols-3 @3xl:grid-cols-4 gap-6">
            {Array.from({ length: 4 }).map((_, idx) => (
              <Card key={idx} className="rounded-3xl p-6">
                <Skeleton className="h-5 w-16 mb-4" />
@@ -44,7 +44,7 @@ const Clinical: React.FC<ClinicalProps> = ({ animals, insumos, onTreatment, them
             <p className="text-slate-500">Registre un animal en el inventario para poder aplicar tratamientos.</p>
          </div>
        ) : (
-         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+         <div className="grid grid-cols-1 @xl:grid-cols-2 @2xl:grid-cols-3 @3xl:grid-cols-4 gap-6">
             {(animals || []).map((a: any) => (
                <div 
                  key={a.id} 

@@ -38,8 +38,10 @@ func main() {
 	// Modo Desktop (Wails)
 	err := wails.Run(&options.App{
 		Title:  "SheepMaster",
-		Width:  1024,
-		Height: 768,
+		Width:     1440,
+		Height:    900,
+		MinWidth:  1024,
+		MinHeight: 700,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

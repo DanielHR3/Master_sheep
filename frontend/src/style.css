@@ -143,3 +143,9 @@ h1, h2, h3, h4, .font-display {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
 }
 
+
+/* El área principal es el contenedor de consultas (@xl:, @2xl:, ...) de las
+   páginas: así las rejillas responden al espacio real, no al ancho de la ventana. */
+.app-main {
+  container-type: inline-size;
+}

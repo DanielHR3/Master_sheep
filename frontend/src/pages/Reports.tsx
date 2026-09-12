@@ -305,7 +305,7 @@ const Reports: React.FC<ReportsProps> = ({ theme }) => {
     <div className="space-y-8 pt-6 animate-in fade-in duration-500">
       
       {/* Banner Principal */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col @2xl:flex-row justify-between items-start @2xl:items-center gap-4">
         <div>
           <h2 className={`text-5xl font-black font-display tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
             Reportes y Descargas
@@ -356,12 +356,12 @@ const Reports: React.FC<ReportsProps> = ({ theme }) => {
       </div>
 
       {/* Tarjeta Ejecutiva del Reporte */}
-      <div className={`p-8 md:p-10 border rounded-[40px] shadow-xl ${
+      <div className={`p-8 @2xl:p-10 border rounded-[40px] shadow-xl ${
         isDark ? 'bg-slate-900/90 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
       }`}>
         
         {/* Cabecera Interna de la Tarjeta */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-8 border-b border-slate-100 dark:border-slate-850">
+        <div className="flex flex-col @2xl:flex-row justify-between items-start @2xl:items-center gap-6 pb-8 border-b border-slate-100 dark:border-slate-850">
           <div className="flex items-center gap-4">
             <div className={`p-4 rounded-3xl border ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'} ${currentHeader.color}`}>
               <currentHeader.icon size={30} />
@@ -376,9 +376,9 @@ const Reports: React.FC<ReportsProps> = ({ theme }) => {
             </div>
           </div>
 
-          <div className="w-full md:w-auto flex flex-col sm:flex-row gap-3 items-stretch">
+          <div className="w-full @2xl:w-auto flex flex-col @xl:flex-row gap-3 items-stretch">
             {/* Barra de Búsqueda */}
-            <div className="relative flex-1 sm:w-64">
+            <div className="relative flex-1 @xl:w-64">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <input
                 type="text"
@@ -408,7 +408,7 @@ const Reports: React.FC<ReportsProps> = ({ theme }) => {
         <div className="mt-8">
           {activeReport === 'analytics' ? (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 @2xl:grid-cols-2 gap-6">
                 {/* Distribución por Razas */}
                 <div className={`p-6 rounded-3xl border shadow-sm ${isDark ? 'bg-slate-950/40 border-slate-800' : 'bg-white border-slate-100'}`}>
                   <h4 className={`text-lg font-black mb-4 ${isDark ? 'text-white' : 'text-slate-800'}`}>Distribución Genética (Razas)</h4>

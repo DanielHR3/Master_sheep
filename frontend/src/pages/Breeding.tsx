@@ -22,9 +22,9 @@ const Breeding: React.FC<BreedingProps> = ({
   const isDark = theme === 'dark';
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-6 animate-in fade-in duration-500">
+    <div className="grid grid-cols-1 @3xl:grid-cols-3 gap-8 pt-6 animate-in fade-in duration-500">
       {/* Main Reproduction Card */}
-      <div className={`lg:col-span-2 p-8 md:p-10 border rounded-[40px] shadow-xl ${
+      <div className={`@3xl:col-span-2 p-8 @2xl:p-10 border rounded-[40px] shadow-xl ${
         isDark ? 'bg-slate-900/90 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
       }`}>
         <h3 className={`text-3xl font-black font-display tracking-tight mb-8 flex items-center gap-3 ${
@@ -34,7 +34,7 @@ const Breeding: React.FC<BreedingProps> = ({
         </h3>
         
         <div className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 @2xl:grid-cols-2 gap-6">
              <div className="space-y-2">
                <label className={`text-xs font-black uppercase tracking-wider px-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                  Seleccionar Borrega Madre
@@ -72,7 +72,7 @@ const Breeding: React.FC<BreedingProps> = ({
              </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 @2xl:grid-cols-2 gap-6">
              <div className="space-y-2">
                <label className={`text-xs font-black uppercase tracking-wider px-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                  Fecha del Evento
@@ -111,7 +111,7 @@ const Breeding: React.FC<BreedingProps> = ({
              </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          <div className="flex flex-col @xl:flex-row gap-4 pt-4">
             <button 
               onClick={onRegister} 
               className={`flex-1 py-5 bg-teal-600 hover:bg-teal-500 text-white font-black rounded-2xl text-base shadow-lg uppercase tracking-wider active:scale-95 transition-all cursor-pointer ${

@@ -55,7 +55,7 @@ const Inventory: React.FC<InventoryProps> = ({
 
   return (
     <div className="space-y-8 pt-6 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div className="flex flex-col @2xl:flex-row justify-between items-start @2xl:items-center gap-6">
         <div className="flex flex-wrap gap-4">
           <div className={`flex p-1.5 rounded-2xl border ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
              <button 
@@ -120,7 +120,7 @@ const Inventory: React.FC<InventoryProps> = ({
       </div>
 
       {subTab === 'animals' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 @xl:grid-cols-2 @4xl:grid-cols-3 @6xl:grid-cols-4 gap-6">
           {(Array.isArray(animals) ? animals : []).filter(a => filterDestino === 'all' || a.destino === filterDestino).map((a: main.Animal) => (
             <AnimalCard 
               key={a.id} 
@@ -139,7 +139,7 @@ const Inventory: React.FC<InventoryProps> = ({
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 @xl:grid-cols-2 @4xl:grid-cols-3 gap-6">
           {insumos.map((i: main.Insumo) => (
             <div key={i.id} className={`p-6 rounded-[32px] border transition-all ${
               isDark ? 'bg-slate-900/90 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900 shadow-sm'

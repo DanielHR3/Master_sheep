@@ -48,7 +48,7 @@ const Profile: React.FC<ProfileProps> = ({
   const ranchoName = isBugambilias ? 'RANCHO LAS BUGAMBILIAS' : isDonPablito ? 'RANCHO DON PABLITO' : 'SHEEPMASTER AGROTECH';
 
   return (
-    <div className="space-y-6 md:space-y-10 pt-4 md:pt-10 animate-in fade-in duration-700">
+    <div className="space-y-6 @2xl:space-y-10 pt-4 @2xl:pt-10 animate-in fade-in duration-700">
       
       {/* Tarjeta de Perfil de Usuario con Cover Photo */}
       <div className="relative rounded-[40px] shadow-2xl border border-emerald-500/20 overflow-hidden group">
@@ -64,23 +64,23 @@ const Profile: React.FC<ProfileProps> = ({
         {/* Contenido Perfil */}
         <div className="relative pt-24 pb-12 px-6 flex flex-col items-center text-center">
            {/* Avatar flotante */}
-           <div className={`w-32 h-32 md:w-40 md:h-40 rounded-[40px] flex items-center justify-center text-5xl md:text-6xl font-black font-display border-4 shadow-2xl mb-6 relative z-10 ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-white text-emerald-700'}`}>
+           <div className={`w-32 h-32 @2xl:w-40 @2xl:h-40 rounded-[40px] flex items-center justify-center text-5xl @2xl:text-6xl font-black font-display border-4 shadow-2xl mb-6 relative z-10 ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-white text-emerald-700'}`}>
               {user?.name?.charAt(0) || 'U'}
               <div className="absolute -bottom-2 -right-2 bg-emerald-500 w-10 h-10 rounded-full border-4 border-white dark:border-slate-800" title="Activo"></div>
            </div>
 
-           <h3 className="text-4xl md:text-5xl font-black font-display tracking-tight text-white mb-2">
+           <h3 className="text-4xl @2xl:text-5xl font-black font-display tracking-tight text-white mb-2">
               {user?.name || 'Usuario'}
            </h3>
-           <p className="text-emerald-300 font-bold uppercase tracking-widest text-xs md:text-sm mb-2">
+           <p className="text-emerald-300 font-bold uppercase tracking-widest text-xs @2xl:text-sm mb-2">
               {user?.role || 'Personal'} • {user?.email}
            </p>
-           <p className="text-white/70 font-medium uppercase tracking-widest text-[10px] md:text-xs bg-black/20 px-4 py-1.5 rounded-full backdrop-blur-sm border border-white/5">
+           <p className="text-white/70 font-medium uppercase tracking-widest text-[10px] @2xl:text-xs bg-black/20 px-4 py-1.5 rounded-full backdrop-blur-sm border border-white/5">
               Asignado a: <strong className="text-white ml-1">{ranchoName}</strong>
            </p>
 
            {/* Botones de acción (Tema y Salir) */}
-           <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full justify-center max-w-sm sm:max-w-md">
+           <div className="flex flex-col @xl:flex-row gap-4 mt-8 w-full justify-center max-w-sm @xl:max-w-md">
              <button 
                onClick={() => setTheme(isDark ? 'light' : 'dark')} 
                className="flex-1 px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-3 transition-all active:scale-95 text-xs bg-white/10 text-white hover:bg-white/20 backdrop-blur-md border border-white/10 shadow-xl"
@@ -98,20 +98,20 @@ const Profile: React.FC<ProfileProps> = ({
       </div>
 
       {/* Grid de Atajos de Navegación */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 @2xl:grid-cols-4 gap-4 @2xl:gap-6">
         
         {/* Atajo de Seguridad */}
         <div 
           onClick={onSecurity} 
-          className={`p-5 md:p-8 border rounded-[24px] md:rounded-[30px] cursor-pointer transition-all group hover:scale-[1.02] flex flex-col items-center md:items-start text-center md:text-left ${
+          className={`p-5 @2xl:p-8 border rounded-[24px] @2xl:rounded-[30px] cursor-pointer transition-all group hover:scale-[1.02] flex flex-col items-center @2xl:items-start text-center @2xl:text-left ${
             isDark ? 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/80 text-white' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-900 shadow-sm'
           }`}
         >
           <Lock size={22} className="text-rose-500 mb-3 group-hover:scale-110 transition-transform" />
-          <h4 className={`font-black uppercase text-[10px] md:text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>
+          <h4 className={`font-black uppercase text-[10px] @2xl:text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>
             Seguridad
           </h4>
-          <p className="text-[9px] md:text-[10px] text-slate-400 mt-1 uppercase font-bold">
+          <p className="text-[9px] @2xl:text-[10px] text-slate-400 mt-1 uppercase font-bold">
             Contraseña
           </p>
         </div>
@@ -119,15 +119,15 @@ const Profile: React.FC<ProfileProps> = ({
         {/* Atajo de Corrales */}
         <div 
           onClick={onCorrales} 
-          className={`p-5 md:p-8 border rounded-[24px] md:rounded-[30px] cursor-pointer transition-all group hover:scale-[1.02] flex flex-col items-center md:items-start text-center md:text-left ${
+          className={`p-5 @2xl:p-8 border rounded-[24px] @2xl:rounded-[30px] cursor-pointer transition-all group hover:scale-[1.02] flex flex-col items-center @2xl:items-start text-center @2xl:text-left ${
             isDark ? 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/80 text-white' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-900 shadow-sm'
           }`}
         >
           <Warehouse size={22} className="text-cyan-500 mb-3 group-hover:scale-110 transition-transform" />
-          <h4 className={`font-black uppercase text-[10px] md:text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>
+          <h4 className={`font-black uppercase text-[10px] @2xl:text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>
             Corrales
           </h4>
-          <p className="text-[9px] md:text-[10px] text-slate-400 mt-1 uppercase font-bold">
+          <p className="text-[9px] @2xl:text-[10px] text-slate-400 mt-1 uppercase font-bold">
             Administrar
           </p>
         </div>
@@ -136,15 +136,15 @@ const Profile: React.FC<ProfileProps> = ({
         {user?.role === 'Admin' && (
           <div 
             onClick={onReports} 
-            className={`p-5 md:p-8 border rounded-[24px] md:rounded-[30px] cursor-pointer transition-all group hover:scale-[1.02] flex flex-col items-center md:items-start text-center md:text-left ${
+            className={`p-5 @2xl:p-8 border rounded-[24px] @2xl:rounded-[30px] cursor-pointer transition-all group hover:scale-[1.02] flex flex-col items-center @2xl:items-start text-center @2xl:text-left ${
               isDark ? 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/80 text-white' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-900 shadow-sm'
             }`}
           >
             <FileSpreadsheet size={22} className="text-emerald-500 mb-3 group-hover:scale-110 transition-transform" />
-            <h4 className={`font-black uppercase text-[10px] md:text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>
+            <h4 className={`font-black uppercase text-[10px] @2xl:text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>
               Reportes
             </h4>
-            <p className="text-[9px] md:text-[10px] text-slate-400 mt-1 uppercase font-bold">
+            <p className="text-[9px] @2xl:text-[10px] text-slate-400 mt-1 uppercase font-bold">
               Descargas
             </p>
           </div>
@@ -154,15 +154,15 @@ const Profile: React.FC<ProfileProps> = ({
         {user?.role === 'Admin' && (
           <div 
             onClick={onStaff} 
-            className={`p-5 md:p-8 border rounded-[24px] md:rounded-[30px] cursor-pointer transition-all group hover:scale-[1.02] flex flex-col items-center md:items-start text-center md:text-left ${
+            className={`p-5 @2xl:p-8 border rounded-[24px] @2xl:rounded-[30px] cursor-pointer transition-all group hover:scale-[1.02] flex flex-col items-center @2xl:items-start text-center @2xl:text-left ${
               isDark ? 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/80 text-white' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-900 shadow-sm'
             }`}
           >
             <Users size={22} className="text-antique-brass mb-3 group-hover:scale-110 transition-transform" />
-            <h4 className={`font-black uppercase text-[10px] md:text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>
+            <h4 className={`font-black uppercase text-[10px] @2xl:text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>
               Personal
             </h4>
-            <p className="text-[9px] md:text-[10px] text-slate-400 mt-1 uppercase font-bold">
+            <p className="text-[9px] @2xl:text-[10px] text-slate-400 mt-1 uppercase font-bold">
               Gestionar
             </p>
           </div>
@@ -171,18 +171,18 @@ const Profile: React.FC<ProfileProps> = ({
 
       {/* Panel de Modo Demo (Solo Admin) */}
       {user?.role === 'Admin' && (
-        <div className={`mt-6 md:mt-10 p-6 md:p-10 border rounded-[24px] md:rounded-[40px] flex flex-col lg:flex-row justify-between items-center gap-6 md:gap-8 transition-all ${
+        <div className={`mt-6 @2xl:mt-10 p-6 @2xl:p-10 border rounded-[24px] @2xl:rounded-[40px] flex flex-col @3xl:flex-row justify-between items-center gap-6 @2xl:gap-8 transition-all ${
           isDark ? 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/80 text-white' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-900 shadow-md'
         }`}>
-          <div className="text-center lg:text-left">
-            <h4 className={`text-xl md:text-2xl font-black italic font-serif flex items-center justify-center lg:justify-start gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+          <div className="text-center @3xl:text-left">
+            <h4 className={`text-xl @2xl:text-2xl font-black italic font-serif flex items-center justify-center @3xl:justify-start gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
               <ShieldCheck className="text-antique-brass" /> Modo Demo (Lectura)
             </h4>
             <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2 max-w-md">
               Cuando está activo, el sistema bloquea todas las modificaciones en la base de datos.
             </p>
           </div>
-          <div className="w-full lg:w-auto flex items-center justify-center gap-4 px-6 py-4">
+          <div className="w-full @3xl:w-auto flex items-center justify-center gap-4 px-6 py-4">
             {isDemo ? <Lock size={18} className="text-rose-500" /> : <Shield size={18} className="text-slate-400" />}
             <span className={`font-black text-xs uppercase tracking-widest ${isDemo ? 'text-rose-500' : (isDark ? 'text-slate-400' : 'text-slate-600')}`}>
               {isDemo ? 'Modo Demo Activo' : 'Modo Demo Inactivo'}
