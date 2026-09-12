@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/xuri/excelize/v2"
@@ -66,3 +67,72 @@ func TestProcessExcelImportsGeneticsColumns(t *testing.T) {
 		t.Fatalf("imported animal = %+v", g)
 	}
 }
+
+func excelWith(t *testing.T, headers, row []string) *excelize.File {
+	t.Helper()
+	f := excelize.NewFile()
+	sheet := f.GetSheetName(0)
+	for i, h := range headers {
+		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
+		f.SetCellValue(sheet, cell, h)
+		cell, _ = excelize.CoordinatesToCellName(i+1, 2)
+		f.SetCellValue(sheet, cell, row[i])
+	}
+	return f
+}
+
+// Las columnas se reconocen por su encabezado (con o sin acentos, en
+// cualquier orden), no por su posición.
+func TestProcessExcelMapsColumnsByHeader(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	f := excelWith(t,
+		[]string{"Madre", "Número de arete", "Tipo de nacimiento", "Sexo", "Padre", "Método de concepción", "Raza", "Abuela materna"},
+		[]string{"MAD-03", "BG-777", "Inducido", "Macho", "SEM-02", "Inseminación Artificial", "Katahdin", "MAD-92"})
+	if n, err := a.processExcel(f, a.tenantID()); err != nil || n != 1 {
+		t.Fatalf("processExcel: %v (n=%d)", err, n)
+	}
+	animals, _ := a.GetAnimales()
+	g := animals[0]
+	if g.Arete != "BG-777" || g.MadreID != "MAD-03" || g.PadreID != "SEM-02" || g.Sexo != "Macho" || g.Raza != "Katahdin" ||
+		g.TipoNacimiento != "Inducido" || g.MetodoConcepcion != "Inseminación Artificial" || g.AbuelaMaternaID != "MAD-92" || g.Especie != "Ovino" {
+		t.Fatalf("imported = %+v", g)
+	}
+}
+
+// Sin encabezados reconocibles se conserva el orden posicional histórico.
+func TestProcessExcelPositionalFallback(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	f := excelWith(t,
+		[]string{"col1", "col2", "col3", "col4", "col5", "col6", "col7", "col8", "col9"},
+		[]string{"BG-1", "Dorper", "Hembra", "Norte", "2026-02-01", "4.1", "SEM-01", "MAD-01", "Engorda"})
+	if n, err := a.processExcel(f, a.tenantID()); err != nil || n != 1 {
+		t.Fatalf("processExcel: %v (n=%d)", err, n)
+	}
+	animals, _ := a.GetAnimales()
+	if g := animals[0]; g.Arete != "BG-1" || g.Raza != "Dorper" || g.CorralID != "Norte" || g.PadreID != "SEM-01" || g.Destino != "Engorda" {
+		t.Fatalf("imported = %+v", g)
+	}
+}
+
+// La plantilla descargable trae exactamente los encabezados que el
+// importador reconoce, más una fila de ejemplo.
+func TestBuildImportTemplateRoundTrips(t *testing.T) {
+	data, err := buildImportTemplate()
+	if err != nil {
+		t.Fatal(err)
+	}
+	f, err := excelize.OpenReader(bytesReader(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows, _ := f.GetRows(f.GetSheetName(0))
+	if len(rows) < 2 || len(rows[0]) != len(importColumns) {
+		t.Fatalf("template rows=%d headers=%d want %d", len(rows), len(rows[0]), len(importColumns))
+	}
+	a := newLoggedInTestApp(t)
+	if n, err := a.processExcel(f, a.tenantID()); err != nil || n != 1 {
+		t.Fatalf("template example row must import: %v (n=%d)", err, n)
+	}
+}
+
+func bytesReader(b []byte) *bytes.Reader { return bytes.NewReader(b) }

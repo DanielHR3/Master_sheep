@@ -139,6 +139,7 @@ func (a *App) StartAPIServer(port int) {
 	mux.HandleFunc("/api/import-excel", corsWrapper(a.withAuth((*App).handleImportExcelAPI)))
 	mux.HandleFunc("/api/confirm-ultrasound", corsWrapper(a.withAuth((*App).handleConfirmUltrasound)))
 	mux.HandleFunc("/api/sync-status", corsWrapper(a.withAuth((*App).handleSyncStatus)))
+	mux.HandleFunc("/api/import-template", corsWrapper(a.withAuth((*App).handleImportTemplate)))
 	mux.HandleFunc("/api/sync-now", corsWrapper(a.withAuth((*App).handleSyncNow)))
 
 	// Servir archivos estáticos del frontend (PWA)
@@ -666,4 +667,16 @@ func (a *App) handleSyncNow(w http.ResponseWriter, r *http.Request) {
 		status["error"] = err.Error()
 	}
 	json.NewEncoder(w).Encode(status)
+}
+
+// handleImportTemplate entrega la plantilla .xlsx de carga masiva (web).
+func (a *App) handleImportTemplate(w http.ResponseWriter, r *http.Request) {
+	data, err := buildImportTemplate()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	w.Header().Set("Content-Disposition", `attachment; filename="plantilla_animales_sheepmaster.xlsx"`)
+	w.Write(data)
 }

@@ -1694,6 +1694,10 @@ func (a *App) processExcel(f *excelize.File, userID string) (int, error) {
 		return 0, fmt.Errorf("El archivo está vacío o solo contiene encabezados.")
 	}
 
+	// Las columnas se reconocen por su encabezado (ver importColumns); si la
+	// hoja no trae encabezados reconocibles, se usa el orden histórico.
+	cols := resolveImportColumns(rows[0])
+
 	tx, err := a.db.Begin()
 	if err != nil {
 		return 0, err
@@ -1705,22 +1709,28 @@ func (a *App) processExcel(f *excelize.File, userID string) (int, error) {
 		if i == 0 {
 			continue
 		}
-		if len(row) < 1 || row[0] == "" {
+		cell := func(key string) string {
+			idx, ok := cols[key]
+			if !ok || idx < 0 || len(row) <= idx {
+				return ""
+			}
+			return strings.TrimSpace(row[idx])
+		}
+		arete := cell("arete")
+		if arete == "" {
 			continue
 		}
 
 		id := uuid.New().String()
-		arete := row[0]
-		raza := ""
-		if len(row) > 1 { raza = row[1] }
-		sexo := "Hembra"
-		if len(row) > 2 { sexo = row[2] }
-		corral := ""
-		if len(row) > 3 { corral = row[3] }
+		raza := cell("raza")
+		sexo := cell("sexo")
+		if sexo == "" {
+			sexo = "Hembra"
+		}
+		corral := cell("corral")
 		fechaNac := ""
-		if len(row) > 4 { 
-			val := strings.TrimSpace(row[4])
-			// Intentar diversos formatos de fecha common en Excel/Latam
+		if val := cell("fecha_nacimiento"); val != "" {
+			// Intentar diversos formatos de fecha comunes en Excel/Latam
 			formats := []string{"2006-01-02", "02/01/2006", "02-01-2006", "1/2/06"}
 			parsedDate := time.Time{}
 			for _, f := range formats {
@@ -1737,36 +1747,28 @@ func (a *App) processExcel(f *excelize.File, userID string) (int, error) {
 			}
 		}
 		pesoNacer := 0.0
-		if len(row) > 5 { 
-			fmt.Sscanf(row[5], "%f", &pesoNacer) 
+		if val := cell("peso_nacer"); val != "" {
+			fmt.Sscanf(strings.ReplaceAll(val, ",", "."), "%f", &pesoNacer)
 		}
-		padreId := ""
-		if len(row) > 6 { padreId = row[6] }
-		madreId := ""
-		if len(row) > 7 { madreId = row[7] }
-		destino := "Engorda"
-		if len(row) > 8 { destino = row[8] }
-		// Columnas de pie de cría (opcionales): J especie, K tipo de parto,
-		// L método de concepción, M tipo de nacimiento, N-Q abuelos.
-		cell := func(i int) string {
-			if len(row) > i {
-				return strings.TrimSpace(row[i])
-			}
-			return ""
+		padreId := cell("padre")
+		madreId := cell("madre")
+		destino := cell("destino")
+		if destino == "" {
+			destino = "Engorda"
 		}
-		especie := cell(9)
+		especie := cell("especie")
 		if especie == "" {
 			especie = "Ovino"
 		}
-		tipoParto, metodoConcepcion, tipoNacimiento := cell(10), cell(11), cell(12)
-		abueloPat, abuelaPat, abueloMat, abuelaMat := cell(13), cell(14), cell(15), cell(16)
+		tipoParto, metodoConcepcion, tipoNacimiento := cell("tipo_parto"), cell("metodo_concepcion"), cell("tipo_nacimiento")
+		abueloPat, abuelaPat, abueloMat, abuelaMat := cell("abuelo_paterno"), cell("abuela_paterna"), cell("abuelo_materno"), cell("abuela_materna")
 
 		_, err = tx.Exec(a.q(`INSERT INTO animales (id, user_id, especie, arete, raza, sexo, corral_id, fecha_nacimiento, peso_nacer, padre_id, madre_id, destino, estatus, estado_reproductivo,
 			tipo_parto, metodo_concepcion, tipo_nacimiento, abuelo_paterno_id, abuela_paterna_id, abuelo_materno_id, abuela_materna_id) 
 			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 			id, userID, especie, arete, raza, sexo, corral, fechaNac, pesoNacer, padreId, madreId, destino, "Activo", "Crecimiento",
 			tipoParto, metodoConcepcion, tipoNacimiento, abueloPat, abuelaPat, abueloMat, abuelaMat)
-		
+
 		if err != nil {
 			return count, fmt.Errorf("Error en fila %d: %v", i+1, err)
 		}
