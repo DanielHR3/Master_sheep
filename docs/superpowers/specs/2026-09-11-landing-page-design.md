@@ -1,7 +1,7 @@
 # Landing page pública de SheepMaster — diseño
 
 **Fecha:** 2026-09-11
-**Estado:** aprobado en conversación; pendiente de plan de implementación
+**Estado:** aprobado por el usuario el 2026-09-11 (con la demo por correo, ver §6); pendiente de plan de implementación
 **Alcance:** una página pública de ventas servida por la propia app en Cloud Run, con formulario de contacto por correo y enlace para agendar demo. Sin dominio propio todavía.
 
 ## 1. Objetivo
@@ -41,7 +41,7 @@ Una sola página con scroll, móvil primero (la mayoría llegará desde el telé
    - Árbol genealógico con fotos (captura).
 5. **Quiénes somos.** Misión, visión y valores (sección 8) en tres columnas cortas, con la línea "Plataforma agrotech desarrollada en México".
 6. **Cómo empezamos.** Tres pasos: ajustamos el sistema a tu forma de trabajar; pasamos tu libreta o Excel al sistema; capacitamos a tu equipo en menos de una hora.
-7. **Contacto.** Formulario (nombre, rancho, teléfono, correo, mensaje) y, al lado, tarjeta "Prefieres verlo en vivo" con el botón de agendar demo.
+7. **Contacto.** Un solo formulario (nombre, rancho, teléfono, correo, mensaje) con la casilla "Quiero una demo en vivo"; al marcarla aparece el campo "Fecha y horario que te acomoda" (texto libre). Al lado, tarjeta "Prefieres verlo en vivo" cuyo botón marca la casilla y enfoca el formulario.
 8. **Pie.** Logo, "Iniciar sesión", correo de contacto, año.
 
 Vocabulario: nada de "JARVIS", "Terminal Táctica" ni "Hernia Protect". Se habla de borregos, corrales, pesos, ventas y partos.
@@ -56,22 +56,20 @@ Vocabulario: nada de "JARVIS", "Terminal Táctica" ni "Hernia Protect". Se habla
 
 ## 5. Formulario de contacto (backend)
 
-- **Endpoint:** `POST /api/contact`, público, sin sesión. Cuerpo JSON: `nombre`, `rancho`, `telefono`, `correo`, `mensaje`, `website` (campo trampa: debe venir vacío).
+- **Endpoint:** `POST /api/contact`, público, sin sesión. Cuerpo JSON: `nombre`, `rancho`, `telefono`, `correo`, `mensaje`, `quiere_demo` (bool), `horario_preferido`, `website` (campo trampa: debe venir vacío).
 - **Validación:** nombre y (correo o teléfono) obligatorios; correo con formato válido si viene; longitudes máximas (nombre 120, rancho 120, teléfono 30, correo 160, mensaje 2000). Campo trampa lleno → responder 200 sin guardar ni enviar (el bot no se entera).
 - **Límite por IP:** 5 envíos por hora por dirección (`X-Forwarded-For` primero, luego `RemoteAddr`), reutilizando el patrón de `ratelimit.go`.
-- **Persistencia primero:** tabla nueva `leads` (id, nombre, rancho, telefono, correo, mensaje, origen_ip, created_at, notified_at NULL) en `createSchema()`. Se inserta antes de intentar el correo; así ningún contacto se pierde.
-- **Correo después:** SMTP de Gmail (`smtp.gmail.com:587`, STARTTLS) con `net/smtp` de la librería estándar; sin dependencias nuevas. Remitente y destinatario: `danielhrubio3@gmail.com`. Asunto: `Nuevo contacto SheepMaster: <nombre> (<rancho>)`. Cuerpo en texto plano con todos los campos. Si el envío tiene éxito se marca `notified_at`; si falla se registra en el log y el visitante igual recibe "recibido" (el lead ya está guardado). Un envío tarda hasta 10 s; se hace en una goroutine para no bloquear la respuesta.
+- **Persistencia primero:** tabla nueva `leads` (id, nombre, rancho, telefono, correo, mensaje, quiere_demo, horario_preferido, origen_ip, created_at, notified_at NULL) en `createSchema()`. Se inserta antes de intentar el correo; así ningún contacto se pierde. Mientras no exista `SMTP_PASSWORD`, los contactos se consultan en la tabla `leads` de Supabase (o se piden a Claude, que puede leerlos con la cadena de conexión local).
+- **Correo después:** SMTP de Gmail (`smtp.gmail.com:587`, STARTTLS) con `net/smtp` de la librería estándar; sin dependencias nuevas. Remitente y destinatario: `danielhrubio3@gmail.com`. Asunto: `Nuevo contacto SheepMaster: <nombre> (<rancho>)`, o `Solicitud de DEMO SheepMaster: <nombre> (<rancho>)` cuando `quiere_demo` es verdadero; en ese caso el cuerpo incluye el horario preferido al inicio. Cuerpo en texto plano con todos los campos. Si el envío tiene éxito se marca `notified_at`; si falla se registra en el log y el visitante igual recibe "recibido" (el lead ya está guardado). Un envío tarda hasta 10 s; se hace en una goroutine para no bloquear la respuesta.
 - **Configuración por entorno:** `SMTP_USER`, `SMTP_PASSWORD` (Secret Manager `sheepmaster-smtp-password`, contraseña de aplicación de Google; requiere verificación en dos pasos en la cuenta), `CONTACT_TO`. Sin `SMTP_PASSWORD` el endpoint guarda y no envía, con un aviso en el log al arrancar.
 - **Respuesta:** `{"ok": true}`. El frontend muestra "Recibido, te escribimos en menos de 24 horas".
 - **Pruebas:** la función de envío se define como interfaz `mailSender`; en pruebas se usa una falsa. Se prueba: inserción del lead, campo trampa, validación, límite por IP, y que un fallo de correo no cambia la respuesta.
 - **Seguridad:** ya cubierto por CSP (`form-action 'self'`), cabeceras y CORS restringido. No se guarda nada del lead en `localStorage`.
 
-## 6. Agendar demo (Google Calendar)
+## 6. Agendar demo
 
-- El usuario crea en calendar.google.com un **horario de citas** ("Demo SheepMaster", 30 min, con las ventanas que prefiera) y obtiene el enlace público de reservas.
-- El servidor expone `GET /api/landing-config` → `{"bookingUrl": "<DEMO_BOOKING_URL>"}` leído del entorno (variable `DEMO_BOOKING_URL` en Cloud Run). Cambiarlo no requiere recompilar.
-- Sin `DEMO_BOOKING_URL`, los botones "Agenda una demo" bajan al formulario de contacto (no hay enlaces rotos).
-- El enlace abre en pestaña nueva.
+- **Ahora:** "Agenda una demo" no sale de la página. Todos los botones con ese texto llevan al formulario de contacto con la casilla "Quiero una demo en vivo" marcada y enfocan el campo de horario preferido. La solicitud llega por correo (sección 5) con asunto distinguible.
+- **Después (opcional):** cuando el usuario cree un horario de citas en Google Calendar, el servidor expondrá `GET /api/landing-config` → `{"bookingUrl": "<DEMO_BOOKING_URL>"}` leído del entorno. Si la variable existe, los botones abren esa página en pestaña nueva; si no, se comportan como hoy. El endpoint y la lectura en el frontend se implementan desde el inicio (son diez líneas) para que activar la reserva sea solo configurar la variable en Cloud Run.
 
 ## 7. Material visual (producción propia)
 
