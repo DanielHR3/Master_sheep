@@ -404,6 +404,19 @@ func (a *App) createSchema() error {
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
+	CREATE TABLE IF NOT EXISTS leads (
+		id TEXT PRIMARY KEY,
+		nombre TEXT NOT NULL,
+		rancho TEXT,
+		telefono TEXT,
+		correo TEXT,
+		mensaje TEXT,
+		quiere_demo INTEGER DEFAULT 0,
+		horario_preferido TEXT,
+		origen_ip TEXT,
+		created_at TIMESTAMP NOT NULL,
+		notified_at TIMESTAMP
+	);
 	CREATE TABLE IF NOT EXISTS settings (
 		key TEXT PRIMARY KEY,
 		value TEXT
