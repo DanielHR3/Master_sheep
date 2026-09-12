@@ -633,9 +633,28 @@ func (a *App) AddAnimal(animal Animal) error {
 		animal.AbueloPaternoID, animal.AbuelaPaternaID, animal.AbueloMaternoID, animal.AbuelaMaternaID, animal.TipoParto, animal.MetodoConcepcion,
 		animal.Peso150Dias, animal.FechaDestete, animal.Foto)
 	if err == nil {
-		a.queueSync("insert", "animal", animal.ID, animal)
+		a.queueSync("insert", "animal", animal.ID, animalRow(animal))
 	}
 	return err
+}
+
+// animalRow devuelve el payload de sincronización de un animal: exactamente
+// las columnas que AddAnimal/UpdateAnimal escriben en la tabla `animales`.
+// No se manda el struct entero porque trae campos que no son columna
+// (p. ej. condicion_corporal) y Postgres rechazaría el UPSERT completo.
+func animalRow(animal Animal) map[string]interface{} {
+	return map[string]interface{}{
+		"id": animal.ID, "especie": animal.Especie, "arete": animal.Arete, "raza": animal.Raza, "sexo": animal.Sexo,
+		"fecha_nacimiento": animal.FechaNacimiento, "estatus": animal.Estatus, "estado_reproductivo": animal.EstadoRepro,
+		"conteo_fetos": animal.ConteoFetos, "corral_id": animal.CorralID,
+		"peso_nacer": animal.PesoNacer, "peso_destete": animal.PesoDestete,
+		"padre_id": animal.PadreID, "madre_id": animal.MadreID, "destino": animal.Destino,
+		"fecha_defuncion": animal.FechaDefuncion, "motivo_defuncion": animal.MotivoDefuncion,
+		"abuelo_paterno_id": animal.AbueloPaternoID, "abuela_paterna_id": animal.AbuelaPaternaID,
+		"abuelo_materno_id": animal.AbueloMaternoID, "abuela_materna_id": animal.AbuelaMaternaID,
+		"tipo_parto": animal.TipoParto, "metodo_concepcion": animal.MetodoConcepcion,
+		"peso_150_dias": animal.Peso150Dias, "fecha_destete": animal.FechaDestete, "foto": animal.Foto,
+	}
 }
 
 // UpdateAnimal actualiza los datos de un animal
@@ -663,7 +682,7 @@ func (a *App) UpdateAnimal(animal Animal) error {
 		animal.TipoParto, animal.MetodoConcepcion, animal.Peso150Dias, animal.FechaDestete, animal.Foto,
 		animal.ID, a.tenantID())
 	if err == nil {
-		a.queueSync("update", "animal", animal.ID, animal)
+		a.queueSync("update", "animal", animal.ID, animalRow(animal))
 	}
 	return err
 }

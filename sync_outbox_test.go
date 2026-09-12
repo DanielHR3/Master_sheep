@@ -376,3 +376,74 @@ func TestCompletarTareaEnqueuesSync(t *testing.T) {
 		t.Errorf("payload = %v, want estatus Completada", p)
 	}
 }
+
+// Cada llave de cada payload encolado debe ser una columna real de la tabla
+// destino. El esquema local (createSchema + runMigrations) es el mismo que
+// crea el servidor en Postgres, así que sirve de referencia: un campo de
+// struct que no sea columna haría fallar el UPSERT en la nube (esto pasó
+// con condicion_corporal en la verificación de punta a punta).
+func TestOutboxPayloadsMatchTableColumns(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	must := func(err error) {
+		t.Helper()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	must(a.AddAnimal(Animal{ID: "a1", Arete: "SM-1", CondicionCorporal: 3.5}))
+	must(a.UpdateAnimal(Animal{ID: "a1", Arete: "SM-1"}))
+	must(a.AddCorral(Corral{ID: "c1", Nombre: "C1"}))
+	must(a.AddInsumo(Insumo{ID: "i1", Nombre: "I1", StockActual: 10, DiasRetiro: 2}))
+	must(a.RegistrarTratamiento(Tratamiento{ID: "t1", AnimalID: "a1", InsumoID: "i1", Dosis: 1, DuracionDias: 2}))
+	must(a.RegistrarEventoReproductivo(EventoReproductivo{ID: "e1", AnimalID: "a1", FechaEvento: "2026-09-01", FechaFinMonta: "2026-09-03", LoteSemen: "L1"}))
+	must(a.RegistrarDiagnosticoGestacion(DiagnosticoGestacion{ID: "d1", AnimalID: "a1"}))
+	must(a.ConfirmarUltrasonido("a1", true, 1))
+	must(a.RegistrarParto(Parto{ID: "p1", AnimalID: "a1"}))
+	must(a.CrearRecetaVeterinaria(RecetaVeterinaria{ID: "r1", AnimalID: "a1"}))
+	must(a.AddSeguimientoPeso(SeguimientoPeso{ID: "s1", AnimalID: "a1", Peso: 1}))
+	must(a.MoverAnimal("a1", "C1", "x"))
+	must(a.AddTarea(Tarea{ID: "k1", Titulo: "T", AnimalID: "a1", InsumoID: "i1"}))
+	must(a.CompletarTarea("k1"))
+
+	columns := map[string]map[string]bool{}
+	for _, table := range entityTable {
+		rows, err := a.db.Query("PRAGMA table_info(" + table + ")")
+		must(err)
+		cols := map[string]bool{}
+		for rows.Next() {
+			var cid int
+			var name, ctype string
+			var notnull, pk int
+			var dflt interface{}
+			must(rows.Scan(&cid, &name, &ctype, &notnull, &dflt, &pk))
+			cols[name] = true
+		}
+		rows.Close()
+		columns[table] = cols
+	}
+
+	rows, err := a.db.Query("SELECT entity_type, entity_id, payload FROM sync_outbox")
+	must(err)
+	defer rows.Close()
+	checked := 0
+	for rows.Next() {
+		var et, id, raw string
+		must(rows.Scan(&et, &id, &raw))
+		table, ok := entityTable[et]
+		if !ok {
+			t.Errorf("entity_type %q not in entityTable", et)
+			continue
+		}
+		var payload map[string]interface{}
+		must(json.Unmarshal([]byte(raw), &payload))
+		for key := range payload {
+			if !columns[table][key] {
+				t.Errorf("%s/%s: payload key %q is not a column of %s", et, id, key, table)
+			}
+		}
+		checked++
+	}
+	if checked < 15 {
+		t.Fatalf("only %d outbox rows checked, expected the full set", checked)
+	}
+}
