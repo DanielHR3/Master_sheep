@@ -66,5 +66,23 @@ después. Para habilitar login en nube y sincronización, crea el archivo
 una línea `DATABASE_URL=postgres://...` (ver `.env.example`). Una variable
 de entorno `DATABASE_URL` ya definida tiene prioridad sobre ese archivo.
 
+## 📣 Landing pública y contacto
+La raíz del sitio (`/`) muestra una página de ventas a los visitantes nuevos; el
+login vive en `/login` (quien ya usó la app en ese navegador entra directo).
+El formulario de contacto guarda cada mensaje en la tabla `leads` y lo envía por
+correo si el servidor tiene configurado SMTP:
+
+| Variable | Uso |
+|---|---|
+| `SMTP_PASSWORD` | Contraseña de aplicación de Google (Secret Manager `sheepmaster-smtp-password`). Sin ella solo se guarda. |
+| `SMTP_USER` | Cuenta remitente (por defecto `danielhrubio3@gmail.com`). |
+| `CONTACT_TO` | Destinatario de los avisos (por defecto el mismo). |
+| `DEMO_BOOKING_URL` | Opcional: página de reservas de Google Calendar. Si existe, "Agenda una demo" la abre; si no, marca la solicitud en el formulario. |
+
+Para regenerar el material visual de la landing (`frontend/public/landing/`):
+`scratch/demo_data` llena una base local de demostración y
+`scratch/landing_media/record.js` + `convert.sh` graban y comprimen los videos y
+capturas (ver comentarios de cabecera en cada archivo).
+
 ---
 *Desarrollado para SheepMaster Enterprise.*
