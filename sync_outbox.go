@@ -170,3 +170,46 @@ func applyDelete(db *sql.DB, table, id string) error {
 	}
 	return tx.Commit()
 }
+
+// applyUpdate aplica un "update" de la cola como UPDATE real (solo las
+// columnas del payload) y, si la fila aún no existe en la nube, la inserta.
+// No se usa INSERT ... ON CONFLICT para actualizar porque Postgres valida
+// las columnas NOT NULL de la fila propuesta ANTES de detectar el conflicto:
+// un payload parcial sin `arete` fallaría aunque la fila exista.
+func applyUpdate(db *sql.DB, table string, row map[string]interface{}) error {
+	if !safeIdent.MatchString(table) {
+		return fmt.Errorf("nombre de tabla inválido: %q", table)
+	}
+	id, ok := row["id"]
+	if !ok {
+		return fmt.Errorf("payload sin id para %s", table)
+	}
+	cols := make([]string, 0, len(row))
+	for col := range row {
+		if !safeIdent.MatchString(col) {
+			return fmt.Errorf("nombre de columna inválido: %q", col)
+		}
+		if col != "id" {
+			cols = append(cols, col)
+		}
+	}
+	if len(cols) == 0 {
+		return nil // solo id: nada que actualizar
+	}
+	sort.Strings(cols)
+	sets := make([]string, 0, len(cols))
+	args := make([]interface{}, 0, len(cols)+1)
+	for i, col := range cols {
+		sets = append(sets, fmt.Sprintf("%s = $%d", col, i+1))
+		args = append(args, row[col])
+	}
+	args = append(args, id)
+	res, err := db.Exec(fmt.Sprintf("UPDATE %s SET %s WHERE id = $%d", table, strings.Join(sets, ", "), len(args)), args...)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return applyUpsert(db, table, row) // la fila no existía en la nube todavía
+	}
+	return nil
+}

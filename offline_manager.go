@@ -128,6 +128,9 @@ func (o *OfflineManager) applyRow(r outboxRow) error {
 	if err := json.Unmarshal([]byte(r.payload), &row); err != nil {
 		return errInvalidPayload(err)
 	}
+	if r.operation == "update" {
+		return applyUpdate(o.cloudDB, table, row)
+	}
 	return applyUpsert(o.cloudDB, table, row)
 }
 

@@ -129,3 +129,27 @@ func TestSyncDataWithoutCloudIsNoOp(t *testing.T) {
 		t.Errorf("GetSyncStatus = (%d, %q), want (1, PENDING)", pending, last)
 	}
 }
+
+// Un "update" en la cola debe aplicarse como UPDATE (no como INSERT), para
+// no chocar con columnas NOT NULL que no vienen en el payload parcial.
+func TestSyncDataAppliesUpdatesAsRealUpdates(t *testing.T) {
+	local := newLocalOutboxDB(t)
+	seedOutbox(t, local, "r1", "insert", "animal", "a1", map[string]interface{}{"id": "a1", "arete": "SM-1", "raza": "Dorper"})
+	seedOutbox(t, local, "r2", "update", "animal", "a1", map[string]interface{}{"id": "a1", "estado_reproductivo": "Lactancia"})
+	cloud := newStrictCloudDB(t)
+	if err := NewOfflineManager(local, cloud).syncData(); err != nil {
+		t.Fatalf("syncData: %v", err)
+	}
+	var remaining int
+	local.QueryRow("SELECT COUNT(*) FROM sync_outbox").Scan(&remaining)
+	if remaining != 0 {
+		var e string
+		local.QueryRow("SELECT COALESCE(last_error,'') FROM sync_outbox").Scan(&e)
+		t.Fatalf("%d rows remaining, last_error=%q", remaining, e)
+	}
+	var estado string
+	cloud.QueryRow("SELECT estado_reproductivo FROM animales WHERE id = 'a1'").Scan(&estado)
+	if estado != "Lactancia" {
+		t.Fatalf("estado = %q", estado)
+	}
+}

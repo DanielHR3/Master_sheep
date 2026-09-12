@@ -177,3 +177,56 @@ func TestEntityTableCoversEveryQueuedEntityType(t *testing.T) {
 		}
 	}
 }
+
+// Postgres valida NOT NULL antes de resolver ON CONFLICT: un "update" parcial
+// vía INSERT ... ON CONFLICT falla con "null value in column arete". Por eso
+// las actualizaciones usan UPDATE real, con respaldo a inserción si la fila
+// aún no existe en la nube.
+func newStrictCloudDB(t *testing.T) *sql.DB {
+	t.Helper()
+	db, err := sql.Open("sqlite", ":memory:")
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	db.SetMaxOpenConns(1)
+	if _, err := db.Exec(`CREATE TABLE animales (id TEXT PRIMARY KEY, user_id TEXT, arete TEXT NOT NULL, raza TEXT, estado_reproductivo TEXT)`); err != nil {
+		t.Fatal(err)
+	}
+	return db
+}
+
+func TestApplyUpdatePartialRowKeepsNotNullColumns(t *testing.T) {
+	cloud := newStrictCloudDB(t)
+	if err := applyUpsert(cloud, "animales", map[string]interface{}{"id": "a1", "arete": "SM-1", "raza": "Dorper"}); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+	if err := applyUpdate(cloud, "animales", map[string]interface{}{"id": "a1", "estado_reproductivo": "Gestación"}); err != nil {
+		t.Fatalf("partial update: %v", err)
+	}
+	var arete, estado string
+	cloud.QueryRow("SELECT arete, estado_reproductivo FROM animales WHERE id = 'a1'").Scan(&arete, &estado)
+	if arete != "SM-1" || estado != "Gestación" {
+		t.Fatalf("got arete=%q estado=%q", arete, estado)
+	}
+}
+
+func TestApplyUpdateFallsBackToInsertWhenRowMissing(t *testing.T) {
+	cloud := newFakeCloudDB(t)
+	if err := applyUpdate(cloud, "animales", map[string]interface{}{"id": "a9", "arete": "SM-9", "raza": "Katahdin"}); err != nil {
+		t.Fatalf("update on missing row: %v", err)
+	}
+	var raza string
+	if err := cloud.QueryRow("SELECT raza FROM animales WHERE id = 'a9'").Scan(&raza); err != nil || raza != "Katahdin" {
+		t.Fatalf("row not inserted: %v %q", err, raza)
+	}
+}
+
+func TestApplyUpdateRejectsUnsafeIdentifiers(t *testing.T) {
+	cloud := newFakeCloudDB(t)
+	if err := applyUpdate(cloud, "animales", map[string]interface{}{"id": "a1", "x; DROP": "y"}); err == nil {
+		t.Fatal("expected error for unsafe column")
+	}
+	if err := applyUpdate(cloud, "animales", map[string]interface{}{"arete": "no-id"}); err == nil {
+		t.Fatal("expected error without id")
+	}
+}
