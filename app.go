@@ -27,6 +27,8 @@ type App struct {
 	user       *User   // Usuario actualmente autenticado
 	IsDemoMode bool    // Modo Lectura (Bloquea mutaciones)
 	driverName string
+
+	offlineManager *OfflineManager // solo en escritorio con DATABASE_URL: cola local → nube
 }
 
 // NewApp creates a new App application struct
@@ -49,7 +51,11 @@ func (a *App) initDB() error {
 	var db *sql.DB
 	var err error
 
-	if dbURL != "" {
+	// El build de escritorio SIEMPRE trabaja contra SQLite local; Postgres
+	// (si hay DATABASE_URL) se abre aparte como a.cloudDB y solo lo usan el
+	// login y la sincronización en segundo plano. El build de servidor
+	// (-tags server) sigue usando Postgres directo.
+	if isServerBuild && dbURL != "" {
 		fmt.Println("Conectando a base de datos PostgreSQL (Nube)...")
 		db, err = sql.Open("postgres", dbURL)
 		a.driverName = "postgres"
@@ -102,26 +108,32 @@ func (a *App) initDB() error {
 
 	a.runMigrations()
 
-	// Insertar usuario Super Administrador y los Admins de cada rancho
-	superAdminID := uuid.New().String()
-	donPablitoID := uuid.New().String()
-	bugambiliasID := uuid.New().String()
-	hashedPwd, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+	// Las cuentas semilla solo se crean en el servidor. El escritorio ya no
+	// siembra admins con UUIDs locales: usa la identidad real de Supabase
+	// cacheada en cached_identity (ver identity_cache.go), para que los
+	// datos que sincroniza lleven el rancho_id/user_id correcto.
+	if isServerBuild {
+		// Insertar usuario Super Administrador y los Admins de cada rancho
+		superAdminID := uuid.New().String()
+		donPablitoID := uuid.New().String()
+		bugambiliasID := uuid.New().String()
+		hashedPwd, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
 
-	if a.driverName == "postgres" {
-		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
-			superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
-		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
-			donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
-		_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
-			bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
-	} else {
-		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
-			superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
-		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
-			donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
-		_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
-			bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
+		if a.driverName == "postgres" {
+			_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
+				superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
+			_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
+				donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
+			_, _ = a.db.Exec(a.q("INSERT INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (email) DO NOTHING"),
+				bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
+		} else {
+			_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
+				superAdminID, "admin@sheepmaster.com", string(hashedPwd), "Super Admin", "SuperAdmin", superAdminID)
+			_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
+				donPablitoID, "admin@donpablito.com", string(hashedPwd), "Admin Don Pablito", "Admin", donPablitoID)
+			_, _ = a.db.Exec("INSERT OR IGNORE INTO users (id, email, password, name, role, rancho_id) VALUES (?, ?, ?, ?, ?, ?)",
+				bugambiliasID, "admin@bugambilias.com", string(hashedPwd), "Admin Rancho Bugambilias", "Admin", bugambiliasID)
+		}
 	}
 
 	// Cargar configuración de Modo Demo
@@ -133,7 +145,39 @@ func (a *App) initDB() error {
 		a.IsDemoMode = false
 	}
 
+	// Sincronización en segundo plano (solo escritorio con nube configurada).
+	if !isServerBuild && a.cloudDB != nil {
+		ctx := a.ctx
+		if ctx == nil { // initDB() normalmente corre tras startup(), pero por si acaso
+			ctx = context.Background()
+		}
+		a.offlineManager = NewOfflineManager(a.db, a.cloudDB)
+		a.offlineManager.StartSyncLoop(ctx, 3*time.Minute)
+	}
+
 	return nil
+}
+
+// GetSyncStatus expone a la UI cuántos cambios están pendientes y cuándo
+// fue la última sincronización exitosa.
+func (a *App) GetSyncStatus() map[string]interface{} {
+	if a.offlineManager == nil {
+		return map[string]interface{}{"pending": 0, "lastSync": "N/A"}
+	}
+	pending, lastSync := a.offlineManager.GetSyncStatus()
+	return map[string]interface{}{"pending": pending, "lastSync": lastSync}
+}
+
+// SyncNow fuerza un ciclo de sincronización inmediato (botón "Sync Cloud")
+// y devuelve el estado resultante con la misma forma que GetSyncStatus.
+func (a *App) SyncNow() (map[string]interface{}, error) {
+	if a.offlineManager == nil {
+		return a.GetSyncStatus(), nil
+	}
+	if err := a.offlineManager.syncData(); err != nil {
+		return a.GetSyncStatus(), err
+	}
+	return a.GetSyncStatus(), nil
 }
 
 // runMigrations agrega columnas introducidas después del esquema base.
