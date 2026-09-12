@@ -151,8 +151,14 @@ func (a *App) initDB() error {
 		if ctx == nil { // initDB() normalmente corre tras startup(), pero por si acaso
 			ctx = context.Background()
 		}
+		interval := 3 * time.Minute
+		if v := os.Getenv("SHEEPMASTER_SYNC_INTERVAL"); v != "" { // p. ej. "10s" para pruebas
+			if d, err := time.ParseDuration(v); err == nil && d > 0 {
+				interval = d
+			}
+		}
 		a.offlineManager = NewOfflineManager(a.db, a.cloudDB)
-		a.offlineManager.StartSyncLoop(ctx, 3*time.Minute)
+		a.offlineManager.StartSyncLoop(ctx, interval)
 	}
 
 	return nil
@@ -517,18 +523,23 @@ func (a *App) loadUserByID(id string) (*User, error) {
 // (escritorio: un único usuario por proceso, por lo que mutar a.user aquí
 // es correcto). El servidor HTTP multi-usuario usa authenticate() en su lugar.
 func (a *App) Login(email, password string) error {
-	var user *User
-	var err error
-	if isServerBuild {
-		user, err = a.authenticate(email, password)
-	} else {
-		user, err = a.loginDesktop(email, password)
-	}
+	user, err := a.authenticateForBuild(email, password)
 	if err != nil {
 		return err
 	}
 	a.user = user
 	return nil
+}
+
+// authenticateForBuild es el único punto de entrada de autenticación:
+// servidor → Postgres directo; escritorio → nube con respaldo en la
+// identidad cacheada. Lo usan tanto Login() (Wails) como handleLogin (HTTP,
+// modo móvil), para que ambos caminos acepten exactamente las mismas cuentas.
+func (a *App) authenticateForBuild(email, password string) (*User, error) {
+	if isServerBuild {
+		return a.authenticate(email, password)
+	}
+	return a.loginDesktop(email, password)
 }
 
 func (a *App) tenantID() string {

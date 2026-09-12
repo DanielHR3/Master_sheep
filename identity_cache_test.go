@@ -164,3 +164,34 @@ func TestLoginDesktopFallsBackOnNonCredentialCloudError(t *testing.T) {
 		t.Errorf("got ID %q, want u1", got.ID)
 	}
 }
+
+// La identidad cacheada debe quedar también en `users` con el mismo id de
+// Supabase, porque el middleware HTTP resuelve la sesión con loadUserByID.
+func TestCacheIdentityMirrorsLocalUsersTable(t *testing.T) {
+	a := newTestApp(t)
+	hash, _ := bcrypt.GenerateFromPassword([]byte("secreto"), bcrypt.MinCost)
+	u := &User{ID: "supabase-uuid-1", Email: "op@rancho.com", Name: "Operador", Role: "Operador", RanchoID: "rancho-9"}
+	if err := a.cacheIdentity(u, string(hash)); err != nil {
+		t.Fatalf("cacheIdentity: %v", err)
+	}
+	got, err := a.loadUserByID("supabase-uuid-1")
+	if err != nil {
+		t.Fatalf("loadUserByID after cacheIdentity: %v", err)
+	}
+	if got.Email != "op@rancho.com" || got.RanchoID != "rancho-9" || got.Role != "Operador" {
+		t.Errorf("mirrored user = %+v", got)
+	}
+	// Re-cachear con datos nuevos actualiza en lugar de duplicar.
+	u.Name = "Operador Renombrado"
+	if err := a.cacheIdentity(u, string(hash)); err != nil {
+		t.Fatalf("cacheIdentity again: %v", err)
+	}
+	var n int
+	a.db.QueryRow("SELECT COUNT(*) FROM users WHERE email = 'op@rancho.com'").Scan(&n)
+	if n != 1 {
+		t.Errorf("users rows for email: %d, want 1", n)
+	}
+	if got, _ := a.loadUserByID("supabase-uuid-1"); got == nil || got.Name != "Operador Renombrado" {
+		t.Errorf("mirror not updated: %+v", got)
+	}
+}

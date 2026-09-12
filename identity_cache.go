@@ -35,6 +35,23 @@ func (a *App) cacheIdentity(user *User, passwordHash string) error {
 			password_hash = excluded.password_hash,
 			cached_at = excluded.cached_at
 	`), user.Email, user.ID, user.Name, user.Role, user.RanchoID, passwordHash, time.Now())
+	if err != nil {
+		return err
+	}
+	// Reflejar la identidad en la tabla local `users` con el MISMO id que en
+	// Supabase: el middleware HTTP (authenticateRequest → loadUserByID) y el
+	// modo móvil (celular contra la API del escritorio) resuelven usuarios
+	// desde esa tabla, y el escritorio ya no siembra cuentas locales.
+	_, err = a.db.Exec(a.q(`
+		INSERT INTO users (id, email, password, name, role, rancho_id)
+		VALUES (?, ?, ?, ?, ?, ?)
+		ON CONFLICT(email) DO UPDATE SET
+			id = excluded.id,
+			password = excluded.password,
+			name = excluded.name,
+			role = excluded.role,
+			rancho_id = excluded.rancho_id
+	`), user.ID, user.Email, passwordHash, user.Name, user.Role, user.RanchoID)
 	return err
 }
 

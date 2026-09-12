@@ -181,7 +181,7 @@ func (a *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := a.authenticate(creds.Email, creds.Password)
+	user, err := a.authenticateForBuild(creds.Email, creds.Password)
 	if err != nil {
 		loginAttempts.recordFailure(creds.Email)
 		w.WriteHeader(http.StatusUnauthorized)
