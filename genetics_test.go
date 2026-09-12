@@ -187,3 +187,26 @@ func TestReferenceAnimalsHiddenFromInventory(t *testing.T) {
 		t.Fatalf("reference sync payload = %v", p)
 	}
 }
+
+// Filas con Referencia = Sí se guardan como ancestros (fuera del inventario)
+// y los campos del certificado se importan.
+func TestProcessExcelImportsReferenceRowsAndCertificateFields(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	f := excelWith(t,
+		[]string{"Arete", "Registro", "Grado Registro", "Pureza", "Nombre", "Tatuaje Der", "SINIIGA", "Referencia", "Padre"},
+		[]string{"PHIL-3543-F", "UNO:220916MF-RP", "SI", "100%", "Phil", "PHIL", "484011300505105", "Sí", ""})
+	if n, err := a.processExcel(f, a.tenantID()); err != nil || n != 1 {
+		t.Fatalf("processExcel: %v (n=%d)", err, n)
+	}
+	if inv, _ := a.GetAnimales(); len(inv) != 0 {
+		t.Fatalf("reference row must not be in inventory: %+v", inv)
+	}
+	refs, _ := a.GetAnimalesReferencia()
+	if len(refs) != 1 {
+		t.Fatalf("refs = %+v", refs)
+	}
+	r := refs[0]
+	if r.Registro != "UNO:220916MF-RP" || r.GradoRegistro != "SI" || r.Pureza != 100 || r.Nombre != "Phil" || r.TatuajeDer != "PHIL" || r.Siniiga != "484011300505105" {
+		t.Fatalf("imported reference = %+v", r)
+	}
+}

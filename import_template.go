@@ -41,6 +41,17 @@ var importColumns = []importColumn{
 	{"abuela_paterna", "Abuela Paterna", []string{"abuela pat"}, "MAD-91"},
 	{"abuelo_materno", "Abuelo Materno", []string{"abuelo mat"}, "SEM-02"},
 	{"abuela_materna", "Abuela Materna", []string{"abuela mat"}, "MAD-92"},
+	{"nombre", "Nombre", nil, "Relámpago"},
+	{"tatuaje_der", "Tatuaje Der", []string{"tatuaje derecho", "oreja der", "oreja derecha"}, "CRI"},
+	{"tatuaje_izq", "Tatuaje Izq", []string{"tatuaje izquierdo", "oreja izq", "oreja izquierda"}, "0001N"},
+	{"tatuaje_cola", "Tatuaje Cola", []string{"cola"}, ""},
+	{"color", "Color", nil, "Carac. raza"},
+	{"pureza", "Pureza", []string{"grado", "pureza pct", "grado pct"}, "100"},
+	{"grado_registro", "Grado Registro", []string{"codigo grado", "grado uno"}, "RP"},
+	{"registro", "Registro", []string{"registro uno", "no registro", "numero de registro", "certificado"}, "UNO:272991MN-RP"},
+	{"siniiga", "SINIIGA", nil, "484011300505105"},
+	{"id_electronica", "ID Electronica", []string{"id electronico", "chip", "arete electronico"}, ""},
+	{"referencia", "Referencia", []string{"solo referencia", "es referencia", "ancestro"}, "No"},
 }
 
 // normalizeHeader deja un encabezado comparable: minúsculas, sin acentos,
@@ -134,6 +145,8 @@ func buildImportTemplate() ([]byte, error) {
 		"Fecha Nacimiento: AAAA-MM-DD o DD/MM/AAAA.   Peso Nacer: kilogramos, con punto decimal.",
 		"Tipo Parto: Sencillo / Doble / Triple.   Metodo Concepcion: Monta Natural / Inseminación Artificial / Transferencia de Embriones.",
 		"Tipo Nacimiento: Natural / Inducido.   Padre, Madre y abuelos: el arete tal como está registrado.",
+		"Nombre, Tatuajes, Color, Pureza (%), Grado Registro (SI/GE/ND/HO/TR/OT/RP), Registro (UNO), SINIIGA e ID Electronica: como aparecen en el certificado UNO.",
+		"Referencia = Sí: el animal NO vive en el rancho; solo se guarda para la genealogía (ancestros del certificado de un semental comprado). No cuenta en el inventario.",
 		"Borra la fila de ejemplo antes de cargar el archivo.",
 	}
 	for i, l := range lines {

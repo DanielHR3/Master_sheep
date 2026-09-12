@@ -1803,12 +1803,23 @@ func (a *App) processExcel(f *excelize.File, userID string) (int, error) {
 		}
 		tipoParto, metodoConcepcion, tipoNacimiento := cell("tipo_parto"), cell("metodo_concepcion"), cell("tipo_nacimiento")
 		abueloPat, abuelaPat, abueloMat, abuelaMat := cell("abuelo_paterno"), cell("abuela_paterna"), cell("abuelo_materno"), cell("abuela_materna")
+		pureza := 0.0
+		if val := cell("pureza"); val != "" {
+			fmt.Sscanf(strings.TrimSuffix(strings.ReplaceAll(val, ",", "."), "%"), "%f", &pureza)
+		}
+		esRef := 0
+		switch strings.ToLower(cell("referencia")) {
+		case "si", "sí", "1", "true", "x", "yes":
+			esRef = 1
+		}
 
 		_, err = tx.Exec(a.q(`INSERT INTO animales (id, user_id, especie, arete, raza, sexo, corral_id, fecha_nacimiento, peso_nacer, padre_id, madre_id, destino, estatus, estado_reproductivo,
-			tipo_parto, metodo_concepcion, tipo_nacimiento, abuelo_paterno_id, abuela_paterna_id, abuelo_materno_id, abuela_materna_id) 
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+			tipo_parto, metodo_concepcion, tipo_nacimiento, abuelo_paterno_id, abuela_paterna_id, abuelo_materno_id, abuela_materna_id,
+			es_referencia, nombre, tatuaje_der, tatuaje_izq, tatuaje_cola, color, pureza, grado_registro, registro, siniiga, id_electronica) 
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 			id, userID, especie, arete, raza, sexo, corral, fechaNac, pesoNacer, padreId, madreId, destino, "Activo", "Crecimiento",
-			tipoParto, metodoConcepcion, tipoNacimiento, abueloPat, abuelaPat, abueloMat, abuelaMat)
+			tipoParto, metodoConcepcion, tipoNacimiento, abueloPat, abuelaPat, abueloMat, abuelaMat,
+			esRef, cell("nombre"), cell("tatuaje_der"), cell("tatuaje_izq"), cell("tatuaje_cola"), cell("color"), pureza, cell("grado_registro"), cell("registro"), cell("siniiga"), cell("id_electronica"))
 
 		if err != nil {
 			return count, fmt.Errorf("Error en fila %d: %v", i+1, err)
