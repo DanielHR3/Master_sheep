@@ -38,7 +38,7 @@ import {
   ToggleDemoMode,
   GetIsDemoMode,
   ImportAnimalsExcel,
-  SyncToJarvis
+  SyncNow
 } from "../services/api";
 
 export const useAppLogic = () => {
@@ -560,13 +560,16 @@ export const useAppLogic = () => {
       handleSyncToJarvis: async () => {
         try {
           store.setLoading(true);
-          const result = await SyncToJarvis();
-          store.setNotification({ message: result || "Sincronización completada con éxito.", type: 'success' });
+          const status = await SyncNow();
+          if (status.lastSync === 'N/A') {
+            store.setNotification({ message: "Modo Cloud: los datos se guardan directamente en la nube, no hay cambios pendientes.", type: 'info' });
+          } else if (status.pending > 0) {
+            store.setNotification({ message: `${status.pending} cambio(s) pendientes de sincronizar (sin conexión o con error). Última sincronización: ${status.lastSync}.`, type: 'info' });
+          } else {
+            store.setNotification({ message: `Todo sincronizado. Última sincronización: ${status.lastSync}.`, type: 'success' });
+          }
         } catch (err: any) {
-          store.setNotification({ 
-            message: "Modo Cloud Activo: La base de datos Supabase PostgreSQL sincroniza automáticamente todos tus datos en tiempo real.", 
-            type: 'info' 
-          });
+          store.setNotification({ message: "No se pudo sincronizar con la nube: " + (err?.message || err), type: 'error' });
         } finally {
           store.setLoading(false);
         }

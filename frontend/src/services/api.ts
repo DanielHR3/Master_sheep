@@ -262,9 +262,20 @@ export const ToggleDemoMode = async (enabled: boolean) => {
   return callApi('/demo-mode', 'POST', { enabled });
 };
 
-export const SyncToJarvis = async () => {
-  if (IS_WAILS) return WailsApp.SyncToJarvis();
-  throw new Error("Sincronización solo disponible en modo escritorio.");
+export interface SyncStatus { pending: number; lastSync: string }
+
+// En modo web/REST no hay cola local: los datos ya viven en Supabase.
+const CLOUD_NATIVE_STATUS: SyncStatus = { pending: 0, lastSync: 'N/A' };
+
+export const GetSyncStatus = async (): Promise<SyncStatus> => {
+  if (IS_WAILS) return WailsApp.GetSyncStatus() as Promise<SyncStatus>;
+  return CLOUD_NATIVE_STATUS;
+};
+
+// Fuerza un ciclo de sincronización local → nube y devuelve el estado.
+export const SyncNow = async (): Promise<SyncStatus> => {
+  if (IS_WAILS) return WailsApp.SyncNow() as Promise<SyncStatus>;
+  return CLOUD_NATIVE_STATUS;
 };
 
 export const GetIsDemoMode = async () => {

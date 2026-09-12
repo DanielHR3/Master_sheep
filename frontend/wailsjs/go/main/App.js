@@ -150,6 +150,14 @@ export function SyncToJarvis() {
   return window['go']['main']['App']['SyncToJarvis']();
 }
 
+export function GetSyncStatus() {
+  return window['go']['main']['App']['GetSyncStatus']();
+}
+
+export function SyncNow() {
+  return window['go']['main']['App']['SyncNow']();
+}
+
 export function ToggleDemoMode(arg1) {
   return window['go']['main']['App']['ToggleDemoMode'](arg1);
 }
