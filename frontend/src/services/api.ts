@@ -320,3 +320,42 @@ export const ImportAnimalsExcel = async (filePathOrFile: string | File): Promise
     return data.count;
   }
 };
+
+// --- Landing pública (sin sesión) ---
+export interface ContactPayload {
+  nombre: string;
+  rancho: string;
+  telefono: string;
+  correo: string;
+  mensaje: string;
+  quiere_demo: boolean;
+  horario_preferido: string;
+  website: string; // campo trampa: siempre vacío para humanos
+}
+
+export const SendContact = async (payload: ContactPayload): Promise<void> => {
+  const res = await fetch(`${getApiBaseUrl()}/contact`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    let msg = 'No se pudo enviar tu mensaje.';
+    try {
+      msg = (await res.json()).error || msg;
+    } catch {
+      /* sin cuerpo JSON */
+    }
+    throw new Error(msg);
+  }
+};
+
+export const GetLandingConfig = async (): Promise<{ bookingUrl: string }> => {
+  try {
+    const res = await fetch(`${getApiBaseUrl()}/landing-config`);
+    if (!res.ok) return { bookingUrl: '' };
+    return await res.json();
+  } catch {
+    return { bookingUrl: '' };
+  }
+};
