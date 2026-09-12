@@ -29,6 +29,7 @@ type App struct {
 	driverName string
 
 	offlineManager *OfflineManager // solo en escritorio con DATABASE_URL: cola local → nube
+	mailer         mailSender      // correo de avisos del formulario público; nil si no hay SMTP_PASSWORD
 }
 
 // NewApp creates a new App application struct

@@ -80,3 +80,26 @@ func (a *App) markLeadNotified(id string) error {
 	_, err := a.db.Exec(a.q("UPDATE leads SET notified_at = ? WHERE id = ?"), time.Now(), id)
 	return err
 }
+
+// formatLeadEmail arma asunto y cuerpo en texto plano. Si el visitante pidió
+// demo, el asunto lo dice y el horario preferido va al inicio del cuerpo.
+func formatLeadEmail(c ContactRequest, ip string) (subject, body string) {
+	rancho := strings.TrimSpace(c.Rancho)
+	if rancho == "" {
+		rancho = "sin rancho"
+	}
+	var b strings.Builder
+	if c.QuiereDemo {
+		subject = fmt.Sprintf("Solicitud de DEMO SheepMaster: %s (%s)", strings.TrimSpace(c.Nombre), rancho)
+		fmt.Fprintf(&b, "SOLICITUD DE DEMO\nHorario que le acomoda: %s\n\n", strings.TrimSpace(c.HorarioPreferido))
+	} else {
+		subject = fmt.Sprintf("Nuevo contacto SheepMaster: %s (%s)", strings.TrimSpace(c.Nombre), rancho)
+	}
+	fmt.Fprintf(&b, "Nombre:   %s\n", c.Nombre)
+	fmt.Fprintf(&b, "Rancho:   %s\n", c.Rancho)
+	fmt.Fprintf(&b, "Teléfono: %s\n", c.Telefono)
+	fmt.Fprintf(&b, "Correo:   %s\n", c.Correo)
+	fmt.Fprintf(&b, "\nMensaje:\n%s\n", c.Mensaje)
+	fmt.Fprintf(&b, "\n--\nRecibido el %s desde la IP %s\n", time.Now().Format("2006-01-02 15:04"), ip)
+	return subject, b.String()
+}
