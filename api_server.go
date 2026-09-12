@@ -183,7 +183,7 @@ func (a *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	user, err := a.authenticateForBuild(creds.Email, creds.Password)
 	if err != nil {
-		loginAttempts.recordFailure(creds.Email)
+		loginAttempts.record(creds.Email)
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
