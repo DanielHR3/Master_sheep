@@ -8,9 +8,9 @@ import (
 // Escudos que van en la cabecera de la ficha, embebidos para que el PDF se
 // genere igual en escritorio y en el servidor.
 var (
-	//go:embed frontend/public/logo_bugambilias.jpg
+	//go:embed frontend/public/logo_bugambilias.png
 	logoBugambilias []byte
-	//go:embed frontend/public/logodonpablito.jpg
+	//go:embed frontend/public/logo_donpablito.png
 	logoDonPablito []byte
 	//go:embed frontend/public/logo.png
 	logoSheepMaster []byte
@@ -22,9 +22,9 @@ func ranchoBranding(email, perfilNombre string) (nombre string, logo []byte, tip
 	e := strings.ToLower(email)
 	switch {
 	case strings.Contains(e, "bugambilias"):
-		nombre, logo, tipo = "Rancho Las Bugambilias", logoBugambilias, "JPG"
+		nombre, logo, tipo = "Rancho Las Bugambilias", logoBugambilias, "PNG"
 	case strings.Contains(e, "pablito"):
-		nombre, logo, tipo = "Rancho Don Pablito", logoDonPablito, "JPG"
+		nombre, logo, tipo = "Rancho Don Pablito", logoDonPablito, "PNG"
 	default:
 		nombre, logo, tipo = "SheepMaster", logoSheepMaster, "PNG"
 	}

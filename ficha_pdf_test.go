@@ -102,7 +102,7 @@ func TestHandleFichaPDF(t *testing.T) {
 
 func TestRanchoBranding(t *testing.T) {
 	n, logo, typ := ranchoBranding("admin@donpablito.com", "")
-	if n != "Rancho Don Pablito" || len(logo) == 0 || typ != "JPG" {
+	if n != "Rancho Don Pablito" || len(logo) == 0 || typ != "PNG" {
 		t.Fatalf("pablito = %q %d %q", n, len(logo), typ)
 	}
 	n, _, _ = ranchoBranding("x@y.com", "Mi Rancho")

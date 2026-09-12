@@ -177,8 +177,17 @@ func renderFichaPDF(d FichaData, compress bool) ([]byte, error) {
 	x := left
 	if len(d.Logo) > 0 {
 		pdf.RegisterImageOptionsReader("logo", fpdf.ImageOptions{ImageType: d.LogoTipo}, bytes.NewReader(d.Logo))
-		pdf.ImageOptions("logo", left, 10, 22, 22, false, fpdf.ImageOptions{ImageType: d.LogoTipo}, 0, "")
-		x = left + 26
+		// alto fijo 22 mm y ancho proporcional (el escudo de Don Pablito es apaisado)
+		info := pdf.GetImageInfo("logo")
+		w := 22.0
+		if info != nil && info.Height() > 0 {
+			w = 22 * info.Width() / info.Height()
+		}
+		if w > 40 {
+			w = 40
+		}
+		pdf.ImageOptions("logo", left, 10, w, 22, false, fpdf.ImageOptions{ImageType: d.LogoTipo}, 0, "")
+		x = left + w + 4
 	}
 	pdf.SetTextColor(15, 23, 42)
 	c.text(x, 17, 14, "B", strings.ToUpper(d.RanchoNombre))

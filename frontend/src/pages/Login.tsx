@@ -26,7 +26,8 @@ const Login: React.FC<LoginProps> = ({
 
   const isBugambilias = email.toLowerCase().includes('bugambilias');
   const isPablito = email.toLowerCase().includes('pablito');
-  const logoSrc = isBugambilias ? 'logo_bugambilias.jpg' : 'logo.png';
+  const logoSrc = isBugambilias ? 'logo_bugambilias.png' : isPablito ? 'logo_donpablito.png' : 'logo.png';
+  const logoBg = isBugambilias ? 'bg-[#1f2124]' : 'bg-white';
   const ranchoName = isBugambilias 
     ? 'Rancho Las Bugambilias' 
     : isPablito 
@@ -49,8 +50,8 @@ const Login: React.FC<LoginProps> = ({
       <div className="w-full max-w-md p-10 bg-slate-900/40 backdrop-blur-3xl border border-white/10 rounded-[40px] shadow-2xl shadow-emerald-950/50 relative z-10 text-center mx-4 animate-in fade-in zoom-in-95 duration-700">
         
         {/* Logo and Branding */}
-        <div className="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-[28px] mb-8 mx-auto flex items-center justify-center border border-white/20 shadow-2xl p-3 transform -rotate-2 overflow-hidden hover:rotate-0 transition-transform">
-          <img src={logoSrc} alt="Logo" className="w-full h-full object-contain drop-shadow-xl" />
+        <div className={`w-28 h-28 ${logoBg} rounded-full mb-8 mx-auto flex items-center justify-center ring-4 ring-white/20 shadow-2xl p-2.5 overflow-hidden transition-transform hover:scale-105`}>
+          <img src={logoSrc} alt="Logo" className="w-full h-full object-contain" />
         </div>
         
         <h2 translate="no" className="text-4xl font-black text-white font-display mb-10 tracking-tight leading-none uppercase">

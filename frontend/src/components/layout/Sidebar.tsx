@@ -34,7 +34,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
   const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (selectedRanchOverride ? false : (user?.email?.toLowerCase() || '').includes('bugambilias'));
   const isDonPablito = rawRancho.includes('PABLITO') || (selectedRanchOverride ? false : (user?.email?.toLowerCase() || '').includes('pablito')) || rawRancho.includes('25CF359E-E5A7-4403-A1F1-3A4375F21EF3');
   
-  const logoSrc = isBugambilias ? '/logo_bugambilias.jpg' : isDonPablito ? '/logodonpablito.jpg' : '/logo.png';
+  const logoSrc = isBugambilias ? '/logo_bugambilias.png' : isDonPablito ? '/logo_donpablito.png' : '/logo.png';
+  // Cada escudo va sobre su propio fondo: Bugambilias es cromado sobre oscuro, los demás sobre blanco.
+  const logoBg = isBugambilias ? 'bg-[#1f2124]' : 'bg-white';
   const ranchoName = isBugambilias ? 'LAS BUGAMBILIAS' : isDonPablito ? 'DON PABLITO' : 'AGROTECH';
 
   return (
@@ -45,8 +47,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
     }`}>
       <div className={`p-8 ${isCollapsed ? 'px-4' : ''}`}>
         <div className={`flex items-center mb-12 group relative ${isCollapsed ? 'justify-center' : 'gap-4'}`}>
-          <div className={`bg-rose-900 rounded-[22px] rotate-12 flex items-center justify-center shadow-2xl shadow-rose-900/50 group-hover:rotate-0 transition-all duration-500 border border-white/20 overflow-hidden p-2 ${isCollapsed ? 'w-10 h-10' : 'w-14 h-14'}`}>
-            <img src={logoSrc} alt="Logo" className="w-full h-full object-contain -rotate-12 group-hover:rotate-0 transition-transform duration-500" />
+          <div className={`${logoBg} rounded-full flex items-center justify-center shadow-lg ring-2 ${isDark ? 'ring-slate-700 shadow-black/40' : 'ring-slate-200 shadow-slate-300/60'} overflow-hidden p-1.5 transition-transform duration-500 group-hover:scale-105 ${isCollapsed ? 'w-11 h-11' : 'w-16 h-16'}`}>
+            <img src={logoSrc} alt="Logo" className="w-full h-full object-contain" />
           </div>
           {!isCollapsed && (
             <div className="whitespace-nowrap overflow-hidden transition-all duration-300">
