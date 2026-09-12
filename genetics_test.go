@@ -136,3 +136,54 @@ func TestBuildImportTemplateRoundTrips(t *testing.T) {
 }
 
 func bytesReader(b []byte) *bytes.Reader { return bytes.NewReader(b) }
+
+// Campos del certificado UNO (encabezado) en cada animal.
+func TestAnimalCertificateFieldsRoundTrip(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	in := Animal{ID: "a1", Arete: "CSL-5105-N", Nombre: "Campeón", TatuajeDer: "CSL", TatuajeIzq: "5105N", TatuajeCola: "",
+		Color: "Carac. raza", Pureza: 100, GradoRegistro: "RP", Registro: "UNO:272991MN-RP", Siniiga: "484011300505105", IDElectronica: "982000123"}
+	if err := a.AddAnimal(in); err != nil {
+		t.Fatal(err)
+	}
+	animals, err := a.GetAnimales()
+	if err != nil || len(animals) != 1 {
+		t.Fatalf("GetAnimales: %v (%d)", err, len(animals))
+	}
+	g := animals[0]
+	if g.Nombre != "Campeón" || g.TatuajeDer != "CSL" || g.TatuajeIzq != "5105N" || g.Color != "Carac. raza" || g.Pureza != 100 ||
+		g.GradoRegistro != "RP" || g.Registro != "UNO:272991MN-RP" || g.Siniiga != "484011300505105" || g.IDElectronica != "982000123" {
+		t.Fatalf("round trip = %+v", g)
+	}
+	g.Registro = "UNO:999999XX-RP"
+	if err := a.UpdateAnimal(g); err != nil {
+		t.Fatal(err)
+	}
+	animals, _ = a.GetAnimales()
+	if animals[0].Registro != "UNO:999999XX-RP" {
+		t.Fatalf("after update registro = %q", animals[0].Registro)
+	}
+	p := outboxPayload(t, a, "animal", "a1")
+	if p["registro"] != "UNO:999999XX-RP" || p["pureza"] != float64(100) || p["es_referencia"] != float64(0) {
+		t.Fatalf("sync payload = %v", p)
+	}
+}
+
+// Los animales de referencia (ancestros que no viven en el rancho) no
+// aparecen en el inventario.
+func TestReferenceAnimalsHiddenFromInventory(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	if err := a.AddAnimal(Animal{ID: "ref1", Arete: "PHIL-3543-F", EsReferencia: true, Registro: "UNO:220916MF-RP"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := a.AddAnimal(Animal{ID: "a1", Arete: "SM-1"}); err != nil {
+		t.Fatal(err)
+	}
+	animals, _ := a.GetAnimales()
+	if len(animals) != 1 || animals[0].ID != "a1" {
+		t.Fatalf("inventory = %+v", animals)
+	}
+	p := outboxPayload(t, a, "animal", "ref1")
+	if p["es_referencia"] != float64(1) {
+		t.Fatalf("reference sync payload = %v", p)
+	}
+}

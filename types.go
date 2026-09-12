@@ -32,6 +32,17 @@ type Animal struct {
         TipoParto         string    `json:"tipo_parto"`
         MetodoConcepcion  string    `json:"metodo_concepcion"`
         TipoNacimiento    string    `json:"tipo_nacimiento"` // 'Natural' o 'Inducido' (pie de cría)
+        EsReferencia      bool      `json:"es_referencia"` // 1 = solo existe para el árbol genealógico
+        Nombre            string    `json:"nombre"`
+        TatuajeDer        string    `json:"tatuaje_der"`
+        TatuajeIzq        string    `json:"tatuaje_izq"`
+        TatuajeCola       string    `json:"tatuaje_cola"`
+        Color             string    `json:"color"`
+        Pureza            float64   `json:"pureza"` // grado en % (100.00)
+        GradoRegistro     string    `json:"grado_registro"` // código UNO: SI, GE, ND, HO, TR, OT, RP
+        Registro          string    `json:"registro"` // número de registro UNO
+        Siniiga           string    `json:"siniiga"`
+        IDElectronica     string    `json:"id_electronica"`
         Destino           string    `json:"destino"` // 'Cria', 'Engorda'
         FechaDefuncion    string    `json:"fecha_defuncion"`
         MotivoDefuncion   string    `json:"motivo_defuncion"`

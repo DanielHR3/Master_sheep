@@ -222,6 +222,17 @@ func (a *App) runMigrations() {
 	a.db.Exec("ALTER TABLE animales ADD COLUMN fecha_destete TEXT")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN foto TEXT")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN tipo_nacimiento TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN es_referencia INTEGER DEFAULT 0")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN nombre TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN tatuaje_der TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN tatuaje_izq TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN tatuaje_cola TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN color TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN pureza REAL DEFAULT 0")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN grado_registro TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN registro TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN siniiga TEXT")
+	a.db.Exec("ALTER TABLE animales ADD COLUMN id_electronica TEXT")
 	a.db.Exec("ALTER TABLE tratamientos ADD COLUMN via_administracion TEXT")
 	a.db.Exec("ALTER TABLE users ADD COLUMN rancho_id TEXT")
 }
@@ -272,6 +283,17 @@ func (a *App) createSchema() error {
 		destino TEXT,
 		fecha_defuncion TEXT,
 		motivo_defuncion TEXT,
+		es_referencia INTEGER DEFAULT 0,
+		nombre TEXT,
+		tatuaje_der TEXT,
+		tatuaje_izq TEXT,
+		tatuaje_cola TEXT,
+		color TEXT,
+		pureza REAL DEFAULT 0,
+		grado_registro TEXT,
+		registro TEXT,
+		siniiga TEXT,
+		id_electronica TEXT,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		UNIQUE(user_id, arete)
 	);
@@ -579,20 +601,45 @@ func (a *App) tenantID() string {
 	return a.user.ID
 }
 
-// GetAnimales obtiene la lista de animales para el usuario actual
-func (a *App) GetAnimales() ([]Animal, error) {
-	if a.user == nil {
-		return nil, fmt.Errorf("no autenticado")
-	}
-
-	rows, err := a.db.Query(a.q(`SELECT id, COALESCE(especie, 'Ovino'), COALESCE(arete, ''), COALESCE(raza, ''), COALESCE(sexo, ''), COALESCE(fecha_nacimiento, ''), 
+// animalSelectColumns es la lista de columnas que scanAnimal espera, en orden.
+const animalSelectColumns = `id, COALESCE(especie, 'Ovino'), COALESCE(arete, ''), COALESCE(raza, ''), COALESCE(sexo, ''), COALESCE(fecha_nacimiento, ''), 
 		COALESCE(estatus, ''), COALESCE(estado_reproductivo, ''), conteo_fetos, COALESCE(corral_id, ''),
 		peso_nacer, peso_destete, COALESCE(padre_id, ''), COALESCE(madre_id, ''), COALESCE(destino, ''),
 		COALESCE(fecha_defuncion, ''), COALESCE(motivo_defuncion, ''),
 		COALESCE(abuelo_paterno_id, ''), COALESCE(abuela_paterna_id, ''), COALESCE(abuelo_materno_id, ''), COALESCE(abuela_materna_id, ''),
 		COALESCE(tipo_parto, ''), COALESCE(metodo_concepcion, ''),
-		COALESCE(peso_150_dias, 0), COALESCE(fecha_destete, ''), COALESCE(foto, ''), COALESCE(tipo_nacimiento, '')
-		FROM animales WHERE user_id = ?`), a.tenantID())
+		COALESCE(peso_150_dias, 0), COALESCE(fecha_destete, ''), COALESCE(foto, ''), COALESCE(tipo_nacimiento, ''),
+		COALESCE(es_referencia, 0), COALESCE(nombre, ''), COALESCE(tatuaje_der, ''), COALESCE(tatuaje_izq, ''), COALESCE(tatuaje_cola, ''),
+		COALESCE(color, ''), COALESCE(pureza, 0), COALESCE(grado_registro, ''), COALESCE(registro, ''), COALESCE(siniiga, ''), COALESCE(id_electronica, '')`
+
+// scanAnimal lee una fila producida con animalSelectColumns.
+func scanAnimal(rows interface{ Scan(dest ...interface{}) error }) (Animal, error) {
+	var animal Animal
+	var esRef int
+	err := rows.Scan(&animal.ID, &animal.Especie, &animal.Arete, &animal.Raza, &animal.Sexo, &animal.FechaNacimiento, &animal.Estatus, &animal.EstadoRepro, &animal.ConteoFetos, &animal.CorralID,
+		&animal.PesoNacer, &animal.PesoDestete, &animal.PadreID, &animal.MadreID, &animal.Destino, &animal.FechaDefuncion, &animal.MotivoDefuncion,
+		&animal.AbueloPaternoID, &animal.AbuelaPaternaID, &animal.AbueloMaternoID, &animal.AbuelaMaternaID, &animal.TipoParto, &animal.MetodoConcepcion,
+		&animal.Peso150Dias, &animal.FechaDestete, &animal.Foto, &animal.TipoNacimiento,
+		&esRef, &animal.Nombre, &animal.TatuajeDer, &animal.TatuajeIzq, &animal.TatuajeCola,
+		&animal.Color, &animal.Pureza, &animal.GradoRegistro, &animal.Registro, &animal.Siniiga, &animal.IDElectronica)
+	animal.EsReferencia = esRef == 1
+	return animal, err
+}
+
+func boolToInt(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+// GetAnimales obtiene el hato del usuario actual (sin animales de referencia,
+// que solo existen para el árbol genealógico; ver GetAnimalesReferencia).
+func (a *App) GetAnimales() ([]Animal, error) {
+	if a.user == nil {
+		return nil, fmt.Errorf("no autenticado")
+	}
+	rows, err := a.db.Query(a.q(`SELECT `+animalSelectColumns+` FROM animales WHERE user_id = ? AND COALESCE(es_referencia, 0) = 0`), a.tenantID())
 	if err != nil {
 		return nil, err
 	}
@@ -600,37 +647,10 @@ func (a *App) GetAnimales() ([]Animal, error) {
 
 	var animals []Animal
 	for rows.Next() {
-		var animal Animal
-		var especie, arete, raza, sexo, fecha, estatus, repro, corral, padre, madre, destino, fDef, mDef sql.NullString
-		var abPat, abMat, abuelaPat, abuelaMat, tParto, mConcepcion, fDestete, foto, tNac sql.NullString
-		err := rows.Scan(&animal.ID, &especie, &arete, &raza, &sexo, &fecha, &estatus, &repro, &animal.ConteoFetos, &corral,
-			&animal.PesoNacer, &animal.PesoDestete, &padre, &madre, &destino, &fDef, &mDef,
-			&abPat, &abuelaPat, &abMat, &abuelaMat, &tParto, &mConcepcion, &animal.Peso150Dias, &fDestete, &foto, &tNac)
+		animal, err := scanAnimal(rows)
 		if err != nil {
 			return nil, err
 		}
-		animal.Especie = especie.String
-		animal.Arete = arete.String
-		animal.Raza = raza.String
-		animal.Sexo = sexo.String
-		animal.FechaNacimiento = fecha.String
-		animal.Estatus = estatus.String
-		animal.EstadoRepro = repro.String
-		animal.CorralID = corral.String
-		animal.PadreID = padre.String
-		animal.MadreID = madre.String
-		animal.Destino = destino.String
-		animal.FechaDefuncion = fDef.String
-		animal.MotivoDefuncion = mDef.String
-		animal.AbueloPaternoID = abPat.String
-		animal.AbuelaPaternaID = abuelaPat.String
-		animal.AbueloMaternoID = abMat.String
-		animal.AbuelaMaternaID = abuelaMat.String
-		animal.TipoParto = tParto.String
-		animal.MetodoConcepcion = mConcepcion.String
-		animal.FechaDestete = fDestete.String
-		animal.Foto = foto.String
-		animal.TipoNacimiento = tNac.String
 		animals = append(animals, animal)
 	}
 	return animals, nil
@@ -652,14 +672,16 @@ func (a *App) AddAnimal(animal Animal) error {
 		(id, user_id, especie, arete, raza, sexo, fecha_nacimiento, estatus, estado_reproductivo, conteo_fetos, corral_id, 
 		 peso_nacer, peso_destete, padre_id, madre_id, destino, fecha_defuncion, motivo_defuncion,
 		 abuelo_paterno_id, abuela_paterna_id, abuelo_materno_id, abuela_materna_id, tipo_parto, metodo_concepcion,
-		 peso_150_dias, fecha_destete, foto, tipo_nacimiento) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+		 peso_150_dias, fecha_destete, foto, tipo_nacimiento,
+		 es_referencia, nombre, tatuaje_der, tatuaje_izq, tatuaje_cola, color, pureza, grado_registro, registro, siniiga, id_electronica) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
 		animal.ID, a.tenantID(), animal.Especie, animal.Arete, animal.Raza, animal.Sexo, 
 		animal.FechaNacimiento, animal.Estatus, animal.EstadoRepro, 
 		animal.ConteoFetos, animal.CorralID, animal.PesoNacer, animal.PesoDestete,
 		animal.PadreID, animal.MadreID, animal.Destino, animal.FechaDefuncion, animal.MotivoDefuncion,
 		animal.AbueloPaternoID, animal.AbuelaPaternaID, animal.AbueloMaternoID, animal.AbuelaMaternaID, animal.TipoParto, animal.MetodoConcepcion,
-		animal.Peso150Dias, animal.FechaDestete, animal.Foto, animal.TipoNacimiento)
+		animal.Peso150Dias, animal.FechaDestete, animal.Foto, animal.TipoNacimiento,
+		boolToInt(animal.EsReferencia), animal.Nombre, animal.TatuajeDer, animal.TatuajeIzq, animal.TatuajeCola, animal.Color, animal.Pureza, animal.GradoRegistro, animal.Registro, animal.Siniiga, animal.IDElectronica)
 	if err == nil {
 		a.queueSync("insert", "animal", animal.ID, animalRow(animal))
 	}
@@ -682,7 +704,10 @@ func animalRow(animal Animal) map[string]interface{} {
 		"abuelo_materno_id": animal.AbueloMaternoID, "abuela_materna_id": animal.AbuelaMaternaID,
 		"tipo_parto": animal.TipoParto, "metodo_concepcion": animal.MetodoConcepcion,
 		"peso_150_dias": animal.Peso150Dias, "fecha_destete": animal.FechaDestete, "foto": animal.Foto,
-		"tipo_nacimiento": animal.TipoNacimiento,
+		"tipo_nacimiento": animal.TipoNacimiento, "es_referencia": boolToInt(animal.EsReferencia),
+		"nombre": animal.Nombre, "tatuaje_der": animal.TatuajeDer, "tatuaje_izq": animal.TatuajeIzq, "tatuaje_cola": animal.TatuajeCola,
+		"color": animal.Color, "pureza": animal.Pureza, "grado_registro": animal.GradoRegistro, "registro": animal.Registro,
+		"siniiga": animal.Siniiga, "id_electronica": animal.IDElectronica,
 	}
 }
 
@@ -700,7 +725,8 @@ func (a *App) UpdateAnimal(animal Animal) error {
 		peso_nacer = ?, peso_destete = ?, padre_id = ?, madre_id = ?, 
 		destino = ?, fecha_defuncion = ?, motivo_defuncion = ?,
 		abuelo_paterno_id = ?, abuela_paterna_id = ?, abuelo_materno_id = ?, abuela_materna_id = ?,
-		tipo_parto = ?, metodo_concepcion = ?, peso_150_dias = ?, fecha_destete = ?, foto = ?, tipo_nacimiento = ?
+		tipo_parto = ?, metodo_concepcion = ?, peso_150_dias = ?, fecha_destete = ?, foto = ?, tipo_nacimiento = ?,
+		es_referencia = ?, nombre = ?, tatuaje_der = ?, tatuaje_izq = ?, tatuaje_cola = ?, color = ?, pureza = ?, grado_registro = ?, registro = ?, siniiga = ?, id_electronica = ?
 		WHERE id = ? AND user_id = ?`),
 		animal.Especie, animal.Arete, animal.Raza, animal.Sexo, 
 		animal.FechaNacimiento, animal.Estatus, 
@@ -709,6 +735,7 @@ func (a *App) UpdateAnimal(animal Animal) error {
 		animal.Destino, animal.FechaDefuncion, animal.MotivoDefuncion,
 		animal.AbueloPaternoID, animal.AbuelaPaternaID, animal.AbueloMaternoID, animal.AbuelaMaternaID,
 		animal.TipoParto, animal.MetodoConcepcion, animal.Peso150Dias, animal.FechaDestete, animal.Foto, animal.TipoNacimiento,
+		boolToInt(animal.EsReferencia), animal.Nombre, animal.TatuajeDer, animal.TatuajeIzq, animal.TatuajeCola, animal.Color, animal.Pureza, animal.GradoRegistro, animal.Registro, animal.Siniiga, animal.IDElectronica,
 		animal.ID, a.tenantID())
 	if err == nil {
 		a.queueSync("update", "animal", animal.ID, animalRow(animal))
