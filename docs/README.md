@@ -11,7 +11,12 @@
 - **📡 Arquitectura Híbrida:** 
   - **PC Mode:** Comunicación ultra-rápida vía Wails bindings.
   - **Mobile Mode:** Servidor API REST integrado en Go para sincronización local.
-- **💾 Offline-First:** Diseñado para trabajar en zonas de baja conectividad (Corrales/Campo).
+- **💾 Offline-First:** La app de escritorio trabaja siempre contra una
+  base de datos SQLite local. Los cambios capturados sin conexión se
+  encolan (`sync_outbox`) y se sincronizan automáticamente hacia Supabase
+  en cuanto hay internet (reintento en segundo plano cada 3 minutos, o al
+  instante con el botón **Sync Cloud**). La sincronización es en un solo
+  sentido (local → nube) y el último cambio gana.
 - **📊 Dashboard en Tiempo Real:** KPIs de fertilidad, GDP (Ganancia Diaria de Peso) y ocupación de corrales.
 
 ## 🛠️ Stack Tecnológico
@@ -48,9 +53,16 @@ Para generar el ejecutable de Windows (.exe):
 wails build
 ```
 
-## 🔐 Credenciales por Defecto
-- **Email:** `admin@sheepmaster.com`
-- **Password:** `admin123`
+## 🔐 Primer acceso
+Las credenciales de las cuentas semilla se definen en el seed de la base
+de datos del servidor, no se publican aquí. Cámbialas desde "Mi Perfil →
+Seguridad" en cuanto inicies sesión por primera vez.
+
+En la **app de escritorio** el primer inicio de sesión de cada cuenta
+requiere internet: se valida contra Supabase y la identidad queda
+cacheada localmente (`cached_identity`) para poder entrar sin conexión
+después. Para habilitar login en nube y sincronización, define
+`DATABASE_URL` en el entorno del escritorio (ver `.env.example`).
 
 ---
 *Desarrollado para SheepMaster Enterprise.*
