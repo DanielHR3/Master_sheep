@@ -78,6 +78,15 @@ const GenealogyModal: React.FC<GenealogyModalProps> = ({ show, onClose, animal, 
             </div>
           </div>
 
+          {/* Datos de nacimiento (pie de cría): qué preguntan al vender un semental */}
+          {(animal.tipo_parto || animal.metodo_concepcion || animal.tipo_nacimiento) && (
+            <div className={`relative z-10 flex flex-wrap justify-center gap-2 text-[10px] font-black uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+              {animal.tipo_parto && <span className={`rounded-full px-3 py-1 border ${isDark ? 'border-slate-700 bg-slate-800/60' : 'border-slate-200 bg-slate-50'}`}>Parto {animal.tipo_parto}</span>}
+              {animal.metodo_concepcion && <span className={`rounded-full px-3 py-1 border ${isDark ? 'border-slate-700 bg-slate-800/60' : 'border-slate-200 bg-slate-50'}`}>{animal.metodo_concepcion}</span>}
+              {animal.tipo_nacimiento && <span className={`rounded-full px-3 py-1 border ${isDark ? 'border-slate-700 bg-slate-800/60' : 'border-slate-200 bg-slate-50'}`}>Nacimiento {animal.tipo_nacimiento.toLowerCase()}</span>}
+            </div>
+          )}
+
           {/* SVG Lines Connector */}
           <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-0" style={{ minHeight: '400px' }}>
             <defs>

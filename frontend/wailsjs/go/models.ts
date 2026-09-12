@@ -22,6 +22,7 @@ export namespace main {
 	    abuela_materna_id: string;
 	    tipo_parto: string;
 	    metodo_concepcion: string;
+	    tipo_nacimiento: string;
 	    destino: string;
 	    fecha_defuncion: string;
 	    motivo_defuncion: string;
@@ -56,6 +57,7 @@ export namespace main {
 	        this.abuela_materna_id = source["abuela_materna_id"];
 	        this.tipo_parto = source["tipo_parto"];
 	        this.metodo_concepcion = source["metodo_concepcion"];
+	        this.tipo_nacimiento = source["tipo_nacimiento"];
 	        this.destino = source["destino"];
 	        this.fecha_defuncion = source["fecha_defuncion"];
 	        this.motivo_defuncion = source["motivo_defuncion"];

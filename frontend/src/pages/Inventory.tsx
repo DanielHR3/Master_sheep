@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { 
   PlusCircle, 
   FileSpreadsheet, 
-  FlaskConical 
+  FlaskConical,
+  Search
 } from 'lucide-react';
 import { useStore } from '../context/useStore';
 import { main } from "../../wailsjs/go/models";
@@ -48,6 +49,14 @@ const Inventory: React.FC<InventoryProps> = ({
   user
 }) => {
   const [filterDestino, setFilterDestino] = useState<'all' | 'Engorda' | 'Pie de Cría'>('all');
+  const [search, setSearch] = useState('');
+  // Búsqueda por arete, raza, corral o linaje (padre/madre): el caso real es
+  // "¿qué líneas trae este semental?" tecleando el arete en el celular.
+  const matchesSearch = (a: main.Animal) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return [a.arete, a.raza, a.corral_id, a.padre_id, a.madre_id].some(v => (v || '').toLowerCase().includes(q));
+  };
   const isDark = theme === 'dark';
   const store = useStore();
   const rawRancho = (store.selectedRanchOverride || user?.rancho_id || user?.name || '').toUpperCase();
@@ -85,6 +94,19 @@ const Inventory: React.FC<InventoryProps> = ({
                <button onClick={() => setFilterDestino('Pie de Cría')} className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer ${filterDestino === 'Pie de Cría' ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Pie de Cría</button>
             </div>
           )}
+          {subTab === 'animals' && (
+            <label className={`flex items-center gap-2 rounded-2xl border px-4 ${isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-white border-slate-200 shadow-sm text-slate-700'}`}>
+              <Search size={16} className="shrink-0 text-emerald-500" />
+              <input
+                type="search"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Buscar arete, raza o linaje…"
+                aria-label="Buscar animal"
+                className="w-44 @2xl:w-56 bg-transparent py-3 text-sm font-bold placeholder:font-normal placeholder:text-slate-400 focus:outline-none"
+              />
+            </label>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-3">
@@ -121,7 +143,7 @@ const Inventory: React.FC<InventoryProps> = ({
 
       {subTab === 'animals' ? (
         <div className="grid grid-cols-1 @xl:grid-cols-2 @4xl:grid-cols-3 @6xl:grid-cols-4 gap-6">
-          {(Array.isArray(animals) ? animals : []).filter(a => filterDestino === 'all' || a.destino === filterDestino).map((a: main.Animal) => (
+          {(Array.isArray(animals) ? animals : []).filter(a => (filterDestino === 'all' || a.destino === filterDestino) && matchesSearch(a)).map((a: main.Animal) => (
             <AnimalCard 
               key={a.id} 
               animal={a} 

@@ -139,8 +139,19 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
                   <option value="">Seleccionar...</option>
                   <option value="Monta Natural">Monta Natural</option>
                   <option value="Inseminación Artificial">Inseminación Artificial</option>
-                  <option value="Inducción">Inducción (Hormonal)</option>
                   <option value="Transferencia de Embriones">Transferencia de Embriones</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-slate-500">Tipo de Nacimiento</label>
+                <select 
+                  className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white" 
+                  value={form.tipo_nacimiento || ''} 
+                  onChange={e => setForm({...form, tipo_nacimiento: e.target.value})}
+                >
+                  <option value="">Seleccionar...</option>
+                  <option value="Natural">Parto natural</option>
+                  <option value="Inducido">Parto inducido</option>
                 </select>
               </div>
             </div>

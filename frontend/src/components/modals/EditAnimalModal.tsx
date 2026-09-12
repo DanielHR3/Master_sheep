@@ -168,8 +168,22 @@ const EditAnimalModal: React.FC<EditAnimalModalProps> = ({ show, onClose, form, 
                     <option value="">Seleccionar...</option>
                     <option value="Monta Natural">Monta Natural</option>
                     <option value="Inseminación Artificial">Inseminación Artificial</option>
-                    <option value="Inducción">Inducción (Hormonal)</option>
                     <option value="Transferencia de Embriones">Transferencia de Embriones</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase ml-2 flex items-center gap-2">
+                    Tipo de Nacimiento
+                  </label>
+                  <select
+                    className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-white focus:outline-none focus:border-antique-brass/50 transition-all font-bold"
+                    value={form.tipo_nacimiento || ''}
+                    onChange={e => setForm({ ...form, tipo_nacimiento: e.target.value } as main.Animal)}
+                  >
+                    <option value="">Seleccionar...</option>
+                    <option value="Natural">Parto natural</option>
+                    <option value="Inducido">Parto inducido</option>
                   </select>
                 </div>
 

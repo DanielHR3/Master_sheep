@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from './context/useStore';
-import { useAppLogic } from './hooks/useAppLogic';
+import { useAppLogic, emptyAnimalForm } from './hooks/useAppLogic';
 
 // Services
 import { CompletarTarea, ToggleDemoMode, GetHistorialClinico } from "./services/api";
@@ -107,7 +107,7 @@ function App() {
           theme={store.theme} 
           user={store.currentUser}
           onGlobalAdd={() => {
-            state.setAnimalForm({ arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino: defaultDestino, especie: 'Ovino' });
+            state.setAnimalForm(emptyAnimalForm(defaultDestino));
             state.modals.setShowAddAnimal(true)
           }} 
           onCompleteTask={async (id) => { await CompletarTarea(id); actions.refreshData(); }} 
@@ -122,7 +122,7 @@ function App() {
           subTab={store.subTab} 
           setSubTab={store.setSubTab} 
           onAddAnimal={() => { 
-            state.setAnimalForm({ arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino: defaultDestino, especie: 'Ovino' }); 
+            state.setAnimalForm(emptyAnimalForm(defaultDestino)); 
             state.modals.setShowAddAnimal(true); 
           }} 
           onAddInsumo={() => { 
@@ -177,7 +177,7 @@ function App() {
           theme={store.theme} 
           user={store.currentUser}
           onGlobalAdd={() => {
-            state.setAnimalForm({ arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino: defaultDestino, especie: 'Ovino' }); 
+            state.setAnimalForm(emptyAnimalForm(defaultDestino)); 
             state.modals.setShowAddAnimal(true)
           }} 
           onCompleteTask={async (id) => { await CompletarTarea(id); actions.refreshData(); }} 

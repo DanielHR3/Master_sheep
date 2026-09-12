@@ -42,6 +42,25 @@ import {
 } from "../services/api";
 import { markAppSeen } from '../lib/publicRoute';
 
+// Formulario de alta de animal. Incluye los campos de pie de cría (padres,
+// abuelos, parto, concepción, nacimiento, destete, foto): antes el modal los
+// capturaba pero nunca llegaban al backend.
+export interface AnimalFormState {
+  arete: string; raza: string; sexo: string; corral: string; peso: string; peso_nacer: number;
+  fecha_nacimiento: string; padre_id: string; madre_id: string; destino: string; especie: string;
+  abuelo_paterno_id: string; abuela_paterna_id: string; abuelo_materno_id: string; abuela_materna_id: string;
+  tipo_parto: string; metodo_concepcion: string; tipo_nacimiento: string;
+  fecha_destete: string; peso_150_dias: number; foto: string;
+}
+
+export const emptyAnimalForm = (destino: string): AnimalFormState => ({
+  arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', peso_nacer: 0,
+  fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino, especie: 'Ovino',
+  abuelo_paterno_id: '', abuela_paterna_id: '', abuelo_materno_id: '', abuela_materna_id: '',
+  tipo_parto: '', metodo_concepcion: '', tipo_nacimiento: '',
+  fecha_destete: '', peso_150_dias: 0, foto: '',
+});
+
 export const useAppLogic = () => {
   const store = useStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -50,18 +69,7 @@ export const useAppLogic = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
-  const [animalForm, setAnimalForm] = useState({ 
-    arete: '', 
-    raza: 'Dorper', 
-    sexo: 'Hembra', 
-    corral: '', 
-    peso: '', 
-    fecha_nacimiento: new Date().toISOString().split('T')[0], 
-    padre_id: '',
-    madre_id: '',
-    destino: 'Engorda',
-    especie: 'Ovino'
-  });
+  const [animalForm, setAnimalForm] = useState<AnimalFormState>(emptyAnimalForm('Engorda'));
   
   const [corralForm, setCorralForm] = useState({ nombre: '', tipo: 'General', capacidad: 50 });
   const [treatmentForm, setTreatmentForm] = useState({ insumo_id: '', dosis: 1, via: 'Intramuscular', duracion: 1, observaciones: '' });
@@ -203,16 +211,27 @@ export const useAppLogic = () => {
         arete: animalForm.arete,
         raza: animalForm.raza,
         sexo: animalForm.sexo,
+        especie: animalForm.especie || 'Ovino',
         corral_id: animalForm.corral,
         fecha_nacimiento: animalForm.fecha_nacimiento,
-        peso_nacer: parseFloat(animalForm.peso) || 0,
+        peso_nacer: animalForm.peso_nacer || parseFloat(animalForm.peso) || 0,
         padre_id: animalForm.padre_id,
         madre_id: animalForm.madre_id,
+        abuelo_paterno_id: animalForm.abuelo_paterno_id,
+        abuela_paterna_id: animalForm.abuela_paterna_id,
+        abuelo_materno_id: animalForm.abuelo_materno_id,
+        abuela_materna_id: animalForm.abuela_materna_id,
+        tipo_parto: animalForm.tipo_parto,
+        metodo_concepcion: animalForm.metodo_concepcion,
+        tipo_nacimiento: animalForm.tipo_nacimiento,
+        fecha_destete: animalForm.fecha_destete,
+        peso_150_dias: animalForm.peso_150_dias || 0,
+        foto: animalForm.foto,
         destino: animalForm.destino
       });
       await AddAnimal(animal);
       setShowAddAnimal(false);
-      setAnimalForm({ arete: '', raza: 'Dorper', sexo: 'Hembra', corral: '', peso: '', fecha_nacimiento: new Date().toISOString().split('T')[0], padre_id: '', madre_id: '', destino: 'Engorda', especie: 'Ovino' });
+      setAnimalForm(emptyAnimalForm(animalForm.destino || 'Engorda'));
       store.setNotification({ message: "Animal registrado exitosamente", type: 'success' });
       refreshData();
     } catch (err: any) {
