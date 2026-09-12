@@ -1,6 +1,6 @@
 module sheepmaster
 
-go 1.25.0
+go 1.26.0
 
 toolchain go1.26.6
 
@@ -10,7 +10,7 @@ require (
 	github.com/wailsapp/wails/v2 v2.13.0
 	github.com/xuri/excelize/v2 v2.11.0
 	golang.org/x/crypto v0.53.0
-	golang.org/x/text v0.38.0
+	golang.org/x/text v0.42.0
 	modernc.org/sqlite v1.35.0
 )
 
