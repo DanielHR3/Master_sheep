@@ -107,6 +107,15 @@ const nav = (page, name) => page.getByRole('button', { name }).first().click();
     });
   }
 
+  // --- Imagen Open Graph 1200x630: hero de la landing (visitante nuevo) ---
+  await withContext(browser, { viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 }, async (page) => {
+    await page.goto(base + '/');
+    await page.evaluate(() => localStorage.removeItem('sheepmaster_seen_app'));
+    await page.goto(base + '/');
+    await page.waitForTimeout(2000);
+    await page.screenshot({ path: path.join(outDir, 'og.png') });
+  });
+
   await browser.close();
   console.log('media grabada en', outDir);
 })().catch((e) => { console.error(e); process.exit(1); });
