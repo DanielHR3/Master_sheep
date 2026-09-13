@@ -9,6 +9,7 @@ import {
   History as HistoryIcon 
 } from 'lucide-react';
 import { main } from "../../wailsjs/go/models";
+import SemaforoBadge from './SemaforoBadge';
 
 interface AnimalCardProps {
   animal: main.Animal;
@@ -22,6 +23,7 @@ interface AnimalCardProps {
   onViewWeights: () => void;
   onViewGenealogy?: () => void;
   onFicha?: () => void;
+  semaforo?: main.SemaforoAnimal;
   isAdmin: boolean;
 }
 
@@ -37,13 +39,18 @@ const AnimalCard: React.FC<AnimalCardProps> = ({
   onViewWeights,
   onViewGenealogy,
   onFicha,
+  semaforo,
   isAdmin
 }) => {
   const isDark = theme === 'dark';
   
   const daysAlive = Math.floor((new Date().getTime() - new Date(animal.fecha_nacimiento).getTime()) / (1000 * 60 * 60 * 24));
   const pesoActual = animal.peso_150_dias || animal.peso_destete || animal.peso_nacer;
-  const gdp = daysAlive > 0 && pesoActual > animal.peso_nacer 
+  // GDP: la del semáforo (calculada con los pesajes reales) cuando existe;
+  // si no, la estimación vieja a partir del peso al nacer.
+  const gdp = semaforo && semaforo.crecimiento && semaforo.crecimiento.gdp
+    ? semaforo.crecimiento.gdp.toFixed(3)
+    : daysAlive > 0 && pesoActual > animal.peso_nacer 
     ? ((pesoActual - animal.peso_nacer) / daysAlive).toFixed(3) 
     : '0.000';
 
@@ -105,6 +112,8 @@ const AnimalCard: React.FC<AnimalCardProps> = ({
           </div>
         </div>
       </div>
+
+      {semaforo && <div className="px-6 pb-3"><SemaforoBadge item={semaforo} isDark={isDark} compact /></div>}
 
       {/* Separator / Vital Stats */}
       <div className={`mx-6 py-4 border-y flex divide-x ${isDark ? 'border-slate-800 divide-slate-800' : 'border-slate-100 divide-slate-100'}`}>

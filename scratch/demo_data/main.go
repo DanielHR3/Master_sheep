@@ -159,5 +159,16 @@ func main() {
 	for i, t := range []string{"Vacunar lote Engorda Norte", "Pesar corderos de Destete", "Revisar cerca del corral Sur", "Pedir alimento (quedan 3 días)"} {
 		call("POST", "/api/tasks", map[string]interface{}{"titulo": t, "descripcion": "", "estatus": "Pendiente", "fecha_vencimiento": date(-i), "prioridad": prioridades[i]})
 	}
+	call("PUT", "/api/rancho-perfil", map[string]interface{}{"nombre": "", "precio_kg": 75})
+	// Casos para el semáforo: uno con peso estancado, otro con tratamientos repetidos
+	call("POST", "/api/animals", map[string]interface{}{"id": "SM-190", "arete": "SM-190", "raza": "Dorper", "sexo": "Macho", "fecha_nacimiento": date(150), "estatus": "Activo", "corral_id": "Engorda Sur", "destino": "Engorda", "peso_nacer": 3.8})
+	call("POST", "/api/weights", map[string]interface{}{"animal_id": "SM-190", "fecha": date(45), "peso": 31.0})
+	call("POST", "/api/weights", map[string]interface{}{"animal_id": "SM-190", "fecha": date(3), "peso": 30.4})
+	call("POST", "/api/animals", map[string]interface{}{"id": "SM-191", "arete": "SM-191", "raza": "Katahdin", "sexo": "Hembra", "fecha_nacimiento": date(120), "estatus": "Activo", "corral_id": "Engorda Norte", "destino": "Engorda", "peso_nacer": 3.9})
+	call("POST", "/api/weights", map[string]interface{}{"animal_id": "SM-191", "fecha": date(40), "peso": 22.0})
+	call("POST", "/api/weights", map[string]interface{}{"animal_id": "SM-191", "fecha": date(4), "peso": 29.5})
+	for i := 0; i < 3; i++ {
+		call("POST", "/api/treatments", map[string]interface{}{"animal_id": "SM-191", "insumo_id": "demo-i1", "dosis": 1, "via_administracion": "Subcutánea", "duracion_dias": 1, "fecha": date(7 * (i + 1)), "tecnico": "MVZ Ramírez", "observaciones": "Diarrea"})
+	}
 	fmt.Println("hato de demostración cargado")
 }

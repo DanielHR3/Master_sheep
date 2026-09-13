@@ -41,6 +41,7 @@ import {
   DownloadImportTemplate,
   DownloadFicha,
   GetAnimalesReferencia,
+  GetSemaforoHato,
   SyncNow
 } from "../services/api";
 import { markAppSeen } from '../lib/publicRoute';
@@ -163,6 +164,7 @@ export const useAppLogic = () => {
       store.setStats(s);
       store.setAnimals(a || []);
       try { store.setReferencias(await GetAnimalesReferencia() || []); } catch { store.setReferencias([]); }
+      try { store.setSemaforo(await GetSemaforoHato() || []); } catch { store.setSemaforo([]); }
       store.setCorrales(c || []);
       store.setInsumos(i || []);
       store.setTareas(t || []);

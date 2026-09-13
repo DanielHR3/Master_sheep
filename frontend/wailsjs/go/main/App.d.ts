@@ -92,6 +92,8 @@ export function SaveRanchoPerfil(arg1:main.RanchoPerfil):Promise<void>;
 
 export function ExportFichaGenealogica(arg1:string):Promise<string>;
 
+export function GetSemaforoHato():Promise<Array<main.SemaforoAnimal>>;
+
 export function ToggleDemoMode(arg1:boolean):Promise<void>;
 
 export function UpdateAnimal(arg1:main.Animal):Promise<void>;

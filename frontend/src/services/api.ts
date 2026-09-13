@@ -422,3 +422,10 @@ export const DownloadFicha = async (animalId: string, arete: string): Promise<st
   URL.revokeObjectURL(url);
   return '';
 };
+
+// Semáforo del hato (predicciones por animal).
+export const GetSemaforoHato = async (): Promise<main.SemaforoAnimal[]> => {
+  if (IS_WAILS) return WailsApp.GetSemaforoHato();
+  const res = await callApi('/semaforo');
+  return Array.isArray(res) ? res.map((r: any) => main.SemaforoAnimal.createFrom(r)) : [];
+};

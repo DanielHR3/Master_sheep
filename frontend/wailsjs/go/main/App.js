@@ -182,6 +182,10 @@ export function ExportFichaGenealogica(arg1) {
   return window['go']['main']['App']['ExportFichaGenealogica'](arg1);
 }
 
+export function GetSemaforoHato() {
+  return window['go']['main']['App']['GetSemaforoHato']();
+}
+
 export function ToggleDemoMode(arg1) {
   return window['go']['main']['App']['ToggleDemoMode'](arg1);
 }

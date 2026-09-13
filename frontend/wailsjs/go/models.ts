@@ -419,6 +419,7 @@ export namespace main {
 	    propietario_centro: string;
 	    propietario_municipio_estado: string;
 	    logo: string;
+	    precio_kg: number;
 
 	    static createFrom(source: any = {}) {
 	        return new RanchoPerfil(source);
@@ -437,6 +438,45 @@ export namespace main {
 	        this.propietario_centro = source["propietario_centro"];
 	        this.propietario_municipio_estado = source["propietario_municipio_estado"];
 	        this.logo = source["logo"];
+	        this.precio_kg = source["precio_kg"];
+	    }
+	}
+
+
+	export class SemaforoAnimal {
+	    animal_id: string;
+	    arete: string;
+	    color: string;
+	    titulo: string;
+	    detalle: string;
+	    peso_actual: number;
+	    ultimo_pesaje: string;
+	    dias_sin_pesaje: number;
+	    edad_dias: number;
+	    valor_estimado: number;
+	    venta: { color: string; dias_estimados: number; fecha_estimada: string; peso_proyectado: number };
+	    crecimiento: { color: string; gdp: number; gdp_lote: number; porcentaje: number };
+	    riesgo: { color: string; motivo: string };
+
+	    static createFrom(source: any = {}) {
+	        return new SemaforoAnimal(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.animal_id = source["animal_id"];
+	        this.arete = source["arete"];
+	        this.color = source["color"];
+	        this.titulo = source["titulo"];
+	        this.detalle = source["detalle"];
+	        this.peso_actual = source["peso_actual"];
+	        this.ultimo_pesaje = source["ultimo_pesaje"];
+	        this.dias_sin_pesaje = source["dias_sin_pesaje"];
+	        this.edad_dias = source["edad_dias"];
+	        this.valor_estimado = source["valor_estimado"];
+	        this.venta = source["venta"] || { color: 'gris', dias_estimados: 0, fecha_estimada: '', peso_proyectado: 0 };
+	        this.crecimiento = source["crecimiento"] || { color: 'gris', gdp: 0, gdp_lote: 0, porcentaje: 0 };
+	        this.riesgo = source["riesgo"] || { color: 'gris', motivo: '' };
 	    }
 	}
 

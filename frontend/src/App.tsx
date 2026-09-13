@@ -113,6 +113,7 @@ function App() {
           }} 
           onCompleteTask={async (id) => { await CompletarTarea(id); actions.refreshData(); }} 
           onSync={actions.handleSyncToJarvis}
+          semaforo={store.semaforo}
         />;
       case 'inventory':
         return <Inventory 
@@ -147,6 +148,7 @@ function App() {
           onViewGenealogy={(a) => { state.setSelectedAnimal(a); state.modals.setShowGenealogy(true); }}
           onFicha={actions.handleDownloadFicha}
           referencias={store.referencias}
+          semaforo={store.semaforo}
           onImportExcel={actions.handleImportExcel}
           onDownloadTemplate={actions.handleDownloadTemplate}
         />;
@@ -187,6 +189,7 @@ function App() {
           }} 
           onCompleteTask={async (id) => { await CompletarTarea(id); actions.refreshData(); }} 
           onSync={actions.handleSyncToJarvis}
+          semaforo={store.semaforo}
         />;
     }
   };
@@ -284,6 +287,7 @@ function App() {
       />
 
       <EditAnimalModal 
+        semaforo={store.semaforo.find(x => x.animal_id === state.editAnimalForm?.id)}
         show={state.modals.showEditAnimal} 
         onClose={() => state.modals.setShowEditAnimal(false)} 
         form={state.editAnimalForm} 

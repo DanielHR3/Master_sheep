@@ -2,6 +2,8 @@ import React from 'react';
 import { useStore } from '../context/useStore';
 import { Card } from '../components/ui/card';
 import { Skeleton } from '../components/ui/skeleton';
+import { main } from '../../wailsjs/go/models';
+import SemaforoBadge, { semaforoClasses } from '../components/SemaforoBadge';
 import { 
   Users, 
   TrendingUp, 
@@ -15,7 +17,8 @@ import {
   CheckCircle2,
   Calendar,
   Zap,
-  Cloud
+  Cloud,
+  TrafficCone
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -48,9 +51,10 @@ interface DashboardProps {
   onCompleteTask: (id: string) => void;
   onSync?: () => void;
   user?: any;
+  semaforo?: main.SemaforoAnimal[];
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd, onCompleteTask, onSync, user }) => {
+const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd, onCompleteTask, onSync, user, semaforo = [] }) => {
   const isDark = theme === 'dark';
   const store = useStore();
   const isLoading = store.loading;
@@ -188,6 +192,49 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
           </div>
         </div>
       </div>
+
+      {/* SEMÁFORO DEL HATO */}
+      {semaforo.length > 0 && (() => {
+        const count = (c: string) => semaforo.filter(s => s.color === c).length;
+        const accion = semaforo.filter(s => s.color === 'rojo' || s.color === 'amarillo').slice(0, 8);
+        const dinero = semaforo.filter(s => s.venta.color === 'rojo').reduce((acc, s) => acc + (s.valor_estimado || 0), 0);
+        return (
+          <div className={`p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl text-white' : 'bg-white border-slate-200 shadow-md text-slate-900'}`}>
+            <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
+              <div>
+                <h3 className="text-2xl font-black font-display tracking-tight flex items-center gap-3">
+                  <TrafficCone size={22} className="text-emerald-500" /> Semáforo del hato
+                </h3>
+                <p className={`text-xs font-bold uppercase tracking-wider mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Qué animales necesitan acción hoy, según pesajes, edad y tratamientos</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(['rojo', 'amarillo', 'verde', 'gris'] as const).map(c => (
+                  <div key={c} className={`flex items-center gap-2 rounded-2xl border px-3 py-2 text-xs font-black ${semaforoClasses(c, isDark).box}`}>
+                    <span className={`h-2.5 w-2.5 rounded-full ${semaforoClasses(c, isDark).dot}`} /> {count(c)} {c === 'gris' ? 'sin pesaje' : c === 'rojo' ? 'acción hoy' : c === 'amarillo' ? 'pronto' : 'van bien'}
+                  </div>
+                ))}
+                {dinero > 0 && (
+                  <div className={`rounded-2xl border px-3 py-2 text-xs font-black ${isDark ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200' : 'border-emerald-300 bg-emerald-50 text-emerald-800'}`}>
+                    ${Math.round(dinero).toLocaleString('es-MX')} listos para vender
+                  </div>
+                )}
+              </div>
+            </div>
+            {accion.length > 0 ? (
+              <div className="grid grid-cols-1 @2xl:grid-cols-2 @5xl:grid-cols-4 gap-3">
+                {accion.map(s => (
+                  <div key={s.animal_id}>
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-70">{s.arete}</p>
+                    <SemaforoBadge item={s} isDark={isDark} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className={`text-sm font-bold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Todo en verde: nada requiere acción hoy.</p>
+            )}
+          </div>
+        );
+      })()}
 
       {/* KPIs SUPERIORES */}
       <div className="grid grid-cols-2 @xl:grid-cols-3 @4xl:grid-cols-6 gap-4">

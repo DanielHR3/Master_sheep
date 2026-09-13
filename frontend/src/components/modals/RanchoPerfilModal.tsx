@@ -67,6 +67,10 @@ const RanchoPerfilModal: React.FC<Props> = ({ show, onClose, onSaved }) => {
           <label className={label}>Nombre del rancho (como saldrá en la ficha)</label>
           <input className={input} value={p.nombre || ''} placeholder="Rancho Las Bugambilias" onChange={set('nombre')} spellCheck lang="es" />
         </div>
+        <div className="space-y-1">
+          <label className={label}>Precio de venta por kg en pie (para el valor estimado del semáforo)</label>
+          <input type="number" min={0} step={0.5} className={input} value={p.precio_kg || ''} placeholder="Ej. 75" onChange={e => setP(prev => main.RanchoPerfil.createFrom({ ...prev, precio_kg: parseFloat(e.target.value) || 0 }))} />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {block('Criador', [['criador_clave', 'Criador (clave y asociación)', 'OGN04-68 - A G L DE OVINOCULTORES...'], ['criador_nombre', 'Nombre', 'FN10-2598 NOMBRE'], ['criador_centro', 'Centro', 'CN10-2227 NOMBRE DEL CENTRO'], ['criador_municipio_estado', 'Mpio / Edo', 'TULANCINGO // HIDALGO']])}
           {block('Propietario', [['propietario_clave', 'Propietario (clave y asociación)', ''], ['propietario_nombre', 'Nombre', ''], ['propietario_centro', 'Centro', ''], ['propietario_municipio_estado', 'Mpio / Edo', '']])}

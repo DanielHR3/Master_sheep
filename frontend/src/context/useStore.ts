@@ -17,6 +17,7 @@ interface AppState {
   stats: any;
   animals: main.Animal[];
   referencias: main.Animal[];
+  semaforo: main.SemaforoAnimal[];
   corrales: main.Corral[];
   insumos: main.Insumo[];
   tareas: any[];
@@ -36,6 +37,7 @@ interface AppState {
   setStats: (stats: any) => void;
   setAnimals: (animals: main.Animal[]) => void;
   setReferencias: (referencias: main.Animal[]) => void;
+  setSemaforo: (semaforo: main.SemaforoAnimal[]) => void;
   setCorrales: (corrales: main.Corral[]) => void;
   setInsumos: (insumos: main.Insumo[]) => void;
   setTareas: (tareas: any[]) => void;
@@ -59,6 +61,7 @@ export const useStore = create<AppState>()(
       stats: { total_cabezas: 0, fertilidad: 0, corrales: [] },
       animals: [],
       referencias: [],
+      semaforo: [],
       corrales: [],
       insumos: [],
       tareas: [],
@@ -77,6 +80,7 @@ export const useStore = create<AppState>()(
       setStats: (stats) => set({ stats }),
       setAnimals: (animals) => set({ animals }),
       setReferencias: (referencias) => set({ referencias }),
+      setSemaforo: (semaforo) => set({ semaforo }),
       setCorrales: (corrales) => set({ corrales }),
       setInsumos: (insumos) => set({ insumos }),
       setTareas: (tareas) => set({ tareas }),

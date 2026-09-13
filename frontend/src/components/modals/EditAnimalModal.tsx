@@ -3,6 +3,7 @@ import { X, Save, Edit3, Tag, Map, Calendar, Scale, Users, Target, Activity } fr
 import { main } from "../../../wailsjs/go/models";
 import ImageUpload from '../ImageUpload';
 import CertificateFields from './CertificateFields';
+import { avisoVentaBaja } from '../semaforoAvisos';
 
 interface EditAnimalModalProps {
   show: boolean;
@@ -12,9 +13,10 @@ interface EditAnimalModalProps {
   onUpdate: () => void;
   corrales: main.Corral[];
   user?: any;
+  semaforo?: main.SemaforoAnimal;
 }
 
-const EditAnimalModal: React.FC<EditAnimalModalProps> = ({ show, onClose, form, setForm, onUpdate, corrales, user }) => {
+const EditAnimalModal: React.FC<EditAnimalModalProps> = ({ show, onClose, form, setForm, onUpdate, corrales, user, semaforo }) => {
   if (!show || !form) return null;
   const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
   const isPieDeCria = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
@@ -136,6 +138,11 @@ const EditAnimalModal: React.FC<EditAnimalModalProps> = ({ show, onClose, form, 
                 <option value="Vendido">Vendido</option>
                 <option value="Baja">Baja / Muerto</option>
               </select>
+              {(() => { const av = avisoVentaBaja(form.estatus, semaforo); return av ? (
+                <div className={`mt-2 rounded-2xl border px-4 py-3 text-xs font-bold ${av.tono === 'alerta' ? 'border-amber-500/40 bg-amber-500/10 text-amber-200' : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200'}`}>
+                  {av.texto}
+                </div>
+              ) : null; })()}
             </div>
 
             <div className="space-y-2">

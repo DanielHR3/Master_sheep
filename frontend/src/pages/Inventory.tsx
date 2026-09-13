@@ -30,6 +30,7 @@ interface InventoryProps {
   onDownloadTemplate: () => void;
   onFicha?: (a: main.Animal) => void;
   referencias?: main.Animal[];
+  semaforo?: main.SemaforoAnimal[];
   user: any;
 }
 
@@ -53,11 +54,13 @@ const Inventory: React.FC<InventoryProps> = ({
   onDownloadTemplate,
   onFicha,
   referencias = [],
+  semaforo = [],
   user
 }) => {
   const [filterDestino, setFilterDestino] = useState<'all' | 'Engorda' | 'Pie de Cría'>('all');
   const [search, setSearch] = useState('');
   const [showRefs, setShowRefs] = useState(false);
+  const semaforoById = React.useMemo(() => Object.fromEntries(semaforo.map(s => [s.animal_id, s])), [semaforo]);
   // Búsqueda por arete, raza, corral o linaje (padre/madre): el caso real es
   // "¿qué líneas trae este semental?" tecleando el arete en el celular.
   const matchesSearch = (a: main.Animal) => {
@@ -201,6 +204,7 @@ const Inventory: React.FC<InventoryProps> = ({
               onViewWeights={() => onViewWeights(a)} 
               onViewGenealogy={() => onViewGenealogy(a)}
               onFicha={onFicha ? () => onFicha(a) : undefined}
+              semaforo={semaforoById[a.id]}
               isAdmin={user?.role === 'Admin'}
             />
           ))}
