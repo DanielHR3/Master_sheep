@@ -11,9 +11,13 @@ import (
 // una frase en lenguaje de corral, calculados con pesajes, edad, tratamientos
 // y destino. Reglas en docs/superpowers/specs/2026-09-12-semaforo-hato-design.md.
 
+// Meta de venta del rancho: 42 kg y 4 meses. El rojo ("sácalo hoy") entra
+// "uno arriba" de la meta, como lo pidió el rancho: desde 43 kg y 121 días.
 const (
 	metaPesoVenta  = 42.0 // kg
 	metaEdadVenta  = 120  // días (4 meses)
+	listoPesoVenta = metaPesoVenta + 1
+	listoEdadVenta = metaEdadVenta + 1
 	ventaProximaEn = 30   // días para "amarillo" en venta
 	ventanaGDP     = 90   // días de pesajes considerados para la GDP
 	ventanaTratos  = 60   // días para contar tratamientos repetidos
@@ -304,7 +308,7 @@ func (a *App) GetSemaforoHato() ([]SemaforoAnimal, error) {
 		// --- Venta (solo engorda) ---
 		s.Venta = SenalVenta{Color: "gris"}
 		if esEngorda && len(d.pesajes) > 0 {
-			listoPeso, listoEdad := d.pesoActual >= metaPesoVenta, d.edad >= metaEdadVenta
+			listoPeso, listoEdad := d.pesoActual >= listoPesoVenta, d.edad >= listoEdadVenta
 			if listoPeso && listoEdad {
 				s.Venta.Color = "rojo"
 				if d.tieneGDP && d.gdp > 0 {
@@ -313,11 +317,11 @@ func (a *App) GetSemaforoHato() ([]SemaforoAnimal, error) {
 			} else if d.tieneGDP && d.gdp > 0 {
 				diasPeso := 0.0
 				if !listoPeso {
-					diasPeso = (metaPesoVenta - d.pesoActual) / d.gdp
+					diasPeso = (listoPesoVenta - d.pesoActual) / d.gdp
 				}
 				diasEdad := 0.0
 				if !listoEdad {
-					diasEdad = float64(metaEdadVenta - d.edad)
+					diasEdad = float64(listoEdadVenta - d.edad)
 				}
 				dias := int(math.Ceil(math.Max(diasPeso, diasEdad)))
 				s.Venta.DiasEstimados = dias

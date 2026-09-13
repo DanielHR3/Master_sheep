@@ -55,10 +55,10 @@ func TestSemaforoVentaProyectada(t *testing.T) {
 	if err := a.AddAnimal(Animal{ID: "p1", Arete: "P-1", Destino: "Engorda", Estatus: "Activo", FechaNacimiento: daysAgo(130), PesoNacer: 4}); err != nil {
 		t.Fatal(err)
 	}
-	// 0.3 kg/día: de 30 a 39 kg en 30 días → faltan 3 kg → ~10 días
+	// 0.3 kg/día: de 30 a 39 kg en 30 días → faltan 4 kg para el rojo (43) → ~14 días
 	addWeights(t, a, "p1", [2]float64{31, 30}, [2]float64{1, 39})
 	s := semaforoOf(t, a, "p1")
-	if s.Venta.Color != "amarillo" || s.Venta.DiasEstimados < 8 || s.Venta.DiasEstimados > 12 || s.Venta.FechaEstimada == "" {
+	if s.Venta.Color != "amarillo" || s.Venta.DiasEstimados < 12 || s.Venta.DiasEstimados > 16 || s.Venta.FechaEstimada == "" {
 		t.Fatalf("venta = %+v", s.Venta)
 	}
 	if s.Crecimiento.GDP < 0.29 || s.Crecimiento.GDP > 0.31 {
@@ -165,4 +165,23 @@ func lower(s string) string {
 		}
 	}
 	return string(b)
+}
+
+// El rojo entra "uno arriba" de la meta: 42.0 kg / 120 días aún no es rojo.
+func TestSemaforoRojoUnoArribaDeLaMeta(t *testing.T) {
+	a := newLoggedInTestApp(t)
+	if err := a.AddAnimal(Animal{ID: "b1", Arete: "B-1", Destino: "Engorda", Estatus: "Activo", FechaNacimiento: daysAgo(120), PesoNacer: 4}); err != nil {
+		t.Fatal(err)
+	}
+	addWeights(t, a, "b1", [2]float64{30, 36}, [2]float64{0, 42.0})
+	if s := semaforoOf(t, a, "b1"); s.Venta.Color == "rojo" {
+		t.Fatalf("42.0 kg / 120 días no debe ser rojo: %+v", s.Venta)
+	}
+	if err := a.AddAnimal(Animal{ID: "b2", Arete: "B-2", Destino: "Engorda", Estatus: "Activo", FechaNacimiento: daysAgo(121), PesoNacer: 4}); err != nil {
+		t.Fatal(err)
+	}
+	addWeights(t, a, "b2", [2]float64{30, 37}, [2]float64{0, 43.0})
+	if s := semaforoOf(t, a, "b2"); s.Venta.Color != "rojo" {
+		t.Fatalf("43 kg / 121 días debe ser rojo: %+v", s.Venta)
+	}
 }

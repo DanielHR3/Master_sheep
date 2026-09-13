@@ -992,10 +992,12 @@ func (a *App) GetStats() (map[string]interface{}, error) {
 
 			if months < 0 { months = 0 }
 			
+			// Misma regla que el semáforo del hato: rojo = pasó la meta en peso Y edad
+			// (desde 43 kg y 4 meses cumplidos); amarillo = ya cerca en alguno de los dos.
 			color := "verde"
-			if months >= 4 || pesoActual >= 42 {
+			if months >= 4 && pesoActual >= listoPesoVenta {
 				color = "rojo"
-			} else if months == 3 || (pesoActual >= 35 && pesoActual < 42) {
+			} else if months >= 3 || pesoActual >= 35 {
 				color = "amarillo"
 			} else if months <= 1 {
 				continue // Muy jóvenes para alerta

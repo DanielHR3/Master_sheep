@@ -14,7 +14,7 @@ Además, **valor estimado** = peso actual × precio por kg del rancho (configura
 ## 2. Reglas (rule-based; se calibrarán con datos reales cuando existan)
 - **GDP animal**: con ≥ 2 pesajes, pendiente entre el primero y el último de los últimos 90 días; con 1 pesaje y peso al nacer, (peso − peso_nacer)/edad. Sin pesajes → gris.
 - **Lote**: animales activos del mismo destino con edad ±60 días y GDP > 0; hace falta ≥ 3 para comparar, si no, la señal de crecimiento queda gris.
-- **Venta**: rojo = ya cumple peso y edad (convención del rancho: rojo = sácalo hoy); amarillo = proyectado a ≤ 30 días; verde = más lejos; gris = sin datos o no es engorda.
+- **Venta**: rojo = pasó la meta en peso y edad, "uno arriba" (desde 43 kg y 121 días; convención del rancho: rojo = sácalo hoy); amarillo = proyectado a ≤ 30 días; verde = más lejos; gris = sin datos o no es engorda.
 - **Crecimiento**: rojo < 60 % del lote, amarillo < 85 %, verde ≥ 85 %.
 - **Riesgo**: rojo = GDP ≤ 0 con ≥ 2 pesajes, o ≥ 3 tratamientos en 60 días, o > 60 días sin pesaje en engorda; amarillo = 2 tratamientos en 60 días o > 30 días sin pesaje; verde = nada de lo anterior; gris = sin pesajes.
 - **Color global** = el más urgente de las tres señales (rojo > amarillo > verde > gris). **Frase** = la señal que manda, en lenguaje de corral ("Listo para venta: 43.2 kg, ~$3,240", "Gana 45 % menos que su lote", "Sin pesaje desde hace 38 días", "Va bien: 0.26 kg/día").
