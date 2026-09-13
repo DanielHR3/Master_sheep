@@ -223,6 +223,7 @@ func (a *App) runMigrations() {
 	a.db.Exec("ALTER TABLE animales ADD COLUMN foto TEXT")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN tipo_nacimiento TEXT")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN es_referencia INTEGER DEFAULT 0")
+	a.db.Exec("ALTER TABLE rancho_perfil ADD COLUMN precio_kg REAL DEFAULT 0")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN nombre TEXT")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN tatuaje_der TEXT")
 	a.db.Exec("ALTER TABLE animales ADD COLUMN tatuaje_izq TEXT")
@@ -441,7 +442,8 @@ func (a *App) createSchema() error {
 		propietario_nombre TEXT,
 		propietario_centro TEXT,
 		propietario_municipio_estado TEXT,
-		logo TEXT
+		logo TEXT,
+		precio_kg REAL DEFAULT 0
 	);
 	CREATE TABLE IF NOT EXISTS leads (
 		id TEXT PRIMARY KEY,

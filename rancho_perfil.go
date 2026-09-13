@@ -8,17 +8,18 @@ import (
 // RanchoPerfil son los datos del rancho que van al pie de la ficha
 // genealógica: criador y propietario tal como los pide el certificado UNO.
 type RanchoPerfil struct {
-	RanchoID                   string `json:"rancho_id"`
-	Nombre                     string `json:"nombre"`
-	CriadorClave               string `json:"criador_clave"`
-	CriadorNombre              string `json:"criador_nombre"`
-	CriadorCentro              string `json:"criador_centro"`
-	CriadorMunicipioEstado     string `json:"criador_municipio_estado"`
-	PropietarioClave           string `json:"propietario_clave"`
-	PropietarioNombre          string `json:"propietario_nombre"`
-	PropietarioCentro          string `json:"propietario_centro"`
-	PropietarioMunicipioEstado string `json:"propietario_municipio_estado"`
-	Logo                       string `json:"logo"` // data URL opcional
+	RanchoID                   string  `json:"rancho_id"`
+	Nombre                     string  `json:"nombre"`
+	CriadorClave               string  `json:"criador_clave"`
+	CriadorNombre              string  `json:"criador_nombre"`
+	CriadorCentro              string  `json:"criador_centro"`
+	CriadorMunicipioEstado     string  `json:"criador_municipio_estado"`
+	PropietarioClave           string  `json:"propietario_clave"`
+	PropietarioNombre          string  `json:"propietario_nombre"`
+	PropietarioCentro          string  `json:"propietario_centro"`
+	PropietarioMunicipioEstado string  `json:"propietario_municipio_estado"`
+	Logo                       string  `json:"logo"`      // data URL opcional
+	PrecioKg                   float64 `json:"precio_kg"` // precio de venta por kg en pie (para el valor estimado)
 }
 
 // GetRanchoPerfil devuelve el perfil del rancho actual (vacío si no se ha
@@ -29,10 +30,10 @@ func (a *App) GetRanchoPerfil() (RanchoPerfil, error) {
 	}
 	p := RanchoPerfil{RanchoID: a.tenantID()}
 	err := a.db.QueryRow(a.q(`SELECT COALESCE(nombre,''), COALESCE(criador_clave,''), COALESCE(criador_nombre,''), COALESCE(criador_centro,''), COALESCE(criador_municipio_estado,''),
-		COALESCE(propietario_clave,''), COALESCE(propietario_nombre,''), COALESCE(propietario_centro,''), COALESCE(propietario_municipio_estado,''), COALESCE(logo,'')
+		COALESCE(propietario_clave,''), COALESCE(propietario_nombre,''), COALESCE(propietario_centro,''), COALESCE(propietario_municipio_estado,''), COALESCE(logo,''), COALESCE(precio_kg, 0)
 		FROM rancho_perfil WHERE id = ?`), a.tenantID()).Scan(
 		&p.Nombre, &p.CriadorClave, &p.CriadorNombre, &p.CriadorCentro, &p.CriadorMunicipioEstado,
-		&p.PropietarioClave, &p.PropietarioNombre, &p.PropietarioCentro, &p.PropietarioMunicipioEstado, &p.Logo)
+		&p.PropietarioClave, &p.PropietarioNombre, &p.PropietarioCentro, &p.PropietarioMunicipioEstado, &p.Logo, &p.PrecioKg)
 	if err != nil && err != sql.ErrNoRows {
 		return RanchoPerfil{}, err
 	}
@@ -47,14 +48,14 @@ func (a *App) SaveRanchoPerfil(p RanchoPerfil) error {
 	p.RanchoID = a.tenantID()
 	row := ranchoPerfilRow(p)
 	_, err := a.db.Exec(a.q(`INSERT INTO rancho_perfil (id, rancho_id, nombre, criador_clave, criador_nombre, criador_centro, criador_municipio_estado,
-		propietario_clave, propietario_nombre, propietario_centro, propietario_municipio_estado, logo)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		propietario_clave, propietario_nombre, propietario_centro, propietario_municipio_estado, logo, precio_kg)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT (id) DO UPDATE SET nombre = excluded.nombre, criador_clave = excluded.criador_clave, criador_nombre = excluded.criador_nombre,
 		criador_centro = excluded.criador_centro, criador_municipio_estado = excluded.criador_municipio_estado,
 		propietario_clave = excluded.propietario_clave, propietario_nombre = excluded.propietario_nombre,
-		propietario_centro = excluded.propietario_centro, propietario_municipio_estado = excluded.propietario_municipio_estado, logo = excluded.logo`),
+		propietario_centro = excluded.propietario_centro, propietario_municipio_estado = excluded.propietario_municipio_estado, logo = excluded.logo, precio_kg = excluded.precio_kg`),
 		p.RanchoID, p.RanchoID, p.Nombre, p.CriadorClave, p.CriadorNombre, p.CriadorCentro, p.CriadorMunicipioEstado,
-		p.PropietarioClave, p.PropietarioNombre, p.PropietarioCentro, p.PropietarioMunicipioEstado, p.Logo)
+		p.PropietarioClave, p.PropietarioNombre, p.PropietarioCentro, p.PropietarioMunicipioEstado, p.Logo, p.PrecioKg)
 	if err != nil {
 		return err
 	}
@@ -68,6 +69,6 @@ func ranchoPerfilRow(p RanchoPerfil) map[string]interface{} {
 		"id": p.RanchoID, "rancho_id": p.RanchoID, "nombre": p.Nombre,
 		"criador_clave": p.CriadorClave, "criador_nombre": p.CriadorNombre, "criador_centro": p.CriadorCentro, "criador_municipio_estado": p.CriadorMunicipioEstado,
 		"propietario_clave": p.PropietarioClave, "propietario_nombre": p.PropietarioNombre, "propietario_centro": p.PropietarioCentro, "propietario_municipio_estado": p.PropietarioMunicipioEstado,
-		"logo": p.Logo,
+		"logo": p.Logo, "precio_kg": p.PrecioKg,
 	}
 }

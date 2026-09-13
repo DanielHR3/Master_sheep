@@ -144,6 +144,7 @@ func (a *App) StartAPIServer(port int) {
 	mux.HandleFunc("/api/pedigree", corsWrapper(a.withAuth((*App).handlePedigree)))
 	mux.HandleFunc("/api/animals/referencias", corsWrapper(a.withAuth((*App).handleAnimalesReferencia)))
 	mux.HandleFunc("/api/rancho-perfil", corsWrapper(a.withAuth((*App).handleRanchoPerfil)))
+	mux.HandleFunc("/api/semaforo", corsWrapper(a.withAuth((*App).handleSemaforo)))
 	mux.HandleFunc("/api/sync-now", corsWrapper(a.withAuth((*App).handleSyncNow)))
 
 	// Servir archivos estáticos del frontend (PWA)
@@ -754,4 +755,18 @@ func (a *App) handleRanchoPerfil(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
 	}
+}
+
+// handleSemaforo: GET /api/semaforo → semáforo de todos los animales activos.
+func (a *App) handleSemaforo(w http.ResponseWriter, r *http.Request) {
+	items, err := a.GetSemaforoHato()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if items == nil {
+		items = []SemaforoAnimal{}
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(items)
 }
