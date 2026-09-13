@@ -21,7 +21,7 @@ const Landing: React.FC<LandingProps> = ({ onLoginClick }) => {
     <div className="min-h-screen bg-white font-sans text-slate-900">
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-slate-950/80 text-white backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <a href="./" className="flex items-center gap-2">
+          <a href="./inicio" className="flex items-center gap-2">
             <img src="/logo.png" alt="" className="h-9 w-9 rounded-xl object-cover" />
             <span className="font-display text-lg font-black">
               Sheep<span className="text-emerald-400">Master</span>

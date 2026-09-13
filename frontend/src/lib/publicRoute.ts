@@ -13,7 +13,11 @@ const isWails = () => !!(window as any).go;
 // o quien entra a "/login", → login.
 export function getPublicView(): PublicView {
   if (isWails()) return 'login';
-  if (window.location.pathname.endsWith('/login')) return 'login';
+  const path = window.location.pathname.replace(/\/+$/, '');
+  // /inicio (o /landing) muestra SIEMPRE la página de ventas, aunque este
+  // navegador ya haya usado la app: es la URL fija para compartir.
+  if (path.endsWith('/inicio') || path.endsWith('/landing')) return 'landing';
+  if (path.endsWith('/login')) return 'login';
   try {
     if (localStorage.getItem(SEEN_KEY)) return 'login';
   } catch {
@@ -32,8 +36,8 @@ export function markAppSeen(): void {
 
 // Navegación sin recarga: pushState + evento popstate para que el hook
 // se entere. Rutas relativas para no romper el base "./" de Vite.
-export function navigateTo(path: '/' | '/login'): void {
-  const target = path === '/login' ? './login' : './';
+export function navigateTo(path: '/' | '/login' | '/inicio'): void {
+  const target = path === '/login' ? './login' : path === '/inicio' ? './inicio' : './';
   window.history.pushState({}, '', target);
   window.dispatchEvent(new PopStateEvent('popstate'));
 }
