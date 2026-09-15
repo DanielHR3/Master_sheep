@@ -10,7 +10,11 @@ import (
 var (
 	//go:embed frontend/public/logo_bugambilias.png
 	logoBugambilias []byte
-	//go:embed frontend/public/logo_donpablito.png
+	// Este vive fuera de frontend/public a propósito: Vite publica esa carpeta
+	// entera, y el escudo de Don Pablito quedaba descargable desde internet
+	// aunque la interfaz ya no lo mostrara. Sigue embebido porque las fichas
+	// genealógicas que ya se emitieron tienen que poder regenerarse.
+	//go:embed branding/logo_donpablito.png
 	logoDonPablito []byte
 	//go:embed frontend/public/logo.png
 	logoSheepMaster []byte
