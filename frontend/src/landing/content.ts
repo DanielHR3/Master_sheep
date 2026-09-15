@@ -9,16 +9,16 @@ export const hero = {
     'Pesajes, tratamientos, reproducción y genealogía de tu hato ovino en tu celular y tu computadora. Hecho a la medida de cómo trabaja tu rancho.',
   primary: 'Agenda una demo',
   secondary: 'Ver cómo funciona',
-  caption: 'Pesaje registrado sin señal y sincronizado al recuperar internet. Grabación real de la app.',
+  caption: 'Registro de pesaje en el inventario del hato. Grabación real de la app.',
 };
 
 export const tailored = {
   title: 'A la medida de tu rancho',
-  subtitle: 'El mismo sistema ya trabaja con dos modelos de negocio distintos. Tú decides qué pantallas y reglas necesitas.',
+  subtitle: 'El mismo sistema cubre engorda y pie de cría, con pantallas y reglas distintas para cada uno. Tú decides cuáles necesitas.',
   cards: [
     {
       tag: 'Engorda',
-      example: 'Como en un rancho de engorda en Jalisco',
+      example: 'Para un rancho de engorda',
       image: '/landing/engorda.png',
       points: [
         'Sabes qué borregos ya dan el peso y la edad de venta, hoy.',
@@ -28,7 +28,7 @@ export const tailored = {
     },
     {
       tag: 'Pie de cría',
-      example: 'Como en un rancho de pie de cría',
+      example: 'Para un rancho de pie de cría',
       image: '/landing/cria.png',
       points: [
         'Padres, abuelos y método de concepción de cada animal.',

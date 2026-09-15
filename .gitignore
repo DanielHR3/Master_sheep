@@ -30,7 +30,13 @@ Thumbs.db
 # Temp files
 deploy_temp/
 scratch/
-seeder/
+# El contenido de seeder/ se ignora, salvo el seeder del hato demo: es la
+# herramienta con la que se vuelven a capturar las imágenes de la landing
+# (ver scripts/capture-landing.mjs), así que tiene que viajar con el repo.
+# Va con "seeder/*" y no "seeder/": git no reincluye nada dentro de un
+# directorio ya excluido.
+seeder/*
+!seeder/demo/
 *.zip
 *.log
 .env
