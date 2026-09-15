@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { main } from "../../wailsjs/go/models";
 import SemaforoBadge from './SemaforoBadge';
+import { useStore } from '../context/useStore';
 
 interface AnimalCardProps {
   animal: main.Animal;
@@ -43,7 +44,17 @@ const AnimalCard: React.FC<AnimalCardProps> = ({
   isAdmin
 }) => {
   const isDark = theme === 'dark';
-  
+
+  // corral_id guarda a veces el id del corral y a veces su nombre: el alta de
+  // animal escribe el nombre y mover un animal escribe el id. Aquí se resuelve
+  // cualquiera de los dos, porque pintarlo crudo dejaba un uuid a la vista.
+  const corrales = useStore(state => state.corrales);
+  const nombreCorral = React.useMemo(() => {
+    const ref = animal.corral_id;
+    if (!ref) return '';
+    return corrales?.find(c => c.id === ref)?.nombre || ref;
+  }, [animal.corral_id, corrales]);
+
   const daysAlive = Math.floor((new Date().getTime() - new Date(animal.fecha_nacimiento).getTime()) / (1000 * 60 * 60 * 24));
   const pesoActual = animal.peso_150_dias || animal.peso_destete || animal.peso_nacer;
   // GDP: la del semáforo (calculada con los pesajes reales) cuando existe;
@@ -129,7 +140,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({
         </div>
         <div className="flex-1 px-2 text-center">
             <p className={`text-[8px] font-black uppercase tracking-widest mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>CORRAL</p>
-            <p className="text-[11px] font-bold text-cyan-400">{animal.corral_id || 'N/A'}</p>
+            <p className="text-[11px] font-bold text-cyan-400">{nombreCorral || 'N/A'}</p>
         </div>
       </div>
 

@@ -856,7 +856,10 @@ func (a *App) DeleteCorral(id string) error {
 	defer tx.Rollback()
 
 	// 1. Remove corral_id from animals in this corral
-	_, err = tx.Exec(a.q("UPDATE animales SET corral_id = '' WHERE corral_id = (SELECT nombre FROM corrales WHERE id = ?) AND user_id = ?"), id, a.tenantID())
+	// Igual que la ocupación, el corral pudo quedar guardado por nombre o por
+	// id. El paréntesis importa: sin él, AND se agrupa antes que OR y el
+	// UPDATE alcanzaría animales de otros ranchos con ese mismo nombre.
+	_, err = tx.Exec(a.q("UPDATE animales SET corral_id = '' WHERE (corral_id IN (SELECT nombre FROM corrales WHERE id = ?) OR corral_id = ?) AND user_id = ?"), id, id, a.tenantID())
 	if err != nil {
 		return err
 	}
@@ -919,23 +922,35 @@ func (a *App) GetStats() (map[string]interface{}, error) {
 		return nil, fmt.Errorf("no autenticado")
 	}
 
+	// Los ancestros de pedigrí (es_referencia = 1) existen solo para dibujar el
+	// árbol genealógico: no son cabezas del hato y GetAnimales tampoco los
+	// lista, así que tampoco deben contarse aquí. Sin este filtro el dashboard
+	// reportaba más animales de los que el inventario mostraba.
+	const noReferencia = " AND COALESCE(es_referencia, 0) = 0"
+
 	var total int
-	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND estatus = 'Activo'"), a.tenantID()).Scan(&total)
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND estatus = 'Activo'"+noReferencia), a.tenantID()).Scan(&total)
 
 	var engorda int
-	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND destino = 'Engorda' AND estatus = 'Activo'"), a.tenantID()).Scan(&engorda)
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND destino = 'Engorda' AND estatus = 'Activo'"+noReferencia), a.tenantID()).Scan(&engorda)
 
 	var cria int
-	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND destino = 'Pie de Cría' AND estatus = 'Activo'"), a.tenantID()).Scan(&cria)
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND destino = 'Pie de Cría' AND estatus = 'Activo'"+noReferencia), a.tenantID()).Scan(&cria)
 
 	var bajas int
-	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND estatus = 'Baja'"), a.tenantID()).Scan(&bajas)
+	a.db.QueryRow(a.q("SELECT COUNT(*) FROM animales WHERE user_id = ? AND estatus = 'Baja'"+noReferencia), a.tenantID()).Scan(&bajas)
 
-	// Corrales con ocupación
+	// Corrales con ocupación.
+	//
+	// El cruce acepta el id y el nombre porque la app guarda las dos cosas en
+	// animales.corral_id: el alta de animal escribe el nombre del corral
+	// (AddAnimalModal) y mover un animal escribe el id (MoveAnimal). Cruzando
+	// solo por id, un rancho que da de alta por el formulario veía 0% de
+	// ocupación en todos sus corrales.
 	rows, err := a.db.Query(a.q(`
 		SELECT c.nombre, COUNT(a.id) as cantidad, c.capacidad 
 		FROM corrales c 
-		LEFT JOIN animales a ON c.id = a.corral_id AND a.estatus = 'Activo'
+		LEFT JOIN animales a ON a.corral_id IN (c.id, c.nombre) AND a.estatus = 'Activo'
 		WHERE c.user_id = ? 
 		GROUP BY c.id, c.nombre, c.capacidad
 		ORDER BY c.nombre ASC`), a.tenantID())
