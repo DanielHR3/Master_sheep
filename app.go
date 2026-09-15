@@ -236,6 +236,71 @@ func (a *App) runMigrations() {
 	a.db.Exec("ALTER TABLE animales ADD COLUMN id_electronica TEXT")
 	a.db.Exec("ALTER TABLE tratamientos ADD COLUMN via_administracion TEXT")
 	a.db.Exec("ALTER TABLE users ADD COLUMN rancho_id TEXT")
+
+	a.normalizarCorralID()
+}
+
+// normalizarCorralID pasa a id los animales cuyo corral quedó guardado por
+// nombre. Durante mucho tiempo el alta de animal escribía el nombre del corral
+// y mover un animal escribía su id, así que la misma columna terminó con las
+// dos formas; la ocupación del dashboard cruzaba solo por id y un rancho que
+// daba de alta por el formulario veía 0% en todos sus corrales.
+//
+// Es idempotente: solo toca filas cuyo valor coincide EXACTO con el nombre de
+// un corral del mismo rancho y que no sea ya el id de uno. Un valor que no
+// empareje con nada se deja como está, para no perder lo que el ranchero
+// escribió en la carga masiva.
+func (a *App) normalizarCorralID() {
+	res, err := a.db.Exec(a.q(`
+		UPDATE animales
+		SET corral_id = (
+			SELECT c.id FROM corrales c
+			WHERE c.user_id = animales.user_id AND c.nombre = animales.corral_id
+		)
+		WHERE corral_id IS NOT NULL AND corral_id <> ''
+		  AND EXISTS (
+			SELECT 1 FROM corrales c
+			WHERE c.user_id = animales.user_id AND c.nombre = animales.corral_id
+		  )
+		  AND NOT EXISTS (
+			SELECT 1 FROM corrales c
+			WHERE c.user_id = animales.user_id AND c.id = animales.corral_id
+		  )`))
+	if err != nil {
+		fmt.Printf("Aviso: no se pudo normalizar corral_id: %v\n", err)
+		return
+	}
+	if n, err := res.RowsAffected(); err == nil && n > 0 {
+		fmt.Printf("Migración: %d animal(es) tenían el corral guardado por nombre; ahora va por id.\n", n)
+	}
+}
+
+// consultador es lo mínimo que corralIDPorNombre necesita: lo cumplen tanto
+// *sql.DB como *sql.Tx. Existe para poder consultar DENTRO de la transacción
+// del import; hacerlo contra a.db abría una segunda conexión y, con el pool
+// limitado a una, el import se quedaba esperándose a sí mismo.
+type consultador interface {
+	QueryRow(query string, args ...interface{}) *sql.Row
+}
+
+// corralIDPorNombre traduce el nombre de un corral al id con el que se guarda
+// en animales.corral_id. Compara sin distinguir mayúsculas ni espacios de
+// sobra, porque viene escrito a mano en una hoja de Excel. Si no encuentra
+// nada devuelve el texto original sin tocar.
+func (a *App) corralIDPorNombre(q consultador, nombre string) string {
+	limpio := strings.TrimSpace(nombre)
+	if limpio == "" {
+		return ""
+	}
+	var id string
+	err := q.QueryRow(a.q(`
+		SELECT id FROM corrales
+		WHERE user_id = ? AND LOWER(TRIM(nombre)) = LOWER(?)
+		LIMIT 1`), a.tenantID(), limpio).Scan(&id)
+	if err != nil || id == "" {
+		return limpio
+	}
+	return id
 }
 
 // createSchema crea todas las tablas si no existen. Se extrajo de initDB()
@@ -1787,7 +1852,11 @@ func (a *App) processExcel(f *excelize.File, userID string) (int, error) {
 		if sexo == "" {
 			sexo = "Hembra"
 		}
-		corral := cell("corral")
+		// En la carga masiva el ranchero escribe el NOMBRE del corral, nunca
+		// un id. Se traduce a id para que quede como en el resto de la app; si
+		// no empareja con ningún corral suyo, se conserva lo que escribió en
+		// vez de descartarlo, y la UI lo sigue mostrando tal cual.
+		corral := a.corralIDPorNombre(tx, cell("corral"))
 		fechaNac := ""
 		if val := cell("fecha_nacimiento"); val != "" {
 			// Intentar diversos formatos de fecha comunes en Excel/Latam

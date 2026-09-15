@@ -65,7 +65,10 @@ const AddAnimalModal: React.FC<AddAnimalModalProps> = ({ show, onClose, form, se
               onChange={e => setForm({...form, corral: e.target.value})}
             >
               <option value="">Sin asignar</option>
-              {corrales.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
+              {/* El valor es el id, no el nombre: así el corral sigue ligado
+                  aunque después lo renombren, y la ocupación del dashboard
+                  lo encuentra. El modal de edición ya lo hacía así. */}
+              {corrales.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
             </select>
           </div>
         </div>
