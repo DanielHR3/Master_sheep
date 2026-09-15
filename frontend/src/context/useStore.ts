@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { main } from "../../wailsjs/go/models";
+import { DON_PABLITO_ENABLED } from '../lib/ranchos';
 
 interface AppState {
   // UI State
@@ -97,6 +98,14 @@ export const useStore = create<AppState>()(
         activeTab: state.activeTab,
         selectedRanchOverride: state.selectedRanchOverride
       }),
+      // Un rancho apagado no debe quedarse pegado en localStorage: quien lo
+      // tuviera seleccionado volvería a la vista global sin poder cambiarlo,
+      // porque su botón ya no está en el selector.
+      onRehydrateStorage: () => (state) => {
+        if (state && !DON_PABLITO_ENABLED && state.selectedRanchOverride === 'PABLITO') {
+          state.selectedRanchOverride = null;
+        }
+      },
     }
   )
 );

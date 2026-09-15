@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { RefreshCw, Eye, EyeOff } from 'lucide-react';
+import { DON_PABLITO_ENABLED } from '../lib/ranchos';
 
 interface LoginProps {
   onLogin: () => void;
@@ -25,7 +26,7 @@ const Login: React.FC<LoginProps> = ({
   };
 
   const isBugambilias = email.toLowerCase().includes('bugambilias');
-  const isPablito = email.toLowerCase().includes('pablito');
+  const isPablito = DON_PABLITO_ENABLED && email.toLowerCase().includes('pablito');
   const logoSrc = isBugambilias ? 'logo_bugambilias.png' : isPablito ? 'logo_donpablito.png' : 'logo.png';
   const logoBg = isBugambilias ? 'bg-[#1f2124]' : 'bg-white';
   const ranchoName = isBugambilias 

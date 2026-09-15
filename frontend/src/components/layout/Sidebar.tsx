@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import SidebarItem from '../SidebarItem';
 import { Segmented, SegmentedItem } from '../ui/segmented';
+import { DON_PABLITO_ENABLED } from '../../lib/ranchos';
 
 interface SidebarProps {
   activeTab: string;
@@ -32,7 +33,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
   const isDark = theme === 'dark';
   const rawRancho = (selectedRanchOverride || user?.rancho_id || user?.name || '').toUpperCase();
   const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (selectedRanchOverride ? false : (user?.email?.toLowerCase() || '').includes('bugambilias'));
-  const isDonPablito = rawRancho.includes('PABLITO') || (selectedRanchOverride ? false : (user?.email?.toLowerCase() || '').includes('pablito')) || rawRancho.includes('25CF359E-E5A7-4403-A1F1-3A4375F21EF3');
+  const isDonPablito = DON_PABLITO_ENABLED && (rawRancho.includes('PABLITO') || (selectedRanchOverride ? false : (user?.email?.toLowerCase() || '').includes('pablito')) || rawRancho.includes('25CF359E-E5A7-4403-A1F1-3A4375F21EF3'));
   
   const logoSrc = isBugambilias ? '/logo_bugambilias.png' : isDonPablito ? '/logo_donpablito.png' : '/logo.png';
   // Cada escudo va sobre su propio fondo: Bugambilias es cromado sobre oscuro, los demás sobre blanco.
@@ -80,20 +81,24 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
               <SidebarItem icon={<ShieldCheck size={22} />} label="Personal" active={activeTab === 'staff'} onClick={() => setActiveTab('staff')} isCollapsed={isCollapsed} />
             </>
           )}
-          {(user?.role === 'Admin' || user?.role === 'SuperAdmin') && !isCollapsed && (
+          {/* Solo el SuperAdmin cambia de rancho. Un Admin pertenece a un rancho
+              y no tiene por qué ver los nombres de los demás clientes. */}
+          {user?.role === 'SuperAdmin' && !isCollapsed && (
             <div className="pt-4 mt-2 px-2">
               <label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 mb-2">
                 <MapPin size={12} className="text-emerald-500" />
                 Cambiar Rancho
               </label>
               <Segmented
-                className="w-full grid grid-cols-3 gap-0.5 p-0.5"
+                className={`w-full grid gap-0.5 p-0.5 ${DON_PABLITO_ENABLED ? 'grid-cols-3' : 'grid-cols-2'}`}
                 value={selectedRanchOverride || ''}
                 onValueChange={(val: string) => setSelectedRanchOverride?.(val === '' ? null : val)}
               >
                 <SegmentedItem value="" className="truncate px-1.5 py-1.5 text-[10px]" title="Vista Global / Default">Global</SegmentedItem>
                 <SegmentedItem value="BUGAMBILIAS" className="truncate px-1.5 py-1.5 text-[10px]" title="Las Bugambilias (Pie de Cría)">Bugamb.</SegmentedItem>
-                <SegmentedItem value="PABLITO" className="truncate px-1.5 py-1.5 text-[10px]" title="Don Pablito (Engorda)">Pablito</SegmentedItem>
+                {DON_PABLITO_ENABLED && (
+                  <SegmentedItem value="PABLITO" className="truncate px-1.5 py-1.5 text-[10px]" title="Don Pablito (Engorda)">Pablito</SegmentedItem>
+                )}
               </Segmented>
             </div>
           )}

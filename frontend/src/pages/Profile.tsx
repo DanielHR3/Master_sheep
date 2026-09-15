@@ -10,6 +10,7 @@ import {
   FileSpreadsheet,
   LogOut, FileText } from 'lucide-react';
 import { Switch } from '../components/ui/switch';
+import { DON_PABLITO_ENABLED } from '../lib/ranchos';
 
 interface ProfileProps {
   user: any;
@@ -44,7 +45,7 @@ const Profile: React.FC<ProfileProps> = ({
 
   const rawRancho = (user?.rancho_id || user?.name || '').toUpperCase();
   const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (user?.email?.toLowerCase() || '').includes('bugambilias');
-  const isDonPablito = rawRancho.includes('PABLITO') || (user?.email?.toLowerCase() || '').includes('pablito') || rawRancho.includes('25CF359E-E5A7-4403-A1F1-3A4375F21EF3');
+  const isDonPablito = DON_PABLITO_ENABLED && (rawRancho.includes('PABLITO') || (user?.email?.toLowerCase() || '').includes('pablito') || rawRancho.includes('25CF359E-E5A7-4403-A1F1-3A4375F21EF3'));
   
   const ranchoName = isBugambilias ? 'RANCHO LAS BUGAMBILIAS' : isDonPablito ? 'RANCHO DON PABLITO' : 'SHEEPMASTER AGROTECH';
 
