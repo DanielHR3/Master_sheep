@@ -9,7 +9,7 @@ export const hero = {
     'Pesajes, tratamientos, reproducción y genealogía de tu hato ovino en tu celular y tu computadora. Hecho a la medida de cómo trabaja tu rancho.',
   primary: 'Agenda una demo',
   secondary: 'Ver cómo funciona',
-  caption: 'Registro de pesaje en el inventario del hato. Grabación real de la app.',
+  caption: 'Cómo se implementa en tu rancho, con grabación real de la app.',
 };
 
 export const tailored = {

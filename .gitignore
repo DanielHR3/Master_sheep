@@ -1,5 +1,8 @@
 # Binaries
 build/bin
+# Láminas intermedias del video del hero (ver scripts/landing-panels.mjs):
+# se regeneran con un comando y acaban dentro del mp4.
+build/landing-paneles/
 *.exe
 *.dll
 *.so
