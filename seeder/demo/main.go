@@ -114,8 +114,24 @@ func main() {
 		log.Fatalf("insertando tareas: %v", err)
 	}
 
+	salud, err := insertarSalud(db, userID, animales)
+	if err != nil {
+		log.Fatalf("insertando salud: %v", err)
+	}
+	repro, err := insertarReproduccion(db, userID, animales)
+	if err != nil {
+		log.Fatalf("insertando reproducción: %v", err)
+	}
+	movs, err := insertarMovimientos(db, userID, animales, corrales)
+	if err != nil {
+		log.Fatalf("insertando movimientos: %v", err)
+	}
+
 	resumen(animales)
 	fmt.Printf("Pesajes: %d\n", pesajes)
+	fmt.Printf("Salud: %d insumos, %d recetas con su tratamiento\n", salud.insumos, salud.recetas)
+	fmt.Printf("Reproducción: %d montas, %d diagnósticos (%d positivos), %d partos\n", repro.montas, repro.diagnosticos, repro.positivos, repro.partos)
+	fmt.Printf("Movimientos de corral: %d\n", movs)
 	fmt.Println("Listo. Entra con", demoEmail, "/", demoPassword)
 }
 
@@ -146,7 +162,13 @@ func ensureDemoUser(db *sql.DB) (string, error) {
 // limpiar borra solo lo que pertenece al tenant demo, para poder re-sembrar
 // sin duplicar y sin rozar los datos de ningún otro rancho.
 func limpiar(db *sql.DB, userID string) error {
-	for _, tabla := range []string{"seguimientos_peso", "tareas", "animales", "corrales"} {
+	// Solo se borran FILAS del usuario demo (WHERE user_id = ?); las tablas y los
+	// datos de cualquier otro rancho quedan intactos.
+	for _, tabla := range []string{
+		"recetas_veterinarias", "tratamientos", "movimientos_insumo", "insumos",
+		"diagnostico_gestacion", "partos", "eventos_reproductivos", "movimientos",
+		"seguimientos_peso", "tareas", "animales", "corrales",
+	} {
 		if _, err := db.Exec("DELETE FROM "+tabla+" WHERE user_id = ?", userID); err != nil {
 			return fmt.Errorf("%s: %w", tabla, err)
 		}
@@ -474,4 +496,294 @@ func resumen(as []animal) {
 	fmt.Printf("Hato: %d animales (%d engorda, %d pie de cría) + %d referencias de pedigrí\n",
 		engorda+cria, engorda, cria, refs)
 	fmt.Printf("Semáforo esperado en engorda: %d rojos, %d amarillos, %d verdes\n", rojos, amarillos, verdes)
+}
+
+// ------------------------------------------------------------------ salud
+
+type resumenSalud struct{ insumos, recetas int }
+
+// insertarSalud siembra el botiquín, las recetas y los tratamientos.
+//
+// Las recetas son las que alimentan la gráfica "Incidencia de Enfermedades por
+// Temporada": GetStats lee recetas_veterinarias.diagnostico y la fecha. Cada
+// receta lleva su tratamiento (historial clínico del animal) y una salida del
+// botiquín, para que el stock cuadre con lo aplicado.
+func insertarSalud(db *sql.DB, userID string, as []animal) (resumenSalud, error) {
+	rnd := rand.New(rand.NewSource(20260916))
+	var r resumenSalud
+
+	type insumo struct {
+		id, nombre, tipo, unidad string
+		stock, minimo, costo     float64
+		retiro                   int
+	}
+	botiquin := []insumo{
+		{uuid.New().String(), "Ivermectina 1%", "Antiparasitario", "ml", 480, 100, 3.5, 28},
+		{uuid.New().String(), "Oxitetraciclina LA", "Antibiótico", "ml", 350, 100, 4.2, 21},
+		{uuid.New().String(), "Albendazol 10%", "Antiparasitario", "ml", 900, 200, 1.8, 14},
+		{uuid.New().String(), "Vitamina ADE", "Vitamínico", "ml", 250, 60, 2.9, 0},
+		{uuid.New().String(), "Penicilina G", "Antibiótico", "ml", 200, 50, 5.1, 30},
+		{uuid.New().String(), "Selenio + Vitamina E", "Mineral", "ml", 180, 50, 3.3, 0},
+	}
+
+	// Cuadro clínico → medicamento y temporada en que pega más fuerte
+	// (meses 1-12; el peso decide cuántos casos caen en cada mes).
+	type cuadro struct {
+		diagnostico string
+		insumo      int
+		via         string
+		casos       int
+		pesoMes     [12]int
+	}
+	cuadros := []cuadro{
+		{"Neumonía", 1, "Intramuscular", 12, [12]int{5, 5, 3, 1, 0, 0, 0, 0, 1, 2, 4, 5}},
+		{"Parasitosis gastrointestinal", 0, "Subcutánea", 14, [12]int{1, 1, 1, 2, 3, 5, 6, 6, 5, 3, 1, 1}},
+		{"Diarrea neonatal", 1, "Oral", 8, [12]int{2, 2, 5, 5, 4, 2, 1, 1, 1, 1, 1, 2}},
+		{"Pododermatitis (cojera)", 4, "Intramuscular", 7, [12]int{1, 1, 1, 1, 2, 3, 4, 5, 5, 4, 2, 1}},
+		{"Deficiencia de selenio", 5, "Intramuscular", 4, [12]int{2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 2}},
+	}
+
+	// Candidatos: animales vivos del inventario (sin referencias de pedigrí).
+	var vivos []animal
+	for _, a := range as {
+		if !a.esReferencia {
+			vivos = append(vivos, a)
+		}
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		return r, err
+	}
+	defer tx.Rollback()
+
+	consumo := make([]float64, len(botiquin))
+	inicio := hoy.AddDate(-1, 0, 0)
+	for _, c := range cuadros {
+		for i := 0; i < c.casos; i++ {
+			// Mes elegido por peso; día al azar dentro del mes; siempre en el último año.
+			mes := elegirPorPeso(rnd, c.pesoMes[:])
+			fecha := time.Date(hoy.Year(), time.Month(mes+1), 1+rnd.Intn(27), 0, 0, 0, 0, time.UTC)
+			if fecha.After(hoy) {
+				fecha = fecha.AddDate(-1, 0, 0)
+			}
+			if fecha.Before(inicio) {
+				fecha = fecha.AddDate(1, 0, 0)
+			}
+			an := vivos[rnd.Intn(len(vivos))]
+			ins := botiquin[c.insumo]
+			peso := an.pesoObjetivo
+			if peso <= 0 {
+				peso = 45
+			}
+			dosis := roundKg(peso / 10) // 1 ml por cada 10 kg, redondeado a décimas
+			if dosis < 0.5 {
+				dosis = 0.5
+			}
+			consumo[c.insumo] += dosis
+
+			if _, err := tx.Exec(`INSERT INTO recetas_veterinarias
+				(id, user_id, animal_id, mvz, productor, fecha, peso, diagnostico, tratamiento, created_at)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+				uuid.New().String(), userID, an.id, "MVZ Laura Ortega", demoNombre,
+				fecha.Format("2006-01-02"), peso, c.diagnostico,
+				fmt.Sprintf("%s %.1f ml %s", ins.nombre, dosis, c.via),
+				fecha.Format("2006-01-02 15:04:05")); err != nil {
+				return r, fmt.Errorf("receta: %w", err)
+			}
+			finRetiro := fecha.AddDate(0, 0, ins.retiro)
+			if _, err := tx.Exec(`INSERT INTO tratamientos
+				(id, user_id, animal_id, insumo_id, dosis, via_administracion, fecha, fecha_fin_retiro, tecnico, observaciones, created_at)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+				uuid.New().String(), userID, an.id, ins.id, dosis, c.via,
+				fecha.Format("2006-01-02"), finRetiro.Format("2006-01-02"), "MVZ Laura Ortega", c.diagnostico,
+				fecha.Format("2006-01-02 15:04:05")); err != nil {
+				return r, fmt.Errorf("tratamiento: %w", err)
+			}
+			if _, err := tx.Exec(`INSERT INTO movimientos_insumo
+				(id, user_id, insumo_id, tipo, cantidad, fecha, motivo, animal_id, created_at)
+				VALUES (?, ?, ?, 'Salida', ?, ?, ?, ?, ?)`,
+				uuid.New().String(), userID, ins.id, dosis, fecha.Format("2006-01-02"),
+				"Tratamiento: "+c.diagnostico, an.id, fecha.Format("2006-01-02 15:04:05")); err != nil {
+				return r, fmt.Errorf("salida de insumo: %w", err)
+			}
+			r.recetas++
+		}
+	}
+
+	// El botiquín entra al final para que stock_actual ya descuente lo aplicado:
+	// la compra inicial fue stock actual + todo lo consumido.
+	compra := inicio.AddDate(0, 0, -15)
+	for i, ins := range botiquin {
+		if _, err := tx.Exec(`INSERT INTO insumos
+			(id, user_id, nombre, tipo, unidad, stock_actual, stock_minimo, costo_unitario, dias_retiro, lote, fecha_vencimiento, proveedor, created_at)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			ins.id, userID, ins.nombre, ins.tipo, ins.unidad, ins.stock, ins.minimo, ins.costo, ins.retiro,
+			fmt.Sprintf("L-%d%02d", hoy.Year()%100, i+1), hoy.AddDate(1, 6, 0).Format("2006-01-02"),
+			"Veterinaria del Bajío", compra.Format("2006-01-02 15:04:05")); err != nil {
+			return r, fmt.Errorf("insumo %s: %w", ins.nombre, err)
+		}
+		if _, err := tx.Exec(`INSERT INTO movimientos_insumo
+			(id, user_id, insumo_id, tipo, cantidad, fecha, motivo, animal_id, created_at)
+			VALUES (?, ?, ?, 'Entrada', ?, ?, 'Compra inicial', NULL, ?)`,
+			uuid.New().String(), userID, ins.id, roundKg(ins.stock+consumo[i]),
+			compra.Format("2006-01-02"), compra.Format("2006-01-02 15:04:05")); err != nil {
+			return r, fmt.Errorf("entrada de insumo: %w", err)
+		}
+		r.insumos++
+	}
+	return r, tx.Commit()
+}
+
+// elegirPorPeso devuelve un índice al azar, más probable cuanto mayor su peso.
+func elegirPorPeso(rnd *rand.Rand, pesos []int) int {
+	total := 0
+	for _, p := range pesos {
+		total += p
+	}
+	if total == 0 {
+		return rnd.Intn(len(pesos))
+	}
+	n := rnd.Intn(total)
+	for i, p := range pesos {
+		n -= p
+		if n < 0 {
+			return i
+		}
+	}
+	return len(pesos) - 1
+}
+
+// ------------------------------------------------------------ reproducción
+
+type resumenRepro struct{ montas, diagnosticos, positivos, partos int }
+
+// insertarReproduccion siembra el ciclo de las vientres: una monta por cada
+// una, su ultrasonido a los 35 días (positivo si la sembramos "Gestante",
+// negativo si "Vacía") y los partos del ciclo anterior. Con 9 gestantes de 12 y
+// 8 partos, el dashboard marca ~75 % de gestación y ~89 % de parición.
+func insertarReproduccion(db *sql.DB, userID string, as []animal) (resumenRepro, error) {
+	rnd := rand.New(rand.NewSource(20260917))
+	var r resumenRepro
+
+	var madres, sementales []animal
+	for _, a := range as {
+		if a.esReferencia {
+			continue
+		}
+		switch {
+		case a.destino == "Pie de Cría" && a.sexo == "Hembra":
+			madres = append(madres, a)
+		case a.destino == "Pie de Cría" && a.sexo == "Macho":
+			sementales = append(sementales, a)
+		}
+	}
+	if len(sementales) == 0 {
+		return r, fmt.Errorf("no hay sementales para las montas")
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		return r, err
+	}
+	defer tx.Rollback()
+
+	for i, m := range madres {
+		sem := sementales[i%len(sementales)]
+		gestante := m.estadoRepro == "Gestante"
+		monta := hoy.AddDate(0, 0, -(120 + i*7))
+		fetos := 0
+		resultado := "Vacía"
+		if gestante {
+			fetos = 1 + rnd.Intn(2)
+			resultado = "Gestante"
+		}
+		if _, err := tx.Exec(`INSERT INTO eventos_reproductivos
+			(id, user_id, animal_id, tipo, fecha_evento, fecha_fin_monta, id_macho, lote_semen, tecnico, protocolo,
+			 fecha_probable_parto, resultado, conteo_fetos, notas, created_at)
+			VALUES (?, ?, ?, 'Monta Natural', ?, ?, ?, '', ?, 'Monta dirigida', ?, ?, ?, ?, ?)`,
+			uuid.New().String(), userID, m.id, monta.Format("2006-01-02"), monta.AddDate(0, 0, 3).Format("2006-01-02"),
+			sem.arete, "Encargado de corral", monta.AddDate(0, 0, 150).Format("2006-01-02"), resultado, fetos,
+			"Semental "+sem.arete, monta.Format("2006-01-02 15:04:05")); err != nil {
+			return r, fmt.Errorf("monta %s: %w", m.arete, err)
+		}
+		r.montas++
+
+		ultra := monta.AddDate(0, 0, 35)
+		res := 0
+		if gestante {
+			res = 1
+			r.positivos++
+		}
+		if _, err := tx.Exec(`INSERT INTO diagnostico_gestacion
+			(id, user_id, animal_id, fecha, condicion_corporal, resultado, conteo_fetos, observaciones, created_at)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			uuid.New().String(), userID, m.id, ultra.Format("2006-01-02"), roundKg(2.8+rnd.Float64()*0.8),
+			res, fetos, "Ultrasonido a los 35 días", ultra.Format("2006-01-02 15:04:05")); err != nil {
+			return r, fmt.Errorf("diagnóstico %s: %w", m.arete, err)
+		}
+		r.diagnosticos++
+	}
+
+	// Partos del ciclo anterior: 8 de las gestantes parieron entre 7 y 11 meses
+	// atrás. Se cuentan por animal distinto, así que un parto por madre.
+	tipos := []string{"Normal", "Normal", "Normal", "Asistido"}
+	n := 0
+	for i, m := range madres {
+		if m.estadoRepro != "Gestante" || n >= 8 {
+			continue
+		}
+		fecha := hoy.AddDate(0, 0, -(200 + i*15))
+		crias := 1 + rnd.Intn(2)
+		if _, err := tx.Exec(`INSERT INTO partos
+			(id, user_id, animal_id, fecha, cantidad_crias, tipo_parto, observaciones, created_at)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+			uuid.New().String(), userID, m.id, fecha.Format("2006-01-02"), crias, tipos[rnd.Intn(len(tipos))],
+			fmt.Sprintf("%d cría(s), sin complicaciones", crias), fecha.Format("2006-01-02 15:04:05")); err != nil {
+			return r, fmt.Errorf("parto %s: %w", m.arete, err)
+		}
+		r.partos++
+		n++
+	}
+	return r, tx.Commit()
+}
+
+// ------------------------------------------------------------- movimientos
+
+// insertarMovimientos registra cambios de corral recientes de la engorda
+// (salidas de destete hacia los corrales de engorda), para que el Kardex de
+// esos animales tenga historial. Guarda ids de corral, igual que MoverAnimal.
+func insertarMovimientos(db *sql.DB, userID string, as []animal, cs []corral) (int, error) {
+	rnd := rand.New(rand.NewSource(20260918))
+	porNombre := map[string]string{}
+	for _, c := range cs {
+		porNombre[c.nombre] = c.id
+	}
+	destete, norte, sur := porNombre["Destete"], porNombre["Engorda Norte"], porNombre["Engorda Sur"]
+
+	tx, err := db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	n := 0
+	for _, a := range as {
+		// Los que hoy están en Norte o Sur llegaron desde Destete hace poco.
+		if a.esReferencia || a.destino != "Engorda" || (a.corralID != norte && a.corralID != sur) {
+			continue
+		}
+		if n >= 12 {
+			break
+		}
+		fecha := hoy.AddDate(0, 0, -(10 + rnd.Intn(80)))
+		if _, err := tx.Exec(`INSERT INTO movimientos
+			(id, user_id, animal_id, corral_previo, corral_nuevo, fecha_movimiento, motivo)
+			VALUES (?, ?, ?, ?, ?, ?, 'Salida de destete a engorda')`,
+			uuid.New().String(), userID, a.id, destete, a.corralID, fecha.Format("2006-01-02")); err != nil {
+			return n, fmt.Errorf("movimiento %s: %w", a.arete, err)
+		}
+		n++
+	}
+	return n, tx.Commit()
 }

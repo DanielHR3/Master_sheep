@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import SidebarItem from '../SidebarItem';
 import { Segmented, SegmentedItem } from '../ui/segmented';
-import { DON_PABLITO_ENABLED } from '../../lib/ranchos';
+import { DON_PABLITO_ENABLED, esPieDeCria } from '../../lib/ranchos';
 
 interface SidebarProps {
   activeTab: string;
@@ -32,7 +32,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLogout, user, isCollapsed, toggleCollapse, selectedRanchOverride, setSelectedRanchOverride }) => {
   const isDark = theme === 'dark';
   const rawRancho = (selectedRanchOverride || user?.rancho_id || user?.name || '').toUpperCase();
-  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (selectedRanchOverride ? false : (user?.email?.toLowerCase() || '').includes('bugambilias'));
+  const isBugambilias = esPieDeCria(user, selectedRanchOverride);
   const isDonPablito = DON_PABLITO_ENABLED && (rawRancho.includes('PABLITO') || (selectedRanchOverride ? false : (user?.email?.toLowerCase() || '').includes('pablito')) || rawRancho.includes('25CF359E-E5A7-4403-A1F1-3A4375F21EF3'));
   
   const logoSrc = isBugambilias ? '/logo_bugambilias.png' : isDonPablito ? '/logo_donpablito.png' : '/logo.png';
@@ -72,7 +72,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
         <nav className="space-y-3">
           <SidebarItem icon={<Compass size={22} />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} isCollapsed={isCollapsed} />
           <SidebarItem icon={<Users size={22} />} label="Inventario Hato" active={activeTab === 'inventory'} onClick={() => setActiveTab('inventory')} isCollapsed={isCollapsed} />
-          <SidebarItem icon={<Warehouse size={22} />} label="Corrales" active={activeTab === 'corrales'} onClick={() => setActiveTab('corrales')} isCollapsed={isCollapsed} />
+          {/* Pie de cría no trabaja con corrales: el módulo no se ofrece. El dato
+              sigue existiendo; solo no hay puerta hacia él. */}
+          {!isBugambilias && (
+            <SidebarItem icon={<Warehouse size={22} />} label="Corrales" active={activeTab === 'corrales'} onClick={() => setActiveTab('corrales')} isCollapsed={isCollapsed} />
+          )}
           <SidebarItem icon={<ClipboardList size={22} />} label="Reproducción" active={activeTab === 'breeding'} onClick={() => setActiveTab('breeding')} isCollapsed={isCollapsed} />
           <SidebarItem icon={<Stethoscope size={22} />} label="Control Clínico" active={activeTab === 'clinical'} onClick={() => setActiveTab('clinical')} isCollapsed={isCollapsed} />
           {user?.role === 'Admin' && (

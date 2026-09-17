@@ -38,6 +38,7 @@ import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Reports from './pages/Reports';
 import Landing from './landing/Landing';
+import { esPieDeCria } from './lib/ranchos';
 import { usePublicView, navigateTo } from './lib/publicRoute';
 
 function App() {
@@ -96,11 +97,16 @@ function App() {
   }
 
   const rawRancho = (store.selectedRanchOverride || store.currentUser?.rancho_id || store.currentUser?.name || '').toUpperCase();
-  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (store.selectedRanchOverride ? false : (store.currentUser?.email?.toLowerCase() || '').includes('bugambilias'));
+  const isBugambilias = esPieDeCria(store.currentUser, store.selectedRanchOverride);
   const defaultDestino = isBugambilias ? 'Pie de Cría' : 'Engorda';
 
+  // La pestaña activa se guarda en localStorage. Si quedó en "corrales" y el
+  // rancho es de pie de cría (que ya no tiene ese módulo), cae al dashboard
+  // en vez de mostrar una pantalla sin entrada en el menú.
+  const pestana = store.activeTab === 'corrales' && isBugambilias ? 'dashboard' : store.activeTab;
+
   const renderContent = () => {
-    switch (store.activeTab) {
+    switch (pestana) {
       case 'dashboard':
         return <Dashboard 
           stats={store.stats} 
@@ -169,7 +175,7 @@ function App() {
           onSecurity={() => state.modals.setShowChangePassword(true)} 
           onStaff={() => store.setActiveTab('staff')} 
           onReports={() => store.setActiveTab('reports')}
-          onCorrales={() => store.setActiveTab('corrales')}
+          onCorrales={isBugambilias ? undefined : () => store.setActiveTab('corrales')}
           onRanchoPerfil={() => state.modals.setShowRanchoPerfil(true)}
           user={store.currentUser} 
           isDemo={store.isDemo} 

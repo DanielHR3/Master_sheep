@@ -19,7 +19,7 @@ interface ProfileProps {
   onSecurity: () => void;
   onStaff: () => void;
   onReports: () => void;
-  onCorrales: () => void;
+  onCorrales?: () => void; // ausente cuando el rancho no tiene módulo de corrales
   onRanchoPerfil?: () => void;
   isDemo: boolean;
   setIsDemo: (isDemo: boolean) => void;
@@ -136,21 +136,23 @@ const Profile: React.FC<ProfileProps> = ({
           </div>
         )}
 
-        {/* Atajo de Corrales */}
-        <div 
-          onClick={onCorrales} 
-          className={`p-5 @2xl:p-8 border rounded-[24px] @2xl:rounded-[30px] cursor-pointer transition-all group hover:scale-[1.02] flex flex-col items-center @2xl:items-start text-center @2xl:text-left ${
-            isDark ? 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/80 text-white' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-900 shadow-sm'
-          }`}
-        >
-          <Warehouse size={22} className="text-cyan-500 mb-3 group-hover:scale-110 transition-transform" />
-          <h4 className={`font-black uppercase text-[10px] @2xl:text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>
-            Corrales
-          </h4>
-          <p className="text-[9px] @2xl:text-[10px] text-slate-400 mt-1 uppercase font-bold">
-            Administrar
-          </p>
-        </div>
+        {/* Atajo de Corrales: no se ofrece si el rancho no tiene ese módulo */}
+        {onCorrales && (
+          <div 
+            onClick={onCorrales} 
+            className={`p-5 @2xl:p-8 border rounded-[24px] @2xl:rounded-[30px] cursor-pointer transition-all group hover:scale-[1.02] flex flex-col items-center @2xl:items-start text-center @2xl:text-left ${
+              isDark ? 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/80 text-white' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-900 shadow-sm'
+            }`}
+          >
+            <Warehouse size={22} className="text-cyan-500 mb-3 group-hover:scale-110 transition-transform" />
+            <h4 className={`font-black uppercase text-[10px] @2xl:text-xs tracking-widest ${isDark ? 'text-white' : 'text-slate-800'}`}>
+              Corrales
+            </h4>
+            <p className="text-[9px] @2xl:text-[10px] text-slate-400 mt-1 uppercase font-bold">
+              Administrar
+            </p>
+          </div>
+        )}
 
         {/* Atajo de Reportes (Solo Admin) */}
         {user?.role === 'Admin' && (

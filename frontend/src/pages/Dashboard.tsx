@@ -4,7 +4,7 @@ import { Card } from '../components/ui/card';
 import { Skeleton } from '../components/ui/skeleton';
 import { main } from '../../wailsjs/go/models';
 import SemaforoBadge, { semaforoClasses } from '../components/SemaforoBadge';
-import { DON_PABLITO_ENABLED } from '../lib/ranchos';
+import { DON_PABLITO_ENABLED, esPieDeCria } from '../lib/ranchos';
 import { 
   Users, 
   TrendingUp, 
@@ -61,7 +61,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
   const isLoading = store.loading;
   
   const rawRancho = (store.selectedRanchOverride || user?.rancho_id || user?.name || '').toUpperCase();
-  const isBugambilias = rawRancho.includes('BUGAMBILIAS') || (store.selectedRanchOverride ? false : (user?.email?.toLowerCase() || '').includes('bugambilias'));
+  const isBugambilias = esPieDeCria(user, store.selectedRanchOverride);
   const isDonPablito = DON_PABLITO_ENABLED && (rawRancho.includes('PABLITO') || (user?.email?.toLowerCase() || '').includes('pablito') || rawRancho.includes('25CF359E-E5A7-4403-A1F1-3A4375F21EF3'));
   
   const ranchoName = isBugambilias ? 'RANCHO LAS BUGAMBILIAS' : isDonPablito ? 'RANCHO DON PABLITO' : 'SHEEPMASTER AGROTECH';
@@ -124,6 +124,10 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
 
   const colors = ['#10b981', '#06b6d4', '#f59e0b', '#f43f5e', '#8b5cf6'];
 
+  const hora = new Date().getHours();
+  const saludo = hora < 12 ? 'Buenos días' : hora < 19 ? 'Buenas tardes' : 'Buenas noches';
+  const fechaHoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
   return (
     <div className="space-y-8 pt-6 animate-in fade-in duration-500">
       {/* Header Bar */}
@@ -159,39 +163,27 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
         </div>
       </div>
 
-      {/* Agrotech Welcome Banner */}
-      <div className="relative overflow-hidden rounded-[40px] shadow-2xl border border-emerald-500/20 group">
-        <div className="absolute inset-0 bg-slate-900">
-          <img 
-            src="/agrotech_banner.jpg" 
-            alt="Agrotech Services" 
-            className="w-full h-full object-cover object-center opacity-40 group-hover:opacity-50 group-hover:scale-105 transition-all duration-1000"
-          />
-          <div className={`absolute inset-0 bg-gradient-to-r ${isDark ? 'from-slate-950 via-slate-900/90 to-transparent' : 'from-emerald-950 via-emerald-900/80 to-transparent'}`}></div>
-        </div>
-        
-        <div className="relative p-8 @2xl:p-12 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase tracking-widest mb-4 backdrop-blur-md shadow-lg">
-            <Zap size={12} /> SISTEMA AGROTECH V3.0
-          </div>
-          <h2 className="text-4xl @2xl:text-5xl font-black font-display tracking-tight text-white mb-4 leading-tight">
-            Bienvenido a <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
-              {ranchoName}
-            </span>
-          </h2>
-          <p className="text-slate-300 font-semibold mb-8 max-w-lg leading-relaxed text-sm">
-            Nuestros servicios de inteligencia artificial y ciencia de datos están optimizando la gestión de tu hato en tiempo real. Monitoreo de genética, nutrición y salud impulsado por tecnología de punta.
+      {/* Franja de bienvenida: una sola línea. Antes había un banner de ~350 px
+          con imagen y texto de marketing que empujaba el semáforo fuera de la
+          vista; aportaba poco y costaba media pantalla. "Alta Animal" ya está
+          en el encabezado de arriba, así que aquí solo va el atajo a reportes. */}
+      <div className={`flex flex-col @2xl:flex-row @2xl:items-center justify-between gap-4 px-6 @2xl:px-8 py-5 rounded-[28px] border ${
+        isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+      }`}>
+        <div>
+          <p className={`text-xl @2xl:text-2xl font-black font-display tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            {saludo}, <span className="text-emerald-500">{ranchoName}</span>
           </p>
-          <div className="flex gap-4">
-            <button onClick={onGlobalAdd} className="bg-white text-emerald-900 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-emerald-50 transition-all shadow-xl active:scale-95 flex items-center gap-2 cursor-pointer">
-              <PlusCircle size={16} /> Alta Animal
-            </button>
-            <button onClick={() => store.setActiveTab('reports')} className="bg-emerald-600/30 text-white border border-emerald-500/50 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-emerald-600/50 transition-all backdrop-blur-sm active:scale-95 flex items-center gap-2 cursor-pointer">
-               Explorar Reportes
-            </button>
-          </div>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mt-1">{fechaHoy}</p>
         </div>
+        <button
+          onClick={() => store.setActiveTab('reports')}
+          className={`self-start @2xl:self-auto px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all active:scale-95 flex items-center gap-2 cursor-pointer border ${
+            isDark ? 'bg-emerald-600/20 border-emerald-500/40 text-emerald-300 hover:bg-emerald-600/30' : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
+          }`}
+        >
+          Explorar Reportes
+        </button>
       </div>
 
       {/* SEMÁFORO DEL HATO */}
@@ -428,7 +420,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
 
       {/* ESTADÍSTICAS Y GRÁFICAS */}
       <div className="grid grid-cols-1 @3xl:grid-cols-2 gap-8 pb-8">
-        <div className={`p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md'}`}>
+        <div className={`p-8 rounded-[40px] border ${isBugambilias ? '@3xl:col-span-2' : ''} ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md'}`}>
             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
               <Syringe size={16} className="text-rose-500 dark:text-rose-400" /> Incidencia de Enfermedades por Temporada
             </h4>
@@ -457,6 +449,9 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
             </div>
         </div>
 
+        {/* Un rancho de pie de cría no trabaja con corrales, así que la
+            gráfica no le dice nada; la de enfermedades ocupa el ancho completo. */}
+        {!isBugambilias && (
         <div className={`p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md'}`}>
             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
               <LayoutGrid size={16} className="text-emerald-500 dark:text-emerald-400" /> Ocupación de Corrales
@@ -482,6 +477,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
                 </ResponsiveContainer>
             </div>
         </div>
+        )}
       </div>
     </div>
   );
