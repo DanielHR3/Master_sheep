@@ -57,6 +57,8 @@ const Inventory: React.FC<InventoryProps> = ({
   semaforo = [],
   user
 }) => {
+  // La fila de filtros no encoge sus botones (whitespace-nowrap + shrink-0) y se
+  // desliza en horizontal si no cabe: en celular "Pie de Cría" se partía en tres.
   const [filterDestino, setFilterDestino] = useState<'all' | 'Engorda' | 'Pie de Cría'>('all');
   const [search, setSearch] = useState('');
   const [showRefs, setShowRefs] = useState(false);
@@ -97,13 +99,13 @@ const Inventory: React.FC<InventoryProps> = ({
           </div>
 
           {subTab === 'animals' && (
-            <div className={`flex p-1.5 rounded-2xl border ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-               <button onClick={() => setFilterDestino('all')} className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer ${filterDestino === 'all' ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Todos</button>
+            <div className={`flex p-1.5 rounded-2xl border max-w-full overflow-x-auto ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
+               <button onClick={() => setFilterDestino('all')} className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer whitespace-nowrap shrink-0 ${filterDestino === 'all' ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Todos</button>
                {!isBugambilias && (
-                 <button onClick={() => setFilterDestino('Engorda')} className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer ${filterDestino === 'Engorda' ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Engorda</button>
+                 <button onClick={() => setFilterDestino('Engorda')} className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer whitespace-nowrap shrink-0 ${filterDestino === 'Engorda' ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Engorda</button>
                )}
-               <button onClick={() => setFilterDestino('Pie de Cría')} className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer ${filterDestino === 'Pie de Cría' ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Pie de Cría</button>
-               <button onClick={() => setShowRefs(v => !v)} title="Ancestros que no viven en el rancho (solo genealogía)" className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer ${showRefs ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Referencias ({referencias.length})</button>
+               <button onClick={() => setFilterDestino('Pie de Cría')} className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer whitespace-nowrap shrink-0 ${filterDestino === 'Pie de Cría' ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Pie de Cría</button>
+               <button onClick={() => setShowRefs(v => !v)} title="Ancestros que no viven en el rancho (solo genealogía)" className={`px-4 py-3 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer whitespace-nowrap shrink-0 ${showRefs ? (isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900') : 'text-slate-400 hover:text-white'}`}>Referencias ({referencias.length})</button>
             </div>
           )}
           {subTab === 'animals' && (

@@ -44,7 +44,18 @@ import { usePublicView, navigateTo } from './lib/publicRoute';
 function App() {
   const store = useStore();
   const { state, actions, refs } = useAppLogic();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
+  // Entre 768 y 1023 px (tablet) el menú arranca colapsado: expandido se
+  // comía 320 de ~768 px y toda la app se veía como un celular con un menú
+  // gigante al lado. De 1024 en adelante arranca abierto. El botón del menú
+  // lo cambia a mano; al cruzar el umbral por un giro de pantalla se ajusta.
+  const esAngosto = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches;
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState<boolean>(esAngosto);
+  React.useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    const onChange = (e: MediaQueryListEvent) => setIsSidebarCollapsed(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
   const publicView = usePublicView();
 
   React.useEffect(() => {

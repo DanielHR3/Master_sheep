@@ -133,7 +133,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
       {/* Header Bar */}
       <div className="flex flex-col @2xl:flex-row justify-between items-start @2xl:items-center gap-4">
         <div>
-          <h2 className={`text-5xl font-black font-display tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+          <h2 className={`text-3xl @2xl:text-5xl font-black font-display tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
             Resumen de Operación
           </h2>
           <p className={`${isDark ? 'text-slate-400' : 'text-slate-600'} font-bold uppercase tracking-widest text-xs mt-1.5 flex items-center gap-2`}>

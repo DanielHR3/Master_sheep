@@ -32,9 +32,9 @@ const Corrales: React.FC<CorralesProps> = ({ corrales, animals, theme, onAddCorr
   };
   return (
     <div className="space-y-10 pt-10 animate-in slide-in-from-right-8 duration-700">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap justify-between items-center gap-4">
         <div>
-          <h2 className={`text-5xl font-black font-display tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+          <h2 className={`text-3xl @2xl:text-5xl font-black font-display tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
             Gestión de Corrales
           </h2>
           <p className="text-emerald-500 font-bold uppercase tracking-widest text-xs mt-1.5 flex items-center gap-2">

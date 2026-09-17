@@ -15,9 +15,9 @@ const Clinical: React.FC<ClinicalProps> = ({ animals, insumos, onTreatment, them
   const isLoading = useStore().loading;
   return (
     <div className="max-w-7xl mx-auto pt-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
-       <div className="flex justify-between items-center mb-8">
+       <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
            <div>
-             <h2 className={`text-5xl font-black font-display tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+             <h2 className={`text-3xl @2xl:text-5xl font-black font-display tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                 <Stethoscope className="text-rose-500 inline-block mr-2" size={40} /> Salud Animal
              </h2>
              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-2">

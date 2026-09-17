@@ -106,12 +106,14 @@ const AnimalCard: React.FC<AnimalCardProps> = ({
           </div>
         </div>
 
-        <div className="flex items-end justify-between gap-4">
-          <div>
+        {/* flex-wrap + nowrap: en tarjetas angostas (dos columnas a 1024 px)
+            el arete se partía en "MAD-" / "01"; ahora baja el bloque de raza. */}
+        <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+          <div className="min-w-0">
             <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>IDENTIFICADOR</span>
-            <h4 className="text-4xl font-black font-display tracking-tighter mt-1">{animal.arete}</h4>
+            <h4 className="text-4xl font-black font-display tracking-tighter mt-1 whitespace-nowrap">{animal.arete}</h4>
           </div>
-          <div className="text-right">
+          <div className="text-right ml-auto">
              <div className={`text-[10px] font-bold px-3 py-1 rounded-lg inline-block mb-1 border ${isDark ? 'bg-slate-800 border-slate-700 text-slate-200' : 'bg-slate-100 border-slate-200 text-slate-800'}`}>
                {animal.raza}
              </div>
