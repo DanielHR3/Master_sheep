@@ -9,6 +9,14 @@ type Corral struct {
         Capacidad int       `json:"capacidad"`
 }
 
+// TipoCorral es una entrada del catálogo de tipos de corral de un rancho
+// (Engorda, Maternidad, Cuarentena…). El catálogo es por rancho y editable
+// desde la pantalla de Corrales; el formulario de corral elige de aquí.
+type TipoCorral struct {
+	ID     string `json:"id"`
+	Nombre string `json:"nombre"`
+}
+
 type Animal struct {
         ID                string    `json:"id"`
         Especie           string    `json:"especie"`

@@ -126,6 +126,7 @@ func (a *App) StartAPIServer(port int) {
 	mux.HandleFunc("/api/animals", corsWrapper(a.withAuth((*App).handleAnimals)))
 	mux.HandleFunc("/api/insumos", corsWrapper(a.withAuth((*App).handleInsumos)))
 	mux.HandleFunc("/api/corrales", corsWrapper(a.withAuth((*App).handleCorrales)))
+	mux.HandleFunc("/api/tipos-corral", corsWrapper(a.withAuth((*App).handleTiposCorral)))
 	mux.HandleFunc("/api/stats", corsWrapper(a.withAuth((*App).handleStats)))
 	mux.HandleFunc("/api/reproduction", corsWrapper(a.withAuth((*App).handleReproduction)))
 	mux.HandleFunc("/api/reproduction-events", corsWrapper(a.withAuth((*App).handleReproductionEvents)))
@@ -309,6 +310,49 @@ func (a *App) handleCorrales(w http.ResponseWriter, r *http.Request) {
 		}
 		if err := a.DeleteCorral(id); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	default:
+		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
+	}
+}
+
+// handleTiposCorral: GET lista el catálogo del rancho, POST {nombre} agrega,
+// DELETE ?id= quita (409 si algún corral lo usa).
+func (a *App) handleTiposCorral(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	switch r.Method {
+	case http.MethodGet:
+		tipos, err := a.GetTiposCorral()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(tipos)
+	case http.MethodPost:
+		var body struct {
+			Nombre string `json:"nombre"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			http.Error(w, "JSON inválido", http.StatusBadRequest)
+			return
+		}
+		t, err := a.AddTipoCorral(body.Nombre)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(t)
+	case http.MethodDelete:
+		id := r.URL.Query().Get("id")
+		if id == "" {
+			http.Error(w, "ID requerido", http.StatusBadRequest)
+			return
+		}
+		if err := a.DeleteTipoCorral(id); err != nil {
+			http.Error(w, err.Error(), http.StatusConflict)
 			return
 		}
 		w.WriteHeader(http.StatusOK)

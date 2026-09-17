@@ -68,6 +68,7 @@ func (a *App) pendingSyncCount() (int, error) {
 var entityTable = map[string]string{
 	"animal":                "animales",
 	"corral":                "corrales",
+	"tipo_corral":           "tipos_corral",
 	"insumo":                "insumos",
 	"tratamiento":           "tratamientos",
 	"evento_reproductivo":   "eventos_reproductivos",

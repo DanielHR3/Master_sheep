@@ -99,6 +99,9 @@ func main() {
 		log.Fatalf("insertando corrales: %v", err)
 	}
 	fmt.Printf("Corrales: %d\n", len(corrales))
+	if err := insertarTiposCorral(db, userID, corrales); err != nil {
+		log.Fatalf("insertando tipos de corral: %v", err)
+	}
 
 	animales := construirHato(corrales)
 	if err := insertarAnimales(db, userID, animales); err != nil {
@@ -167,7 +170,7 @@ func limpiar(db *sql.DB, userID string) error {
 	for _, tabla := range []string{
 		"recetas_veterinarias", "tratamientos", "movimientos_insumo", "insumos",
 		"diagnostico_gestacion", "partos", "eventos_reproductivos", "movimientos",
-		"seguimientos_peso", "tareas", "animales", "corrales",
+		"seguimientos_peso", "tareas", "animales", "corrales", "tipos_corral",
 	} {
 		if _, err := db.Exec("DELETE FROM "+tabla+" WHERE user_id = ?", userID); err != nil {
 			return fmt.Errorf("%s: %w", tabla, err)
@@ -786,4 +789,24 @@ func insertarMovimientos(db *sql.DB, userID string, as []animal, cs []corral) (i
 		n++
 	}
 	return n, tx.Commit()
+}
+
+// insertarTiposCorral siembra el catálogo de tipos del rancho demo: los cuatro
+// base más los que usan sus corrales, igual que haría la app la primera vez.
+func insertarTiposCorral(db *sql.DB, userID string, cs []corral) error {
+	nombres := []string{"General", "Maternidad", "Engorda", "Cuarentena"}
+	vistos := map[string]bool{}
+	for _, c := range cs {
+		nombres = append(nombres, c.tipo)
+	}
+	for _, n := range nombres {
+		if vistos[n] {
+			continue
+		}
+		vistos[n] = true
+		if _, err := db.Exec("INSERT INTO tipos_corral (id, user_id, nombre) VALUES (?, ?, ?)", uuid.New().String(), userID, n); err != nil {
+			return err
+		}
+	}
+	return nil
 }

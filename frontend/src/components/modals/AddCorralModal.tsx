@@ -7,9 +7,13 @@ interface AddCorralModalProps {
   form: any;
   setForm: (form: any) => void;
   onAdd: () => void;
+  tipos: string[]; // catálogo del rancho (ver pantalla Corrales)
 }
 
-const AddCorralModal: React.FC<AddCorralModalProps> = ({ show, onClose, form, setForm, onAdd }) => {
+const AddCorralModal: React.FC<AddCorralModalProps> = ({ show, onClose, form, setForm, onAdd, tipos }) => {
+  // Si el tipo del formulario ya no está en el catálogo, se conserva como
+  // opción para no perder el valor; el usuario decide si lo cambia.
+  const opciones = tipos.includes(form.tipo) || !form.tipo ? tipos : [form.tipo, ...tipos];
   return (
     <Modal show={show} onClose={onClose} title="Nuevo Registro de Corral">
       <div className="space-y-6">
@@ -31,10 +35,8 @@ const AddCorralModal: React.FC<AddCorralModalProps> = ({ show, onClose, form, se
               value={form.tipo} 
               onChange={e => setForm({...form, tipo: e.target.value})}
             >
-              <option value="General">General</option>
-              <option value="Maternidad">Maternidad</option>
-              <option value="Engorda">Engorda</option>
-              <option value="Cuarentena">Cuarentena</option>
+              {opciones.length === 0 && <option value="">Sin tipos: agrégalos en Corrales</option>}
+              {opciones.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
           <div className="space-y-2">

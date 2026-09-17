@@ -72,11 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, onLog
         <nav className="space-y-3">
           <SidebarItem icon={<Compass size={22} />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} isCollapsed={isCollapsed} />
           <SidebarItem icon={<Users size={22} />} label="Inventario Hato" active={activeTab === 'inventory'} onClick={() => setActiveTab('inventory')} isCollapsed={isCollapsed} />
-          {/* Pie de cría no trabaja con corrales: el módulo no se ofrece. El dato
-              sigue existiendo; solo no hay puerta hacia él. */}
-          {!isBugambilias && (
-            <SidebarItem icon={<Warehouse size={22} />} label="Corrales" active={activeTab === 'corrales'} onClick={() => setActiveTab('corrales')} isCollapsed={isCollapsed} />
-          )}
+          <SidebarItem icon={<Warehouse size={22} />} label="Corrales" active={activeTab === 'corrales'} onClick={() => setActiveTab('corrales')} isCollapsed={isCollapsed} />
           <SidebarItem icon={<ClipboardList size={22} />} label="Reproducción" active={activeTab === 'breeding'} onClick={() => setActiveTab('breeding')} isCollapsed={isCollapsed} />
           <SidebarItem icon={<Stethoscope size={22} />} label="Control Clínico" active={activeTab === 'clinical'} onClick={() => setActiveTab('clinical')} isCollapsed={isCollapsed} />
           {user?.role === 'Admin' && (

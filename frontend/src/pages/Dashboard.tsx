@@ -420,7 +420,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
 
       {/* ESTADÍSTICAS Y GRÁFICAS */}
       <div className="grid grid-cols-1 @3xl:grid-cols-2 gap-8 pb-8">
-        <div className={`p-8 rounded-[40px] border ${isBugambilias ? '@3xl:col-span-2' : ''} ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md'}`}>
+        <div className={`p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md'}`}>
             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
               <Syringe size={16} className="text-rose-500 dark:text-rose-400" /> Incidencia de Enfermedades por Temporada
             </h4>
@@ -449,9 +449,6 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
             </div>
         </div>
 
-        {/* Un rancho de pie de cría no trabaja con corrales, así que la
-            gráfica no le dice nada; la de enfermedades ocupa el ancho completo. */}
-        {!isBugambilias && (
         <div className={`p-8 rounded-[40px] border ${isDark ? 'bg-slate-900/90 border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md'}`}>
             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
               <LayoutGrid size={16} className="text-emerald-500 dark:text-emerald-400" /> Ocupación de Corrales
@@ -477,7 +474,6 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tareas, theme, onGlobalAdd
                 </ResponsiveContainer>
             </div>
         </div>
-        )}
       </div>
     </div>
   );

@@ -150,6 +150,21 @@ export const DeleteCorral = async (id: string) => {
   return callApi(`/corrales?id=${encodeURIComponent(id)}`, 'DELETE');
 };
 
+export const GetTiposCorral = async () => {
+  if (IS_WAILS) return WailsApp.GetTiposCorral();
+  return callApi('/tipos-corral');
+};
+
+export const AddTipoCorral = async (nombre: string) => {
+  if (IS_WAILS) return WailsApp.AddTipoCorral(nombre);
+  return callApi('/tipos-corral', 'POST', { nombre });
+};
+
+export const DeleteTipoCorral = async (id: string) => {
+  if (IS_WAILS) return WailsApp.DeleteTipoCorral(id);
+  return callApi(`/tipos-corral?id=${encodeURIComponent(id)}`, 'DELETE');
+};
+
 export const GetInsumos = async () => {
   if (IS_WAILS) return WailsApp.GetInsumos();
   return callApi('/insumos');

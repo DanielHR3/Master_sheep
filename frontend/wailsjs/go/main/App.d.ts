@@ -32,6 +32,12 @@ export function GetAnimales():Promise<Array<main.Animal>>;
 
 export function GetCorrales():Promise<Array<main.Corral>>;
 
+export function GetTiposCorral():Promise<Array<main.TipoCorral>>;
+
+export function AddTipoCorral(arg1:string):Promise<main.TipoCorral>;
+
+export function DeleteTipoCorral(arg1:string):Promise<void>;
+
 export function GetCurrentUser():Promise<main.User>;
 
 export function GetDiagnosticosGestacion(arg1:string):Promise<Array<main.DiagnosticoGestacion>>;

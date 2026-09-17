@@ -62,6 +62,18 @@ export function GetCorrales() {
   return window['go']['main']['App']['GetCorrales']();
 }
 
+export function GetTiposCorral() {
+  return window['go']['main']['App']['GetTiposCorral']();
+}
+
+export function AddTipoCorral(arg1) {
+  return window['go']['main']['App']['AddTipoCorral'](arg1);
+}
+
+export function DeleteTipoCorral(arg1) {
+  return window['go']['main']['App']['DeleteTipoCorral'](arg1);
+}
+
 export function GetCurrentUser() {
   return window['go']['main']['App']['GetCurrentUser']();
 }

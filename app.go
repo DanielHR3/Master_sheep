@@ -324,6 +324,12 @@ func (a *App) createSchema() error {
 		capacidad INTEGER DEFAULT 0,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
+	CREATE TABLE IF NOT EXISTS tipos_corral (
+		id TEXT PRIMARY KEY,
+		user_id TEXT,
+		nombre TEXT NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);
 
 	CREATE TABLE IF NOT EXISTS animales (
 		id TEXT PRIMARY KEY,
@@ -909,6 +915,132 @@ func (a *App) AddCorral(corral Corral) error {
 }
 
 // DeleteCorral elimina un corral y quita su referencia de los animales
+// ------------------------------------------------------------ tipos de corral
+
+// tiposCorralBase son los tipos con los que arranca cualquier rancho. Antes
+// eran las cuatro opciones fijas del formulario; ahora son solo el punto de
+// partida y cada rancho las cambia a su gusto.
+var tiposCorralBase = []string{"General", "Maternidad", "Engorda", "Cuarentena"}
+
+// GetTiposCorral devuelve el catálogo del rancho. La primera vez (catálogo
+// vacío) lo siembra con los tipos base MÁS los tipos que sus corrales ya
+// usen, así un rancho con corrales previos ve sus tipos reales de inmediato
+// y nada de lo que tenía queda fuera de la lista.
+func (a *App) GetTiposCorral() ([]TipoCorral, error) {
+	if a.user == nil {
+		return nil, fmt.Errorf("no autenticado")
+	}
+	var n int
+	if err := a.db.QueryRow(a.q("SELECT COUNT(*) FROM tipos_corral WHERE user_id = ?"), a.tenantID()).Scan(&n); err != nil {
+		return nil, err
+	}
+	if n == 0 {
+		if err := a.sembrarTiposCorral(); err != nil {
+			return nil, err
+		}
+	}
+	rows, err := a.db.Query(a.q("SELECT id, nombre FROM tipos_corral WHERE user_id = ? ORDER BY nombre ASC"), a.tenantID())
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tipos := []TipoCorral{}
+	for rows.Next() {
+		var t TipoCorral
+		if err := rows.Scan(&t.ID, &t.Nombre); err != nil {
+			return nil, err
+		}
+		tipos = append(tipos, t)
+	}
+	return tipos, rows.Err()
+}
+
+func (a *App) sembrarTiposCorral() error {
+	nombres := append([]string{}, tiposCorralBase...)
+	rows, err := a.db.Query(a.q("SELECT DISTINCT COALESCE(tipo, '') FROM corrales WHERE user_id = ?"), a.tenantID())
+	if err != nil {
+		return err
+	}
+	for rows.Next() {
+		var t string
+		if err := rows.Scan(&t); err != nil {
+			rows.Close()
+			return err
+		}
+		if strings.TrimSpace(t) != "" {
+			nombres = append(nombres, strings.TrimSpace(t))
+		}
+	}
+	rows.Close()
+	vistos := map[string]bool{}
+	for _, nombre := range nombres {
+		clave := strings.ToLower(nombre)
+		if vistos[clave] {
+			continue
+		}
+		vistos[clave] = true
+		if _, err := a.AddTipoCorral(nombre); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// AddTipoCorral agrega un tipo al catálogo del rancho. El nombre no puede ir
+// vacío ni repetir uno existente (sin distinguir mayúsculas).
+func (a *App) AddTipoCorral(nombre string) (TipoCorral, error) {
+	if a.user == nil {
+		return TipoCorral{}, fmt.Errorf("no autenticado")
+	}
+	nombre = strings.TrimSpace(nombre)
+	if nombre == "" {
+		return TipoCorral{}, fmt.Errorf("el nombre del tipo no puede ir vacío")
+	}
+	var repetidos int
+	if err := a.db.QueryRow(a.q("SELECT COUNT(*) FROM tipos_corral WHERE user_id = ? AND LOWER(nombre) = LOWER(?)"), a.tenantID(), nombre).Scan(&repetidos); err != nil {
+		return TipoCorral{}, err
+	}
+	if repetidos > 0 {
+		return TipoCorral{}, fmt.Errorf("ya existe el tipo %q", nombre)
+	}
+	t := TipoCorral{ID: uuid.New().String(), Nombre: nombre}
+	if _, err := a.db.Exec(a.q("INSERT INTO tipos_corral (id, user_id, nombre) VALUES (?, ?, ?)"), t.ID, a.tenantID(), t.Nombre); err != nil {
+		return TipoCorral{}, err
+	}
+	a.queueSync("insert", "tipo_corral", t.ID, t)
+	return t, nil
+}
+
+// DeleteTipoCorral quita un tipo del catálogo, salvo que algún corral del
+// rancho lo esté usando: en ese caso lo rechaza y dice cuántos.
+func (a *App) DeleteTipoCorral(id string) error {
+	if a.user == nil {
+		return fmt.Errorf("no autenticado")
+	}
+	var nombre string
+	err := a.db.QueryRow(a.q("SELECT nombre FROM tipos_corral WHERE id = ? AND user_id = ?"), id, a.tenantID()).Scan(&nombre)
+	if err == sql.ErrNoRows {
+		return fmt.Errorf("tipo no encontrado")
+	}
+	if err != nil {
+		return err
+	}
+	var enUso int
+	if err := a.db.QueryRow(a.q("SELECT COUNT(*) FROM corrales WHERE user_id = ? AND LOWER(COALESCE(tipo, '')) = LOWER(?)"), a.tenantID(), nombre).Scan(&enUso); err != nil {
+		return err
+	}
+	if enUso > 0 {
+		return fmt.Errorf("el tipo %q está en uso por %d corral(es); cámbialos de tipo antes de quitarlo", nombre, enUso)
+	}
+	if _, err := a.db.Exec(a.q("DELETE FROM tipos_corral WHERE id = ? AND user_id = ?"), id, a.tenantID()); err != nil {
+		return err
+	}
+	a.queueSync("delete", "tipo_corral", id, struct {
+		ID string `json:"id"`
+	}{ID: id})
+	return nil
+}
+
 func (a *App) DeleteCorral(id string) error {
 	if a.user == nil {
 		return fmt.Errorf("no autenticado")

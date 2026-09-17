@@ -100,13 +100,8 @@ function App() {
   const isBugambilias = esPieDeCria(store.currentUser, store.selectedRanchOverride);
   const defaultDestino = isBugambilias ? 'Pie de Cría' : 'Engorda';
 
-  // La pestaña activa se guarda en localStorage. Si quedó en "corrales" y el
-  // rancho es de pie de cría (que ya no tiene ese módulo), cae al dashboard
-  // en vez de mostrar una pantalla sin entrada en el menú.
-  const pestana = store.activeTab === 'corrales' && isBugambilias ? 'dashboard' : store.activeTab;
-
   const renderContent = () => {
-    switch (pestana) {
+    switch (store.activeTab) {
       case 'dashboard':
         return <Dashboard 
           stats={store.stats} 
@@ -159,7 +154,7 @@ function App() {
           onDownloadTemplate={actions.handleDownloadTemplate}
         />;
       case 'corrales':
-        return <Corrales animals={store.animals} corrales={store.corrales} theme={store.theme} onAddCorral={() => state.modals.setShowAddCorral(true)} onDeleteCorral={actions.handleDeleteCorral} user={store.currentUser} />;
+        return <Corrales animals={store.animals} corrales={store.corrales} theme={store.theme} onAddCorral={() => state.modals.setShowAddCorral(true)} onDeleteCorral={actions.handleDeleteCorral} user={store.currentUser} tipos={store.tiposCorral} onAddTipo={actions.handleAddTipoCorral} onDeleteTipo={actions.handleDeleteTipoCorral} />;
       case 'breeding':
         return <Breeding animals={store.animals} form={state.breedingForm} setForm={state.setBreedingForm} onRegister={actions.handleRegisterBreeding} theme={store.theme} onRegisterParto={() => actions.handleOpenPartoModal()} />;
       case 'clinical':
@@ -175,7 +170,7 @@ function App() {
           onSecurity={() => state.modals.setShowChangePassword(true)} 
           onStaff={() => store.setActiveTab('staff')} 
           onReports={() => store.setActiveTab('reports')}
-          onCorrales={isBugambilias ? undefined : () => store.setActiveTab('corrales')}
+          onCorrales={() => store.setActiveTab('corrales')}
           onRanchoPerfil={() => state.modals.setShowRanchoPerfil(true)}
           user={store.currentUser} 
           isDemo={store.isDemo} 
@@ -247,7 +242,8 @@ function App() {
         form={state.corralForm} 
         setForm={state.setCorralForm} 
         onAdd={actions.handleAddCorral} 
-      />
+      tipos={store.tiposCorral.map(t => t.nombre)}
+        />
 
       <TreatmentModal 
         show={state.modals.showTreatment} 

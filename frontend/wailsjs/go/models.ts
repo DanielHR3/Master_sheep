@@ -106,6 +106,20 @@ export namespace main {
 	        this.capacidad = source["capacidad"];
 	    }
 	}
+	export class TipoCorral {
+	    id: string;
+	    nombre: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TipoCorral(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.nombre = source["nombre"];
+	    }
+	}
 	export class DiagnosticoGestacion {
 	    id: string;
 	    animal_id: string;

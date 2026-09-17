@@ -12,6 +12,9 @@ import {
   ConfirmarUltrasonido, 
   AddCorral,
   DeleteCorral,
+  GetTiposCorral,
+  AddTipoCorral,
+  DeleteTipoCorral,
   GetInsumos,
   AddInsumo,
   RegistrarTratamiento,
@@ -166,6 +169,7 @@ export const useAppLogic = () => {
       try { store.setReferencias(await GetAnimalesReferencia() || []); } catch { store.setReferencias([]); }
       try { store.setSemaforo(await GetSemaforoHato() || []); } catch { store.setSemaforo([]); }
       store.setCorrales(c || []);
+      try { store.setTiposCorral(await GetTiposCorral() || []); } catch { store.setTiposCorral([]); }
       store.setInsumos(i || []);
       store.setTareas(t || []);
       store.setUsers(u);
@@ -325,6 +329,27 @@ export const useAppLogic = () => {
       refreshData();
     } catch (err: any) {
       store.setNotification({ message: "Error al eliminar corral: " + (err.message || err), type: 'error' });
+    }
+  };
+
+  const handleAddTipoCorral = async (nombre: string) => {
+    try {
+      await AddTipoCorral(nombre);
+      store.setNotification({ message: `Tipo "${nombre.trim()}" agregado`, type: 'success' });
+      refreshData();
+    } catch (err: any) {
+      store.setNotification({ message: "No se pudo agregar el tipo: " + (err.message || err), type: 'error' });
+    }
+  };
+
+  const handleDeleteTipoCorral = async (id: string) => {
+    try {
+      await DeleteTipoCorral(id);
+      store.setNotification({ message: "Tipo de corral eliminado", type: 'success' });
+      refreshData();
+    } catch (err: any) {
+      // El backend rechaza quitar un tipo en uso y dice por cuántos corrales.
+      store.setNotification({ message: "No se pudo quitar el tipo: " + (err.message || err), type: 'error' });
     }
   };
 
@@ -579,6 +604,8 @@ export const useAppLogic = () => {
       handleAddInsumo,
       handleAddCorral,
       handleDeleteCorral,
+      handleAddTipoCorral,
+      handleDeleteTipoCorral,
       handleRegisterTreatment,
       handleRegisterProlapso,
       handleRegisterParto,
