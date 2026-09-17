@@ -234,7 +234,7 @@ function App() {
 
       <input type="file" ref={refs.fileInputRef} className="hidden" accept=".xlsx,.xls" onChange={actions.handleFileChange} />
 
-      <MobileNav activeTab={store.activeTab} setActiveTab={store.setActiveTab} theme={store.theme} />
+      <MobileNav activeTab={store.activeTab} setActiveTab={store.setActiveTab} theme={store.theme} user={store.currentUser} selectedRanchOverride={store.selectedRanchOverride} setSelectedRanchOverride={store.setSelectedRanchOverride} />
 
       {/* --- MODALS --- */}
       <AddAnimalModal 

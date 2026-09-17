@@ -325,8 +325,9 @@ const Reports: React.FC<ReportsProps> = ({ theme }) => {
         </button>
       </div>
 
-      {/* Selectores de Tipo de Reporte (Pills Horizontales) */}
-      <div className="flex flex-wrap gap-3">
+      {/* Selectores de Tipo de Reporte: una sola fila; en celular se desliza
+          en vez de apilarse en cuatro renglones. */}
+      <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
         {(['analytics', 'animals', 'partos', 'treatments', 'cycles', 'weights', 'supplies'] as ReportType[]).map((type) => {
           let label = '';
           switch (type) {
@@ -343,7 +344,7 @@ const Reports: React.FC<ReportsProps> = ({ theme }) => {
             <button
               key={type}
               onClick={() => setActiveReport(type)}
-              className={`px-6 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+              className={`px-6 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 isActive 
                   ? 'bg-emerald-650 bg-emerald-600 text-white shadow-lg shadow-emerald-950/20 scale-105 border border-emerald-600/30' 
                   : (isDark ? 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 shadow-sm')

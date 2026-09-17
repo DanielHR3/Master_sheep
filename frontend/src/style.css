@@ -149,3 +149,14 @@ h1, h2, h3, h4, .font-display {
 .app-main {
   container-type: inline-size;
 }
+
+/* Tipografía mínima legible en celular.
+   La app usa etiquetas de 8-11 px por todos lados (163 usos en 30 archivos);
+   en escritorio funcionan, en un teléfono quedan por debajo del mínimo
+   legible. En vez de tocar cada componente, bajo 768 px se suben aquí. Esta
+   regla no lleva @layer, así que gana a las utilidades de Tailwind sin
+   importar el orden. Para volver atrás basta con borrar el bloque. */
+@media (max-width: 767px) {
+  .text-\[8px\], .text-\[9px\] { font-size: 11px; }
+  .text-\[10px\], .text-\[11px\] { font-size: 12px; }
+}
