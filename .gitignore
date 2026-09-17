@@ -44,3 +44,7 @@ seeder/*
 *.log
 .env
 test_animals.xlsx
+
+# Configuración personal de Claude Code para este proyecto (incluye el permiso
+# de despliegue a producción). No debe viajar en un repo público.
+.claude/settings.local.json
